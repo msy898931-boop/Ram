@@ -8,7 +8,7 @@ Govern every agent. Audit every action. Cap every cost. Lock in no vendor.
 
 [![License: Apache-2.0 + BUSL-1.1](https://img.shields.io/badge/License-Apache--2.0_%2B_BUSL--1.1-blue.svg)](NOTICE)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/)
-[![Tests](https://img.shields.io/badge/tests-360%20passing-brightgreen.svg)](tests/)
+[![Tests](https://img.shields.io/badge/tests-363%20passing-brightgreen.svg)](tests/)
 [![CI](https://github.com/msy898931-boop/Ram/actions/workflows/ci.yml/badge.svg)](https://github.com/msy898931-boop/Ram/actions/workflows/ci.yml)
 [![Providers](https://img.shields.io/badge/providers-anthropic%20%7C%20openai%20%7C%20ollama-8A2BE2.svg)](#real-model-providers)
 [![Deny by default](https://img.shields.io/badge/policy-deny--by--default-critical.svg)](#why-it-is-different)
@@ -70,6 +70,9 @@ axon models
 
 # See the full governance demo
 python3 examples/demo.py
+
+# See why the ledger is signed, not just hash-chained
+python3 examples/signed_ledger_proof.py
 ```
 
 ## Real model providers
@@ -141,6 +144,25 @@ valid signature from it, so stripping signatures is detected rather than
 ignored. The Ed25519 implementation is pure Python (RFC 8032), verified
 against the RFC test vectors and cross-checked against `cryptography`.
 See `axon/core/audit.py` and `axon/core/signing.py`.
+
+### How to tell whether an audit log is actually tamper-evident
+
+Most "tamper-evident" audit logs are a hash chain and nothing more. A hash
+chain is unkeyed, so anyone who can write the file can also recompute every
+hash after editing it — the edit verifies clean. To find out which kind you
+have, run this against the vendor's own ledger:
+
+```bash
+python3 examples/signed_ledger_proof.py
+```
+
+It attacks a plain SHA-256 chain and a signed ledger the same way — edit a
+`deny` to an `allow`, then recompute the chain — and prints which one
+notices. The plain chain reports `OK`; the signed ledger reports
+`FAILED — invalid signature on record 3`, and refuses a ledger whose
+signatures were deleted. The script is a fair test: point it at any vendor's
+format and the same question applies. If recomputing the hashes is enough to
+make an edit look original, the log is a story, not evidence.
 
 ## Architecture
 
@@ -215,7 +237,7 @@ stops, what it does not stop, and the gaps that remain.
 **v0.2.0** — governed runtime for single and multi-agent systems, with
 signed audit, RBAC, policy packs, secret brokering, an authenticated
 dashboard, a nine-layer security stack, OIDC federation, in-process TLS,
-framework adapters, and an executable compliance mapping. 360 tests.
+framework adapters, and an executable compliance mapping. 363 tests.
 
 Known limits, stated plainly: policy matching is glob-based rather than a
 full expression language; the OIDC verifier does not call the provider's

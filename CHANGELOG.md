@@ -6,6 +6,17 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [Unreleased]
 
+### Added
+- **A runnable proof of what "tamper-evident" means.** Most audit logs are an
+  unkeyed hash chain, which anyone with write access can edit and re-hash so
+  the change verifies clean. `examples/signed_ledger_proof.py` performs that
+  exact attack against a plain SHA-256 chain and against AXON's signed
+  ledger, and prints which one notices. The README now tells a reader to run
+  it against any vendor's ledger, so the claim is checkable rather than
+  asserted. Three tests keep the demo honest: one asserts the unkeyed chain
+  really does accept the forgery, one asserts the signed ledger refuses it,
+  and one asserts the script reports both.
+
 ### Fixed
 - **The ledger is no longer lost inside a container.** `docker-compose.yml`
   set `AXON_LEDGER` but nothing read it, so `docker compose up` wrote the

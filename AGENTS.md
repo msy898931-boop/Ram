@@ -30,7 +30,7 @@ The core must stay runnable with the commercial files deleted, and
 
 ```bash
 pip install -e ".[dev]"
-python -m pytest -q                     # 360 tests, ~40s
+python -m pytest -q                     # 363 tests, ~40s
 python scripts/check_skips.py           # fails on any silently skipped test
 python -m pytest tests/test_security_*.py -q   # 197 adversarial security tests
 python -m ruff check .                  # lint gate, must be clean
