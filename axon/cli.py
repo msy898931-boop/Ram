@@ -65,7 +65,10 @@ def cmd_run(args) -> int:
     tools = {}
     for spec in args.tool or []:
         name, _, target = spec.partition("=")
-        tools[name] = (target or f"/sandbox/{name}", lambda: f"<stub output for {name}>")
+        tools[name] = (
+            target or f"/sandbox/{name}",
+            lambda name=name: f"<stub output for {name}>",
+        )
     model = args.model or ("mock" if rt.provider.name == "mock" else _default_model(rt.provider.name))
     try:
         res = rt.run(args.task, model=model, tools=tools)
@@ -158,6 +161,88 @@ def cmd_identities(args) -> int:
     return 0
 
 
+def cmd_dashboard(args) -> int:
+    from .dashboard import serve
+
+    pub = None
+    if getattr(args, "pubkey", None):
+        raw = Path(args.pubkey).read_bytes().strip()
+        pub = bytes.fromhex(raw.decode()) if len(raw) == 64 else raw
+    print(f"AXON dashboard on http://{args.host}:{args.port}")
+    print(f"  ledger: {args.ledger}")
+    if pub:
+        print("  enforcing signatures against the supplied public key")
+    try:
+        serve(args.ledger, host=args.host, port=args.port, public_key=pub)
+    except KeyboardInterrupt:
+        print("\nstopped")
+    return 0
+
+
+def cmd_shield(args) -> int:
+    from .shield import available_packs, check_pack
+
+    if args.pack:
+        report = check_pack(args.pack)
+        for finding in report.findings:
+            print(finding.describe())
+        print(f"\n{'PASS' if report.ok else 'FAIL'}: {args.pack} "
+              f"({len(report.findings) - len(report.failures)}/{len(report.findings)} probes)")
+        return 0 if report.ok else 1
+
+    packs = available_packs()
+    print(f"available packs: {', '.join(packs) or '(none)'}")
+    failed = False
+    for name in packs:
+        report = check_pack(name)
+        failed |= not report.ok
+        status = "PASS" if report.ok else "FAIL"
+        print(f"  {name:<14} {status}  "
+              f"({len(report.findings) - len(report.failures)}/{len(report.findings)})")
+    return 1 if failed else 0
+
+
+def cmd_observe(args) -> int:
+    from .observe import Observer
+
+    pub = None
+    if getattr(args, "pubkey", None):
+        raw = Path(args.pubkey).read_bytes().strip()
+        pub = bytes.fromhex(raw.decode()) if len(raw) == 64 else raw
+    print(json.dumps(Observer(AuditLedger(args.ledger)).summary(public_key=pub), indent=2))
+    return 0
+
+
+def cmd_compliance(args) -> int:
+    from .compliance import evaluate, report, run_tests
+
+    results = evaluate()
+    for r in results:
+        c = r.control
+        status = "PASS" if r.ok else "FAIL"
+        print(f"[{status}] {c.id:<10} {c.framework:<14} {c.title}")
+        print(f"          implementation: {', '.join(c.implementation)}")
+        print(f"          evidence: {c.evidence}")
+        print(f"          tests: {', '.join(c.tests)}")
+        if args.run and r.ok:
+            passed = run_tests(c.tests)
+            print(f"          executed: {'passing' if passed else 'FAILING'}")
+            if not passed:
+                status = "FAIL"
+        print()
+
+    if args.json:
+        print(json.dumps(report(), indent=2))
+
+    failing = [r.control.id for r in results if not r.ok]
+    total = len(results)
+    print(f"{total - len(failing)}/{total} controls map to present code and tests")
+    if failing:
+        print(f"incomplete: {', '.join(failing)}")
+        return 1
+    return 0
+
+
 def cmd_export_otel(args) -> int:
     ledger = AuditLedger(args.ledger)
     print(json.dumps(ledger.to_otel_spans(), indent=2))
@@ -215,6 +300,28 @@ def build_parser() -> argparse.ArgumentParser:
     i.add_argument("--identities", default=None)
     i.add_argument("--no-rbac", action="store_true", help=argparse.SUPPRESS)
     i.set_defaults(func=cmd_identities)
+
+    d = sub.add_parser("dashboard", help="serve the governance dashboard")
+    d.add_argument("--ledger", default="./axon-audit.jsonl")
+    d.add_argument("--host", default="127.0.0.1")
+    d.add_argument("--port", type=int, default=8080)
+    d.add_argument("--pubkey", default=None,
+                   help="public key; when given, the dashboard verifies every signature")
+    d.set_defaults(func=cmd_dashboard)
+
+    sh = sub.add_parser("shield", help="check policy packs against what they claim to refuse")
+    sh.add_argument("pack", nargs="?", default=None, help="pack name (omit to check all)")
+    sh.set_defaults(func=cmd_shield)
+
+    ob = sub.add_parser("observe", help="print cost, risk, and integrity analytics")
+    ob.add_argument("--ledger", default="./axon-audit.jsonl")
+    ob.add_argument("--pubkey", default=None)
+    ob.set_defaults(func=cmd_observe)
+
+    cp = sub.add_parser("compliance", help="map controls to the code and tests that implement them")
+    cp.add_argument("--run", action="store_true", help="also execute each control's cited tests")
+    cp.add_argument("--json", action="store_true", help="print the full mapping as JSON")
+    cp.set_defaults(func=cmd_compliance)
 
     o = sub.add_parser("export-otel", help="export the ledger as OpenTelemetry spans")
     o.add_argument("--ledger", default="./axon-audit.jsonl")

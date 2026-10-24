@@ -9,7 +9,6 @@ import pytest
 
 from axon.core.audit import AuditLedger
 from axon.core.budget import Budget
-from axon.core.identity import Identity, IdentityRegistry
 from axon.core.providers import MockProvider
 from axon.core.runtime import AgentRuntime, PolicyDenied
 from axon.observe import Observer

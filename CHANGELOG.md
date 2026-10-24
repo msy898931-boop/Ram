@@ -6,6 +6,61 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [Unreleased]
 
+### Added
+- **Signed audit ledger.** Optional Ed25519 signatures over each record hash,
+  implemented in pure Python (RFC 8032) and verified against the RFC test
+  vectors plus cross-checks against `cryptography`. `AuditLedger.verify()`
+  gains a fail-closed mode: when the auditor supplies a public key, every
+  record must carry a valid signature from it. New CLI: `axon keygen`,
+  `axon audit --pubkey`.
+- **RBAC.** Principals with roles, accountable owners, and tags
+  (`axon/core/identity.py`, `axon/policies/identities.yaml`). Role tags feed
+  the policy `requires:` mechanism, so a role can unlock a conditional allow
+  but can never override a deny. Identity metadata is attached to every audit
+  record. New CLI: `axon identities`.
+- **Multi-agent orchestrator** (`axon/core/orchestrator.py`). Delegation is
+  itself a deny-by-default policy action; children share the parent's
+  `Budget` so a cost cap cannot be reset by spawning; depth and fan-out are
+  bounded; every hop lands in one verifiable ledger. Strategies: `sequential`,
+  `fan_out`, `nested`.
+- **Shield policy packs** (`development`, `production`, `regulated`) that each
+  declare probes describing what they should refuse, plus `Shield.check()` to
+  test enforcement rather than assert it. New CLI: `axon shield [pack]`.
+- **Observe analytics** (`axon/observe.py`): cost by agent and model, denials
+  by actor and action, integrity status, run grouping. New CLI: `axon observe`.
+- **Vault** (`axon/vault.py`): secrets brokered as short-lived, single-use,
+  policy-gated leases. Values never reach the ledger, and issued values can be
+  redacted out of model output. `AgentRuntime.read_secret()` routes through the
+  same policy engine as every other action.
+- **Dashboard** (`axon/dashboard.py` + `axon/static/dashboard.html`): a
+  read-only stdlib HTTP server and single-page UI over a real ledger, with a
+  live Shield check and a "why was this allowed or denied" explainer. New CLI:
+  `axon dashboard`.
+- **Framework integrations** (`axon/integrations.py`): a dependency-free
+  `guard_tool` decorator plus LangChain, CrewAI, and OpenHands adapters. All
+  refusals raise the same `PolicyDenied` type.
+- **Compliance mapping** (`axon/compliance.py`): 11 controls across SOC 2,
+  ISO/IEC 27001, and ISO/IEC 42001, each citing the code that implements it,
+  the ledger evidence it produces, and the tests that prove it. New CLI:
+  `axon compliance [--run]`.
+
+### Fixed
+- **Signature stripping was undetectable.** A hash chain alone lets whoever
+  holds the ledger file delete every signature and re-hash the chain into a
+  state that verified cleanly. Verification is now fail-closed when a public
+  key is supplied. Reproduced and covered by `tests/test_signing.py`.
+- **`PolicyEngine.allow_all()` removed.** It read as a legitimate policy
+  choice while granting every action. Replaced by `permissive()`, which is
+  named for what it does and documented as dev/test only, and `bootstrap()`,
+  which denies tools by default.
+- Audit records could be written without identity metadata, leaving the last
+  record of a run unattributed. Metadata is now injected uniformly.
+
+### Changed
+- Test suite grew from 28 to 127 tests.
+- `README.md` updated to describe the shipped surface, with known limits
+  stated explicitly.
+
 ## [0.2.0] — 2026-10-20
 
 ### Added

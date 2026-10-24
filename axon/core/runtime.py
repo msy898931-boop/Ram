@@ -14,10 +14,10 @@ from dataclasses import dataclass, field
 from typing import Any, Callable
 
 from .audit import AuditLedger
-from .budget import Budget, BudgetExceeded
+from .budget import Budget
 from .identity import IdentityRegistry
 from .policy import PolicyEngine
-from axon.providers import Completion, default_provider, get_provider
+from axon.providers import Completion, default_provider
 
 
 class PolicyDenied(Exception):

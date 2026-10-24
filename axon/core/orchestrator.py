@@ -34,7 +34,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Callable, Iterable, Sequence
 
-from .budget import Budget, BudgetExceeded
+from .budget import BudgetExceeded
 from .runtime import AgentRuntime, PolicyDenied, RunResult
 
 

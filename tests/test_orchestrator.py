@@ -15,7 +15,7 @@ from axon.core.audit import AuditLedger
 from axon.core.budget import Budget
 from axon.core.identity import Identity, IdentityRegistry
 from axon.core.orchestrator import Delegation, OrchestrationResult, Orchestrator
-from axon.core.policy import PolicyEngine, Rule
+from axon.core.policy import PolicyEngine
 from axon.core.providers import MockProvider
 from axon.core.runtime import AgentRuntime
 

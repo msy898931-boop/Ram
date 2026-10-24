@@ -25,7 +25,7 @@ from dataclasses import dataclass, field, asdict
 from pathlib import Path
 from typing import Any
 
-from .signing import Signer, SignatureError, verify as verify_signature
+from .signing import Signer, verify as verify_signature
 
 GENESIS = "0" * 64
 

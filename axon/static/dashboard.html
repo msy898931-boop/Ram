@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AXON — Governance Dashboard</title>
+<style>
+  :root {
+    --bg: #0b0e14; --panel: #12161f; --panel-2: #171c27; --line: #232a38;
+    --ink: #e6e9ef; --muted: #8b93a7; --accent: #5b8cff; --ok: #35c48a;
+    --warn: #e0a03a; --bad: #ef5f6b; --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink);
+    font: 14px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  header { border-bottom: 1px solid var(--line); padding: 18px 28px;
+    display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; }
+  header h1 { margin: 0; font-size: 17px; letter-spacing: .14em; font-weight: 600; }
+  header .sub { color: var(--muted); font-size: 12px; }
+  header .right { margin-left: auto; display: flex; gap: 10px; align-items: center; }
+  main { padding: 24px 28px 60px; max-width: 1280px; margin: 0 auto; }
+  .grid { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 16px 18px; }
+  .card h2 { margin: 0 0 12px; font-size: 11px; letter-spacing: .12em;
+    text-transform: uppercase; color: var(--muted); font-weight: 600; }
+  .stat { font: 600 26px/1.1 var(--mono); }
+  .stat.sm { font-size: 18px; }
+  .hint { color: var(--muted); font-size: 12px; margin-top: 6px; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th { text-align: left; color: var(--muted); font-weight: 500; font-size: 11px;
+    text-transform: uppercase; letter-spacing: .08em; padding: 6px 8px;
+    border-bottom: 1px solid var(--line); }
+  td { padding: 7px 8px; border-bottom: 1px solid var(--line); }
+  tr:last-child td { border-bottom: 0; }
+  code, .mono { font-family: var(--mono); font-size: 12px; }
+  .pill { display: inline-block; padding: 1px 8px; border-radius: 999px;
+    font-size: 11px; font-family: var(--mono); border: 1px solid var(--line); }
+  .pill.allow { color: var(--ok); border-color: #1f4d3a; background: #0f231a; }
+  .pill.deny { color: var(--bad); border-color: #4d2028; background: #230f13; }
+  .pill.sig { color: var(--accent); border-color: #24406e; background: #0f1a2c; }
+  section { margin-top: 26px; }
+  section > h3 { font-size: 13px; margin: 0 0 10px; letter-spacing: .04em; }
+  .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+  input, select, button { background: var(--panel-2); color: var(--ink);
+    border: 1px solid var(--line); border-radius: 7px; padding: 7px 10px; font-size: 13px; }
+  input { min-width: 130px; }
+  button { cursor: pointer; }
+  button:hover { border-color: var(--accent); }
+  pre { background: var(--panel-2); border: 1px solid var(--line); border-radius: 8px;
+    padding: 12px; overflow: auto; font-family: var(--mono); font-size: 12px; margin: 10px 0 0; }
+  .ok { color: var(--ok); } .bad { color: var(--bad); } .warn { color: var(--warn); }
+  .muted { color: var(--muted); }
+  footer { color: var(--muted); font-size: 12px; margin-top: 40px; text-align: center; }
+</style>
+</head>
+<body>
+<header>
+  <h1>AXON</h1>
+  <span class="sub">governance dashboard — live view of the audit ledger</span>
+  <div class="right">
+    <span id="integrity" class="pill">checking…</span>
+    <button onclick="load()">Refresh</button>
+  </div>
+</header>
+
+<main>
+  <div class="grid">
+    <div class="card"><h2>Total cost</h2><div class="stat" id="cost">—</div>
+      <div class="hint" id="calls">—</div></div>
+    <div class="card"><h2>Denied actions</h2><div class="stat" id="denied">—</div>
+      <div class="hint" id="deniedby">—</div></div>
+    <div class="card"><h2>Ledger records</h2><div class="stat" id="records">—</div>
+      <div class="hint" id="signed">—</div></div>
+    <div class="card"><h2>Secret leases</h2><div class="stat" id="secrets">—</div>
+      <div class="hint">policy-gated vault accesses</div></div>
+  </div>
+
+  <section>
+    <h3>Cost by model</h3>
+    <div class="card"><table id="models"><tbody></tbody></table></div>
+  </section>
+
+  <section>
+    <h3>Runs</h3>
+    <div class="card"><table id="runs"><tbody></tbody></table></div>
+  </section>
+
+  <section>
+    <h3>Shield enforcement check</h3>
+    <div class="card">
+      <div class="row">
+        <select id="pack"></select>
+        <button onclick="checkShield()">Run check</button>
+        <span id="shieldResult" class="muted">tests each pack against what it claims to refuse</span>
+      </div>
+      <pre id="shieldOut" style="display:none"></pre>
+    </div>
+  </section>
+
+  <section>
+    <h3>Why is this allowed or denied?</h3>
+    <div class="card">
+      <div class="row">
+        <input id="actor" value="ops-bot" placeholder="actor">
+        <input id="action" value="tool.write_file" placeholder="action">
+        <input id="target" value="/prod/db" placeholder="target">
+        <button onclick="explain()">Explain</button>
+      </div>
+      <pre id="explainOut" style="display:none"></pre>
+    </div>
+  </section>
+
+  <section>
+    <h3>Recent ledger records</h3>
+    <div class="card"><table id="recent"><tbody></tbody></table></div>
+  </section>
+
+  <footer>AXON · deny-by-default governance for autonomous agents</footer>
+</main>
+
+<script>
+const $ = (id) => document.getElementById(id);
+
+function money(v) { return "$" + Number(v).toFixed(6); }
+function esc(s) {
+  return String(s == null ? "" : s).replace(/[&<>"']/g,
+    (c) => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+}
+
+async function getJSON(url) {
+  const r = await fetch(url);
+  if (!r.ok) throw new Error(url + " -> " + r.status);
+  return r.json();
+}
+
+function renderTable(el, rows, cols) {
+  const tb = el.querySelector("tbody");
+  if (!rows.length) { tb.innerHTML = '<tr><td class="muted">no data yet</td></tr>'; return; }
+  tb.innerHTML = rows.map((row) =>
+    "<tr>" + cols.map((c) => "<td>" + c(row) + "</td>").join("") + "</tr>").join("");
+}
+
+async function load() {
+  try {
+    const s = await getJSON("/api/summary");
+    $("cost").textContent = money(s.cost.total_usd);
+    $("calls").textContent = s.cost.total_calls + " model calls";
+    $("denied").textContent = s.risk.total_denials;
+    const byActor = Object.entries(s.risk.by_actor || {});
+    $("deniedby").textContent = byActor.length
+      ? byActor.map(([a, n]) => a + ": " + n).join(", ") : "nothing refused";
+    $("records").textContent = s.integrity.records;
+    $("signed").textContent = s.integrity.signed + " signed";
+    $("secrets").textContent = s.risk.secret_access_attempts;
+
+    const integ = $("integrity");
+    integ.textContent = s.integrity.ok
+      ? (s.integrity.fully_signed ? "chain verified · signed" : "chain verified")
+      : "CHAIN BROKEN";
+    integ.className = "pill " + (s.integrity.ok ? "sig" : "deny");
+
+    renderTable($("models"), s.cost.by_model, [
+      (b) => "<span class='mono'>" + esc(b.key) + "</span>",
+      (b) => b.calls + " calls",
+      (b) => money(b.cost_usd),
+    ]);
+    renderTable($("runs"), s.runs, [
+      (r) => "<span class='mono'>" + esc(r.run_id.slice(0, 12)) + "</span>",
+      (r) => esc(r.actor),
+      (r) => r.records + " records",
+      (r) => r.denied ? "<span class='bad'>" + r.denied + " denied</span>" : "clean",
+      (r) => money(r.cost_usd),
+    ]);
+
+    const recs = await getJSON("/api/records?limit=25");
+    renderTable($("recent"), recs.records.reverse(), [
+      (r) => "<span class='muted mono'>#" + r.seq + "</span>",
+      (r) => esc(r.actor),
+      (r) => "<span class='mono'>" + esc(r.action) + "</span>",
+      (r) => "<span class='muted mono'>" + esc((r.target || "").slice(0, 34)) + "</span>",
+      (r) => r.decision
+        ? "<span class='pill " + (r.decision === "allow" ? "allow" : "deny") + "'>" + r.decision + "</span>"
+        : "<span class='muted'>—</span>",
+      (r) => r.signature ? "<span class='pill sig'>signed</span>" : "<span class='muted'>—</span>",
+    ]);
+  } catch (e) {
+    $("integrity").textContent = "dashboard error";
+    $("integrity").className = "pill deny";
+  }
+}
+
+async function checkShield() {
+  const pack = $("pack").value;
+  const out = $("shieldOut");
+  const res = await getJSON("/api/shield?pack=" + encodeURIComponent(pack));
+  out.style.display = "block";
+  if (res.error) { out.textContent = res.error; return; }
+  $("shieldResult").innerHTML = res.ok
+    ? "<span class='ok'>all " + res.passed + " probes pass</span>"
+    : "<span class='bad'>" + res.failed + " probe(s) failed</span>";
+  out.textContent = res.findings.join("\n");
+}
+
+async function explain() {
+  const q = new URLSearchParams({
+    actor: $("actor").value, action: $("action").value,
+    target: $("target").value, pack: $("pack").value,
+  });
+  const res = await getJSON("/api/explain?" + q.toString());
+  const out = $("explainOut");
+  out.style.display = "block";
+  if (res.error) { out.textContent = res.error; return; }
+  out.textContent = JSON.stringify(res, null, 2);
+}
+
+async function init() {
+  const p = await getJSON("/api/policies");
+  $("pack").innerHTML = p.packs.map((n) => "<option>" + esc(n) + "</option>").join("");
+  if (p.packs.includes("production")) $("pack").value = "production";
+  load();
+}
+init();
+</script>
+</body>
+</html>

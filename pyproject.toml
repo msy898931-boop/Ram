@@ -27,7 +27,7 @@ Documentation = "https://github.com/msy898931-boop/Ram#readme"
 include = ["axon*"]
 
 [tool.setuptools.package-data]
-axon = ["policies/*.yaml"]
+axon = ["policies/*.yaml", "policies/packs/*.yaml", "static/*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

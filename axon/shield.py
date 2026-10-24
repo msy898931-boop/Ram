@@ -145,19 +145,23 @@ def available_packs() -> list[str]:
 
 
 def load_pack(name: str) -> PolicyEngine:
+    path = _pack_path(name)
+    data = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+    return PolicyEngine([Rule(**r) for r in data.get("rules", [])])
+
+
+def _pack_path(name: str) -> Path:
     path = PACKS_DIR / f"{name}.yaml"
     if not path.exists():
         raise FileNotFoundError(
             f"unknown policy pack '{name}' (available: {', '.join(available_packs()) or 'none'})"
         )
-    data = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
-    return PolicyEngine([Rule(**r) for r in data.get("rules", [])])
+    return path
 
 
 def pack_probes(name: str) -> list[Probe]:
     """The expectations a pack declares about itself."""
-    path = PACKS_DIR / f"{name}.yaml"
-    data = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+    data = yaml.safe_load(_pack_path(name).read_text(encoding="utf-8")) or {}
     return _probes_from_data(data)
 
 
