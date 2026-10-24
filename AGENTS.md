@@ -25,7 +25,7 @@ Apache-2.0 core; Shield/Observe/Vault are the commercial layer.
 
 ```bash
 pip install -e ".[dev]"
-python -m pytest -q                     # 347 tests, ~38s
+python -m pytest -q                     # 348 tests, ~38s
 python -m pytest tests/test_security_*.py -q   # 197 adversarial security tests
 python -m ruff check .                  # lint gate, must be clean
 python -m axon.cli --version
@@ -67,14 +67,29 @@ python -m axon.cli scan --file untrusted.txt
   (`test_security_injection.py`): every attack denied, no benign document
   denied. A detector that denies everything is useless, so the
   false-positive test matters as much as the attack test.
+- Published figures are the ones that go stale, because nothing re-checks
+  them. Two shipped wrong: the detector was advertised as "16/16 attacks,
+  0/15 benign" long after the corpus reached 20 and 18, and a pricing claim
+  said "$19/mo" where the page said $0.02 per browser hour. Both flattered the
+  project. If a number appears in prose, either derive it or guard it.
 
 ## Notes for future sessions
 
 - The preview site is generated: edit `scripts/build_preview.py`, then run
   `python scripts/build_preview.py`. Never hand-edit `preview/*.html`.
 - Metrics quoted in docs (`preview/index.html`, README) are measured, not
-  estimated. When LOC or the test count changes, re-measure and update them;
-  do not let the published numbers drift from the tree.
+  estimated. `build_preview.py` now measures them at build time (LOC, collected
+  test counts, detector accuracy), so the site cannot drift on its own. Numbers
+  that are still hand-written in Markdown (`docs/`, `README.md`, this file) are
+  snapshots — update them when the tree changes. `tests/test_preview_consistency.py`
+  fails if the published page or the market report disagrees with its source.
+- `data/REPORT.md`'s growth table is generated from
+  `data/github-verified-2026-10-20.json`. Regenerate the JSON by re-querying
+  the API, then rebuild the table; never edit a row by hand. The guard test
+  compares the quoted star count against the snapshot.
+- Repos get renamed. `sst/opencode` → `anomalyco/opencode` and
+  `All-Hands-AI/OpenHands` → `OpenHands/OpenHands` both 301 now. Follow
+  redirects (`curl -L`) when verifying, and store the canonical name.
 - `ruff check` is only reproducible because `[tool.ruff.lint] select` is
   explicit in `pyproject.toml`. Do not remove it — a bare config makes the
   enabled rules depend on the installed ruff version.
@@ -129,3 +144,9 @@ chromium --headless --disable-gpu --no-sandbox --no-pdf-header-footer \
   edit metadata (`administration: write` is missing), so the description and
   topics calls in the publish script return 403. Set them by hand in the UI,
   or use a classic PAT with `repo` scope.
+- The app token also **cannot** enable GitHub Pages (`pages: write` is
+  missing), so `POST /repos/:owner/:repo/pages` returns 403. The live site is
+  served from the sandbox runtime host instead:
+  `https://work-1-crlbmrzuyhaloibb.prod-runtime.all-hands.dev/`. Pages must be
+  requested **with** the `.html` suffix; the bare path 404s, and only `/` and
+  `AXON-Deck.pdf` resolve without it.
