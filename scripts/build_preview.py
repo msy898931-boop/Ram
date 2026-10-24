@@ -1,12 +1,90 @@
 import html
 import pathlib
+import re
 import shutil
+import subprocess
 
 import markdown
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 OUT = ROOT / "preview"
 OUT.mkdir(exist_ok=True)
+
+
+def _loc(pattern: str) -> int:
+    """Count lines under a glob, ignoring bytecode caches."""
+    total = 0
+    for f in ROOT.glob(pattern):
+        if "__pycache__" in f.parts:
+            continue
+        total += len(f.read_text(encoding="utf-8").splitlines())
+    return total
+
+
+def _pytest_count(target: str) -> int:
+    # subprocess does not expand globs, so a pattern like
+    # "tests/test_security_*.py" would collect zero tests and quietly report 0.
+    paths = sorted(str(p) for p in ROOT.glob(target))
+    if not paths:
+        return 0
+    out = subprocess.run(
+        ["python", "-m", "pytest", *paths, "--collect-only", "-q"],
+        cwd=ROOT, capture_output=True, text=True,
+    ).stdout
+    m = re.search(r"(\d+) tests? collected", out)
+    return int(m.group(1)) if m else 0
+
+
+def _injection_accuracy():
+    """Run the detector over its own corpus instead of quoting a number.
+
+    A hardcoded "16/16" stayed on this page after the corpus grew to 20, which
+    is exactly the drift the page claims not to have. Measuring it here means
+    the page cannot disagree with the tests.
+    """
+    import ast
+    import sys
+
+    sys.path.insert(0, str(ROOT))
+    from axon.security.injection import scan, verdict
+
+    tree = ast.parse(
+        (ROOT / "tests" / "test_security_injection.py").read_text(encoding="utf-8")
+    )
+    corpus = {}
+    for node in tree.body:
+        if isinstance(node, ast.Assign):
+            name = getattr(node.targets[0], "id", "")
+            if name in ("ATTACKS", "BENIGN"):
+                corpus[name] = ast.literal_eval(node.value)
+
+    attacks, benign = corpus["ATTACKS"], corpus["BENIGN"]
+    caught = sum(1 for a in attacks if verdict(scan(a)) == "deny")
+    false_pos = sum(1 for b in benign if verdict(scan(b)) == "deny")
+    return caught, len(attacks), false_pos, len(benign)
+
+
+def measured_facts() -> dict:
+    loc = {
+        "core": _loc("axon/core/*.py"),
+        "top": _loc("axon/*.py"),
+        "security": _loc("axon/security/*.py"),
+        "providers": _loc("axon/providers/*.py"),
+        "policies": _loc("axon/policies/*.yaml"),
+        "tests_loc": _loc("tests/*.py"),
+    }
+    loc["total"] = sum(loc.values())
+    caught, attacks, fp, benign = _injection_accuracy()
+    return {
+        **loc,
+        "tests": _pytest_count("tests/"),
+        "sec_tests": _pytest_count("tests/test_security_*.py"),
+        "inj_caught": caught,
+        "inj_attacks": attacks,
+        "inj_fp": fp,
+        "inj_benign": benign,
+    }
+
 
 CSS = """
 :root{--bg:#05080d;--panel:#0c1219;--line:#1b2836;--fg:#dbe7f3;--muted:#8ba0b5;
@@ -225,6 +303,30 @@ OIDC/TLS مدمجين وخريطة امتثال وحزمة أدلة جاهزة �
 <p style="color:var(--muted);font-size:.9rem">كل رقم بهالصفحة مسحوب من الكود نفسه
 (<code>wc -l</code>، <code>pytest</code>، تشغيل حقيقي للـCLI) بتاريخ 2026-10-20 — مو تقديرات تسويقية.</p>
 """
+
+FACTS = measured_facts()
+INDEX = (
+    INDEX
+    .replace("1,225", f"{FACTS['core']:,}")
+    .replace("2,261", f"{FACTS['top']:,}")
+    .replace("1,415", f"{FACTS['security']:,}")
+    .replace("371</td>", f"{FACTS['providers']:,}</td>")
+    .replace("335</td>", f"{FACTS['policies']:,}</td>")
+    .replace("3,930", f"{FACTS['tests_loc']:,}")
+    .replace("9,537", f"{FACTS['total']:,}")
+    .replace("332 اختبار", f"{FACTS['tests']} اختبار")
+    .replace("197 اختبار", f"{FACTS['sec_tests']} اختبار")
+    .replace("16/16 هجوماً و0/15 مستنداً",
+             f"{FACTS['inj_caught']}/{FACTS['inj_attacks']} هجوماً "
+             f"و{FACTS['inj_fp']}/{FACTS['inj_benign']} مستنداً")
+    .replace("16/16 هجوم مرفوض، 0/15 إنذار خاطئ",
+             f"{FACTS['inj_caught']}/{FACTS['inj_attacks']} هجوم مرفوض، "
+             f"{FACTS['inj_fp']}/{FACTS['inj_benign']} إنذار خاطئ")
+    .replace(
+        "الأمان: 9 طبقات (مرتّبة حسب مين بيوصل للمعلومة أول)",
+        "الأمان: 9 طبقات (بنفس ترتيب مخرجات <code>axon posture</code>)",
+    )
+)
 
 (OUT / "index.html").write_text(page("نظرة عامة", INDEX, "i"), encoding="utf-8")
 (OUT / "report.html").write_text(md("data/REPORT.md", "بحث GitHub", "r"), encoding="utf-8")
