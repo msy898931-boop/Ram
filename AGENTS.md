@@ -159,3 +159,25 @@ chromium --headless --disable-gpu --no-sandbox --no-pdf-header-footer \
   `https://work-1-crlbmrzuyhaloibb.prod-runtime.all-hands.dev/`. Pages must be
   requested **with** the `.html` suffix; the bare path 404s, and only `/` and
   `AXON-Deck.pdf` resolve without it.
+
+## Launch traps found the hard way
+
+- **An env var that nothing reads is a lie in a config file.**
+  `docker-compose.yml` set `AXON_LEDGER` while `--ledger` hardcoded
+  `./axon-audit.jsonl`, so `docker compose up` wrote the audit trail inside
+  the container and threw it away on exit. Any path a container is meant to
+  mount must come from `os.getenv`, and the read has to happen at call time:
+  argparse builds its defaults inside `main()`, so a module-level constant
+  would freeze the value before a test could set it.
+- **Ship the license files in every artifact.** The image copied only
+  `LICENSE` and so distributed the BUSL-1.1 modules without
+  `LICENSE-COMMERCIAL` or `NOTICE`. `tests/test_licensing.py` asserts each is
+  named on a `COPY` line.
+- **Never advertise an install that does not exist.** `pip install axon-agents`
+  is not on PyPI; the honest instruction is the `git clone` + `pip install -e`
+  in the README. Release notes are the first thing a visitor checks.
+- **`launch.sh` pushed `master`; the default branch is `main`.** A publish
+  script that names a branch must be run once against the real repo before
+  launch, or it creates the repo and dies on the first push.
+- The app token cannot set description, topics, or enable Pages. Do those by
+  hand in the UI.
