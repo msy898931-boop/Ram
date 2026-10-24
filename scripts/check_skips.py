@@ -5,7 +5,7 @@
 """Fail when a test skips.
 
 A green suite that skipped 39 OIDC tests is worse than a red one: the badge
-says "357 passing" while the security layer a buyer is paying for was never
+says "passing" while the security layer a buyer is paying for was never
 executed. Skipping is how that happens quietly, so it is not allowed here.
 
 Tests that genuinely cannot run on a platform should be marked with an
@@ -15,14 +15,11 @@ in review rather than emergent from a missing dependency.
 
 from __future__ import annotations
 
-import re
 import subprocess
 import sys
 
 # Empty on purpose. Add an entry only with a reason, e.g. "windows-only: ...".
 ALLOWED: tuple[str, ...] = ()
-
-SUMMARY = re.compile(r"^(?:SKIPPED|XFAIL)\b", re.M)
 
 
 def main() -> int:
@@ -37,11 +34,10 @@ def main() -> int:
         print(f"pytest failed with exit code {proc.returncode}", file=sys.stderr)
         return 1
 
-    skips = [line.strip() for line in SUMMARY.findall(output)]
-    # `-rs` prints a summary section; count the entries rather than the header.
+    # `-rs` prints one summary line per skip/xfail, prefixed with the outcome.
     entries = [
         line for line in output.splitlines()
-        if line.startswith("SKIPPED") or line.startswith("XFAIL")
+        if line.startswith(("SKIPPED", "XFAIL"))
     ]
     entries = [line for line in entries if line not in ALLOWED]
 
@@ -52,7 +48,6 @@ def main() -> int:
             print(f"  {line}", file=sys.stderr)
         return 1
 
-    del skips
     print("no tests skipped")
     return 0
 
