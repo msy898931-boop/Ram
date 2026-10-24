@@ -126,7 +126,11 @@ def test_listing_commands_do_not_crash(argv):
 
 def test_the_demo_and_the_proof_script_run_end_to_end():
     """The two things a founder runs on a sales call. They must not raise."""
-    for script in ("examples/demo.py", "examples/signed_ledger_proof.py"):
+    for script in (
+        "examples/demo.py",
+        "examples/signed_ledger_proof.py",
+        "examples/customer_day.py",
+    ):
         r = subprocess.run(
             [sys.executable, script], capture_output=True, text=True, cwd=ROOT
         )

@@ -7,6 +7,14 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 ## [Unreleased]
 
 ### Added
+- **A whole customer day, in one file.** `examples/customer_day.py` wires a
+  support agent to real tools and a policy that only allows what the business
+  allows, then walks seven steps: an allowed read, a read denied outside the
+  sandbox, an email send denied for lack of an approval tag, a prompt
+  injection withheld from inside a tool's output, a runaway loop stopped by
+  the cost cap, a signed trail verified by an auditor, and an edit to that
+  trail that gets caught. It is the demo to run on a sales call, and it is
+  covered by the first-run tests so it cannot rot.
 - **A runnable proof of what "tamper-evident" means.** Most audit logs are an
   unkeyed hash chain, which anyone with write access can edit and re-hash so
   the change verifies clean. `examples/signed_ledger_proof.py` performs that

@@ -73,9 +73,18 @@ axon models
 # See the full governance demo
 python3 examples/demo.py
 
+# See a whole customer day: real tools, policy, cost cap, signed audit
+python3 examples/customer_day.py
+
 # See why the ledger is signed, not just hash-chained
 python3 examples/signed_ledger_proof.py
 ```
+
+`examples/customer_day.py` is the one to run before a sales call. It wires a
+support agent to real tools and shows, in seven steps, an allowed read, a
+denied read outside the sandbox, a denied email send, a prompt injection
+withheld inside a tool's output, a runaway loop stopped by the cost cap, a
+signed trail an auditor verifies, and an edit to that trail that gets caught.
 
 ## Real model providers
 

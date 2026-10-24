@@ -134,14 +134,23 @@ from a clean install.
 ```bash
 pip install axon-agents          # or: pip install -e ".[dev]"
 
-axon run "read the changelog" --tool read_file=/sandbox/CHANGELOG.md --ledger ./audit.jsonl
+axon run "read the changelog" --tool read_file=/sandbox/CHANGELOG.md \
+  --ledger ./audit.jsonl --key ./sign.key
 # -> denied: no matching rule (deny by default)
 
+python3 examples/customer_day.py          # the whole story, in order
 axon posture                     # shows exactly which layers are ON/OFF, honestly
 axon shield                      # proves each policy pack refuses what it claims
 python3 examples/signed_ledger_proof.py   # the tamper proof
-python3 examples/demo.py         # cost cap stops a runaway loop at 278 calls
+python3 examples/demo.py         # cost cap stops a runaway loop before the invoice
 ```
+
+`examples/customer_day.py` is the one that answers "what would this do for
+me". It is a support agent with real tools, and it walks the buyer through an
+allowed read, a denied read outside the sandbox, a denied email send, a prompt
+injection withheld from a tool's output, a runaway loop stopped by the cost
+cap, a signed trail an auditor verifies, and an edit to that trail that gets
+caught. Run it live rather than describing it.
 
 Then the close, which is a question, not a pitch:
 
