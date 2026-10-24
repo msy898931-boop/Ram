@@ -2,93 +2,93 @@
   {
     "created": "2026-10-17",
     "desc": "Debloat any Android or Google TV over Wi-Fi and get an Apple TV-style home.",
-    "forks": 3288,
+    "forks": 3384,
     "home": "https://cleanyour.tv",
     "lang": "Java",
     "lic": "NOASSERTION",
     "pushed": "2026-10-24",
-    "stars": 28809,
+    "stars": 29498,
     "repo": "Gathin23/cleanyourtv",
     "age_days": 3,
-    "stars_per_day": 9603.0
+    "stars_per_day": 9832.7
   },
   {
     "created": "2026-10-16",
     "desc": "DeepInfer: High-performance, large-scale inference framework for DeepSeek models",
-    "forks": 2398,
+    "forks": 2426,
     "home": "",
     "lang": "Python",
     "lic": "Apache-2.0",
     "pushed": "2026-10-21",
-    "stars": 21367,
+    "stars": 21512,
     "repo": "deepseek-ai/DeepInfer",
     "age_days": 4,
-    "stars_per_day": 5341.8
+    "stars_per_day": 5378.0
   },
   {
     "created": "2026-08-13",
     "desc": "DeepSeek Harness: Everything is a Plugin.",
-    "forks": 31371,
+    "forks": 31395,
     "home": "https://deepseek.com/harness",
     "lang": "TypeScript",
     "lic": "MIT",
     "pushed": "2026-10-23",
-    "stars": 259776,
+    "stars": 260001,
     "repo": "deepseek-ai/deepseek-harness",
     "age_days": 68,
-    "stars_per_day": 3820.2
+    "stars_per_day": 3823.5
   },
   {
     "created": "2026-09-30",
     "desc": "PhotoCraft: An open-source, photo editor written by scratch in pure Rust",
-    "forks": 12736,
+    "forks": 12749,
     "home": "https://getartcraft.com/apps/photocraft",
     "lang": "Rust",
     "lic": "Apache-2.0",
     "pushed": "2026-10-24",
-    "stars": 72060,
+    "stars": 72145,
     "repo": "storytold/photocraft",
     "age_days": 20,
-    "stars_per_day": 3603.0
+    "stars_per_day": 3607.2
   },
   {
     "created": "2026-10-06",
     "desc": "",
-    "forks": 1819,
+    "forks": 1824,
     "home": "",
     "lang": "Python",
     "lic": "Apache-2.0",
     "pushed": "2026-10-14",
-    "stars": 18707,
+    "stars": 18788,
     "repo": "google-research/harness2",
     "age_days": 14,
-    "stars_per_day": 1336.2
+    "stars_per_day": 1342.0
   },
   {
     "created": "2026-10-07",
     "desc": "An open-source, clean-room reimplementation of Microsoft Word in pure Rust",
-    "forks": 4287,
+    "forks": 4300,
     "home": "https://getartcraft.com/apps/wordcraft",
     "lang": "Rust",
     "lic": "Apache-2.0",
     "pushed": "2026-10-24",
-    "stars": 15789,
+    "stars": 15818,
     "repo": "storytold/wordcraft",
     "age_days": 13,
-    "stars_per_day": 1214.5
+    "stars_per_day": 1216.8
   },
   {
     "created": "2026-09-24",
     "desc": "Qwen3.8-Flash-Next on any consumer hardware: one-click install for Windows / Linux. Strata inference engine, OpenAI/Anthropic API on localhost, optional image input.",
-    "forks": 3367,
+    "forks": 3381,
     "home": "",
     "lang": "C++",
     "lic": "MIT",
     "pushed": "2026-10-24",
-    "stars": 31357,
+    "stars": 31513,
     "repo": "Niko1221/Strata",
     "age_days": 26,
-    "stars_per_day": 1206.0
+    "stars_per_day": 1212.0
   },
   {
     "created": "2026-09-18",
@@ -98,49 +98,49 @@
     "lang": "Python",
     "lic": "Apache-2.0",
     "pushed": "2026-10-23",
-    "stars": 34130,
+    "stars": 34146,
     "repo": "NandhaKishorM/laya",
     "age_days": 32,
-    "stars_per_day": 1066.6
+    "stars_per_day": 1067.1
   },
   {
     "created": "2026-09-30",
     "desc": "PdfCraft: An open-source PDF reader and editor written by scratch in pure Rust",
-    "forks": 6698,
+    "forks": 6711,
     "home": "https://getartcraft.com/apps/printcraft",
     "lang": "Rust",
     "lic": "Apache-2.0",
     "pushed": "2026-10-24",
-    "stars": 17485,
+    "stars": 17524,
     "repo": "storytold/pdfcraft",
     "age_days": 20,
-    "stars_per_day": 874.2
+    "stars_per_day": 876.2
   },
   {
     "created": "2026-09-30",
     "desc": "FilmCraft: An open-source, nonlinear video editor written by scratch in pure Rust",
-    "forks": 6691,
+    "forks": 6702,
     "home": "https://getartcraft.com/apps/filmcraft",
     "lang": "Rust",
     "lic": "Apache-2.0",
     "pushed": "2026-10-24",
-    "stars": 15939,
+    "stars": 15968,
     "repo": "storytold/filmcraft",
     "age_days": 20,
-    "stars_per_day": 797.0
+    "stars_per_day": 798.4
   },
   {
     "created": "2026-09-23",
     "desc": "Every agent's model. One place. Codex on DeepSeek, Claude Code on Kimi, from the menu bar.",
-    "forks": 1579,
+    "forks": 1586,
     "home": "https://usemagpie.ai",
     "lang": "Go",
     "lic": "MIT",
     "pushed": "2026-10-24",
-    "stars": 20395,
+    "stars": 20504,
     "repo": "yetone/magpie",
     "age_days": 27,
-    "stars_per_day": 755.4
+    "stars_per_day": 759.4
   },
   {
     "created": "2026-09-16",
@@ -150,88 +150,88 @@
     "lang": "Python",
     "lic": "MIT",
     "pushed": "2026-09-30",
-    "stars": 23548,
+    "stars": 23551,
     "repo": "browser-use/jev-ultrafast",
     "age_days": 34,
-    "stars_per_day": 692.6
+    "stars_per_day": 692.7
   },
   {
     "created": "2026-08-03",
     "desc": "Tool for automatic PS5 executables porting to Linux and Windows",
-    "forks": 4422,
+    "forks": 4442,
     "home": "https://boykopovar.github.io/AnyPS5/",
     "lang": "C++",
     "lic": "GPL-2.0",
     "pushed": "2026-10-24",
-    "stars": 47499,
+    "stars": 47614,
     "repo": "boykopovar/AnyPS5",
     "age_days": 78,
-    "stars_per_day": 609.0
+    "stars_per_day": 610.4
   },
   {
     "created": "2026-09-29",
     "desc": "Free, open-source file converter. Convert 255 formats offline by drag & drop — images, PDF, Word, Excel, PowerPoint, HWP/HWPX, video, audio, e-books and archives. No upload, no Office needed.",
-    "forks": 734,
+    "forks": 747,
     "home": "https://filee.sh",
     "lang": "C#",
     "lic": "MIT",
     "pushed": "2026-10-24",
-    "stars": 11230,
+    "stars": 11376,
     "repo": "knifelemon/Filee",
     "age_days": 21,
-    "stars_per_day": 534.8
+    "stars_per_day": 541.7
   },
   {
     "created": "2026-09-16",
     "desc": "The Photoshop alternative for Mac",
-    "forks": 1760,
+    "forks": 1762,
     "home": "",
     "lang": "Swift",
     "lic": "MIT",
     "pushed": "2026-10-24",
-    "stars": 17804,
+    "stars": 17808,
     "repo": "robbietilton/Compositor",
     "age_days": 34,
-    "stars_per_day": 523.6
+    "stars_per_day": 523.8
   },
   {
     "created": "2025-04-30",
     "desc": "The open source coding agent.",
-    "forks": 29517,
+    "forks": 29530,
     "home": "https://opencode.ai",
     "lang": "TypeScript",
     "lic": "MIT",
     "pushed": "2026-10-24",
-    "stars": 220842,
-    "repo": "sst/opencode",
+    "stars": 220900,
+    "repo": "anomalyco/opencode",
     "age_days": 538,
-    "stars_per_day": 410.5
+    "stars_per_day": 410.6
   },
   {
     "created": "2026-08-11",
     "desc": "A privacy-first app that strips AI watermarks from content you own.",
-    "forks": 2839,
+    "forks": 2841,
     "home": "https://github.com/guillaumemeyer/watermarks-remover",
     "lang": "Python",
     "lic": "MIT",
     "pushed": "2026-10-21",
-    "stars": 24757,
+    "stars": 24773,
     "repo": "guillaumemeyer/watermarks-remover",
     "age_days": 70,
-    "stars_per_day": 353.7
+    "stars_per_day": 353.9
   },
   {
     "created": "2026-07-29",
     "desc": "Clone any viral video with AI agents. Not just a script, the whole workflow: swap the face, the words, the B-roll, ship 100 variants in one command, and get your 100M views.",
-    "forks": 2868,
+    "forks": 2875,
     "home": "https://hypit.ai",
     "lang": "TypeScript",
     "lic": "NOASSERTION",
     "pushed": "2026-10-23",
-    "stars": 25194,
+    "stars": 25241,
     "repo": "hypit-ai/hypit",
     "age_days": 83,
-    "stars_per_day": 303.5
+    "stars_per_day": 304.1
   },
   {
     "created": "2026-08-03",
@@ -241,7 +241,7 @@
     "lang": "Rust",
     "lic": "MIT",
     "pushed": "2026-10-23",
-    "stars": 23073,
+    "stars": 23074,
     "repo": "firecrawl/anydoc",
     "age_days": 78,
     "stars_per_day": 295.8
@@ -249,41 +249,41 @@
   {
     "created": "2026-08-10",
     "desc": "Best headless browser for AI agents. Lite, Fast, High-Compatibility. Built in Rust",
-    "forks": 545,
+    "forks": 546,
     "home": "https://browser.lexmount.com",
     "lang": "Rust",
     "lic": "Apache-2.0",
     "pushed": "2026-10-24",
-    "stars": 20383,
+    "stars": 20425,
     "repo": "lexmount/moli",
     "age_days": 71,
-    "stars_per_day": 287.1
+    "stars_per_day": 287.7
   },
   {
     "created": "2025-02-22",
     "desc": "Claude Code is an agentic coding tool that lives in your terminal, understands your codebase, and helps you code faster by executing routine tasks, explaining complex code, and handling git workflows - all through natural language commands.",
-    "forks": 26653,
+    "forks": 26656,
     "home": "https://code.claude.com/docs/en/overview",
     "lang": "TypeScript",
     "lic": "none",
     "pushed": "2026-10-24",
-    "stars": 153202,
+    "stars": 153223,
     "repo": "anthropics/claude-code",
     "age_days": 605,
-    "stars_per_day": 253.2
+    "stars_per_day": 253.3
   },
   {
     "created": "2025-04-13",
     "desc": "Lightweight coding agent that runs in your terminal",
-    "forks": 20614,
+    "forks": 20620,
     "home": "",
     "lang": "Rust",
     "lic": "Apache-2.0",
     "pushed": "2026-10-23",
-    "stars": 130722,
+    "stars": 130745,
     "repo": "openai/codex",
     "age_days": 555,
-    "stars_per_day": 235.5
+    "stars_per_day": 235.6
   },
   {
     "created": "2026-07-20",
@@ -293,7 +293,7 @@
     "lang": "Python",
     "lic": "MIT",
     "pushed": "2026-10-22",
-    "stars": 18672,
+    "stars": 18674,
     "repo": "andrewyng/openworker",
     "age_days": 92,
     "stars_per_day": 203.0
@@ -301,15 +301,15 @@
   {
     "created": "2026-08-25",
     "desc": "The truly free, open-source, local-first, cross-platform CapCut replacement. Scriptable through a JSON-RPC API & MCP.",
-    "forks": 1367,
+    "forks": 1374,
     "home": "https://concat.standalones.org",
     "lang": "Rust",
     "lic": "AGPL-3.0",
     "pushed": "2026-10-24",
-    "stars": 11160,
+    "stars": 11202,
     "repo": "jub0t/Concat",
     "age_days": 56,
-    "stars_per_day": 199.3
+    "stars_per_day": 200.0
   },
   {
     "created": "2026-02-01",
@@ -319,7 +319,7 @@
     "lang": "Python",
     "lic": "MIT",
     "pushed": "2026-10-24",
-    "stars": 49317,
+    "stars": 49319,
     "repo": "HKUDS/nanobot",
     "age_days": 261,
     "stars_per_day": 189.0
@@ -327,12 +327,12 @@
   {
     "created": "2026-07-29",
     "desc": "Multiplayer agent harness for work.",
-    "forks": 1923,
+    "forks": 1924,
     "home": "https://x.com/qm__dev",
     "lang": "TypeScript",
     "lic": "MIT",
     "pushed": "2026-10-24",
-    "stars": 15519,
+    "stars": 15523,
     "repo": "yc-software/qm",
     "age_days": 83,
     "stars_per_day": 187.0
@@ -340,7 +340,7 @@
   {
     "created": "2026-01-19",
     "desc": "Open-source agent for the terminal written in Rust. Use any provider or model. Issues & PRs always welcome",
-    "forks": 3566,
+    "forks": 3567,
     "home": "https://codewhale.net/",
     "lang": "Rust",
     "lic": "MIT",
@@ -358,7 +358,7 @@
     "lang": "Rust",
     "lic": "Apache-2.0",
     "pushed": "2026-10-06",
-    "stars": 31826,
+    "stars": 31829,
     "repo": "googleworkspace/cli",
     "age_days": 232,
     "stars_per_day": 137.2
@@ -366,15 +366,15 @@
   {
     "created": "2026-07-31",
     "desc": "Free, open-source AI Office suite: Docs, Sheets, Slides, PDF, Markdown and HTML editors with a built-in AI agent, plus a `genoffice` CLI and agent skill so Claude Code, Codex and Cursor can create and edit real .docx/.xlsx/.pptx files locally. Bring your own key. macOS, Windows & Linux.",
-    "forks": 1431,
+    "forks": 1436,
     "home": "https://genoffice.ai/",
     "lang": "TypeScript",
     "lic": "Apache-2.0",
     "pushed": "2026-10-23",
-    "stars": 10685,
+    "stars": 10695,
     "repo": "genspark-ai/genoffice",
     "age_days": 81,
-    "stars_per_day": 131.9
+    "stars_per_day": 132.0
   },
   {
     "created": "2026-03-30",
@@ -384,7 +384,7 @@
     "lang": "Python",
     "lic": "MIT",
     "pushed": "2026-10-13",
-    "stars": 25961,
+    "stars": 25964,
     "repo": "titanwings/distilly",
     "age_days": 204,
     "stars_per_day": 127.3
@@ -392,12 +392,12 @@
   {
     "created": "2023-04-12",
     "desc": "Build Agentic workflows, RAG pipelines, with rich AI model and tool support on one collaborative workspace. Deploy on cloud, VPC, or self-hosted, so teams move from prototype to production without rebuilding the stack.",
-    "forks": 25185,
+    "forks": 25188,
     "home": "https://dify.ai",
     "lang": "Python",
     "lic": "NOASSERTION",
     "pushed": "2026-10-24",
-    "stars": 159399,
+    "stars": 159407,
     "repo": "langgenius/dify",
     "age_days": 1287,
     "stars_per_day": 123.9
@@ -405,38 +405,38 @@
   {
     "created": "2026-02-27",
     "desc": "Open source alternative to Semrush and Ahrefs",
-    "forks": 3368,
+    "forks": 3372,
     "home": "https://openseo.so",
     "lang": "TypeScript",
     "lic": "MIT",
     "pushed": "2026-10-23",
-    "stars": 24716,
+    "stars": 24735,
     "repo": "every-app/open-seo",
     "age_days": 235,
-    "stars_per_day": 105.2
+    "stars_per_day": 105.3
   },
   {
     "created": "2024-03-13",
     "desc": "🙌 OpenHands: AI-Driven Development",
-    "forks": 12166,
+    "forks": 12167,
     "home": "https://openhands.dev",
     "lang": "TypeScript",
     "lic": "MIT",
     "pushed": "2026-10-24",
-    "stars": 91698,
-    "repo": "All-Hands-AI/OpenHands",
+    "stars": 91707,
+    "repo": "OpenHands/OpenHands",
     "age_days": 951,
     "stars_per_day": 96.4
   },
   {
     "created": "2019-06-22",
     "desc": "Fair-code workflow automation platform with native AI capabilities. Combine visual building with custom code, self-host or cloud, 400+ integrations.",
-    "forks": 61217,
+    "forks": 61221,
     "home": "https://n8n.io",
     "lang": "TypeScript",
     "lic": "NOASSERTION",
     "pushed": "2026-10-24",
-    "stars": 208441,
+    "stars": 208471,
     "repo": "n8n-io/n8n",
     "age_days": 2677,
     "stars_per_day": 77.9
@@ -444,12 +444,12 @@
   {
     "created": "2023-02-09",
     "desc": "A high-throughput and memory-efficient inference and serving engine for LLMs",
-    "forks": 23868,
+    "forks": 23879,
     "home": "https://vllm.ai",
     "lang": "Python",
     "lic": "Apache-2.0",
     "pushed": "2026-10-24",
-    "stars": 95268,
+    "stars": 95279,
     "repo": "vllm-project/vllm",
     "age_days": 1349,
     "stars_per_day": 70.6
@@ -457,12 +457,12 @@
   {
     "created": "2026-03-17",
     "desc": "Desktop app to generate 3D models from images or prompt using local AI — runs entirely on your GPU",
-    "forks": 769,
+    "forks": 770,
     "home": "https://modly3d.app",
     "lang": "TypeScript",
     "lic": "NOASSERTION",
     "pushed": "2026-10-20",
-    "stars": 8315,
+    "stars": 8321,
     "repo": "lightningpixel/modly",
     "age_days": 217,
     "stars_per_day": 38.3

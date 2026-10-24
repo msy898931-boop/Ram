@@ -3,6 +3,7 @@
 **تاريخ التحقق: 2026-10-20** · المصدر: GitHub REST API (تحقق مباشر من كل ريبو، ريبو ريبو) + صفحات المنتجات الرسمية.
 
 > كل رقم بهالتقرير مسحوب من الـAPI اليوم، مو منسوخ من تقرير قديم.
+> جدول النمو تحت **مولّد من** `github-verified-2026-10-20.json`، فما بينحرف عن مصدره.
 > البيانات الخام: [`data/github-verified-2026-10-20.json`](github-verified-2026-10-20.json)
 
 ---
@@ -26,21 +27,21 @@ GitHub ما بتنشر إيرادات. فبنيت مؤشرات قابلة للق
 
 | المشروع | المجال | نجوم | عمر | ★/يوم | الترخيص |
 |---|---|---|---|---|---|
-| **Gathin23/cleanyourtv** | تنضيف أجهزة Android/Google TV | 28,809 | 3 ي | **9,603** | خاص |
-| **deepseek-ai/DeepInfer** | إطار استدلال عالي الأداء | 21,367 | 4 ي | **5,342** | Apache-2.0 |
-| **deepseek-ai/deepseek-harness** | هيكل وكلاء AI | 259,776 | 68 ي | **3,820** | MIT |
-| **storytold/photocraft** | محرر صور احترافي (Rust) | 72,060 | 20 ي | **3,603** | Apache-2.0 |
-| **google-research/harness2** | هيكل وكلاء (Google) | 18,707 | 14 ي | **1,336** | Apache-2.0 |
-| **storytold/wordcraft** | بديل Word (Rust) | 15,789 | 13 ي | **1,215** | Apache-2.0 |
-| **Niko1221/Strata** | تشغيل موديلات ضخمة محلياً | 31,357 | 26 ي | **1,206** | MIT |
-| **NandhaKishorM/laya** | محرك قرارات System-1 | 34,130 | 32 ي | **1,067** | Apache-2.0 |
-| **storytold/pdfcraft** | قارئ/محرر PDF (Rust) | 17,485 | 20 ي | **874** | Apache-2.0 |
-| **storytold/filmcraft** | محرر فيديو غير خطّي | 15,939 | 20 ي | **797** | Apache-2.0 |
-| **yetone/magpie** | توجيه الموديلات بمكان واحد | 20,395 | 27 ي | **755** | MIT |
-| **browser-use/jev-ultrafast** | وكيل ويب أسرع/أرخص | 23,548 | 34 ي | **693** | MIT |
-| **boykopovar/AnyPS5** | نقل ألعاب PS5 لـLinux/Win | 47,499 | 78 ي | **609** | GPL-2.0 |
-| **knifelemon/Filee** | محوّل ملفات 244+ صيغة | 11,230 | 21 ي | **535** | MIT |
-| **robbietilton/Compositor** | بديل Photoshop للماك | 17,804 | 34 ي | **524** | MIT |
+| **Gathin23/cleanyourtv** | تنضيف أجهزة Android/Google TV | 29,498 | 3 ي | **9,833** | خاص |
+| **deepseek-ai/DeepInfer** | إطار استدلال عالي الأداء | 21,512 | 4 ي | **5,378** | Apache-2.0 |
+| **deepseek-ai/deepseek-harness** | هيكل وكلاء AI | 260,001 | 68 ي | **3,824** | MIT |
+| **storytold/photocraft** | محرر صور احترافي (Rust) | 72,145 | 20 ي | **3,607** | Apache-2.0 |
+| **google-research/harness2** | هيكل وكلاء (Google) | 18,788 | 14 ي | **1,342** | Apache-2.0 |
+| **storytold/wordcraft** | بديل Word (Rust) | 15,818 | 13 ي | **1,217** | Apache-2.0 |
+| **Niko1221/Strata** | تشغيل موديلات ضخمة محلياً | 31,513 | 26 ي | **1,212** | MIT |
+| **NandhaKishorM/laya** | محرك قرارات System-1 | 34,146 | 32 ي | **1,067** | Apache-2.0 |
+| **storytold/pdfcraft** | قارئ/محرر PDF (Rust) | 17,524 | 20 ي | **876** | Apache-2.0 |
+| **storytold/filmcraft** | محرر فيديو غير خطّي | 15,968 | 20 ي | **798** | Apache-2.0 |
+| **yetone/magpie** | توجيه الموديلات بمكان واحد | 20,504 | 27 ي | **759** | MIT |
+| **browser-use/jev-ultrafast** | وكيل ويب أسرع/أرخص | 23,551 | 34 ي | **693** | MIT |
+| **boykopovar/AnyPS5** | نقل ألعاب PS5 لـLinux/Win | 47,614 | 78 ي | **610** | GPL-2.0 |
+| **knifelemon/Filee** | محوّل ملفات 244+ صيغة | 11,376 | 21 ي | **542** | MIT |
+| **robbietilton/Compositor** | بديل Photoshop للماك | 17,808 | 34 ي | **524** | MIT |
 
 ---
 
@@ -49,11 +50,11 @@ GitHub ما بتنشر إيرادات. فبنيت مؤشرات قابلة للق
 | المشروع | إشارة الربح | الدليل |
 |---|---|---|
 | **ArtCraft (storytold/\*)** | اشتراكات اختيارية + أرصدة فيديو | `getartcraft.com/pricing` → HTTP 200: *"Free & open source · Subscriptions optional"* |
-| **browser-use/jev-ultrafast** | تسعير بالاستخدام | `browser-use.com` → HTTP 200، خطة من **$19** |
+| **browser-use/jev-ultrafast** | تسعير بالاستخدام | `browser-use.com/pricing` → HTTP 200: **$0.02/ساعة متصفح** + $1 رصيد مجاني (مو خطة شهرية — تسعير استهلاك) |
 | **knifelemon/Filee** | سحابة مدفوعة | `filee.sh` → HTTP 200 |
 | **HKUDS/nanobot** | منتج + ويكي | `nanobot.wiki` → HTTP 200 |
 | **codewhale-hq/Codewhale** | شركة + منتج | `codewhale.net` → HTTP 200 |
-| **sst/opencode** | منتج تجاري + تمويل | `opencode.ai` → HTTP 200 |
+| **anomalyco/opencode** | منتج تجاري + تمويل | `opencode.ai` → HTTP 200 |
 | **deepseek-ai/\*** | شركة DeepSeek | `deepseek.com` → HTTP 200 |
 | **n8n / dify / activepieces** | استضافة سحابية مدفوعة | صفحات تسعير معروفة |
 
@@ -83,7 +84,7 @@ GitHub ما بتنشر إيرادات. فبنيت مؤشرات قابلة للق
 
 2. **أسرع 3 مجالات طلب اليوم:** وكلاء AI/harnesses · بدائل SaaS الرخيصة · توليد/تحرير الوسائط محلياً.
 
-3. **أسرع نمو (★/يوم):** cleanyourtv (9,603) · DeepInfer (5,342) · deepseek-harness (3,820) · photocraft (3,603) · harness2 (1,336).
+3. **أسرع نمو (★/يوم):** cleanyourtv (9,833) · DeepInfer (5,378) · deepseek-harness (3,824) · photocraft (3,607) · harness2 (1,342).
 
 4. **أقوى نموذج قابل للنسخ:** ArtCraft — نفس الشركة أطلقت 4 تطبيقات مكتبية (صور، Word، PDF، فيديو) كلها Apache-2.0 بنفس الصفحة التجارية. **هذا بالضبط نموذج open-core اللي منمشي فيه مع AXON.**
 

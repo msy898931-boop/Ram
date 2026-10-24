@@ -102,3 +102,39 @@ def test_posture_reports_every_documented_layer(layer):
     """The doc and the command must name the same nine layers."""
     doc = (ROOT / "docs" / "SECURITY-LAYERS.md").read_text(encoding="utf-8")
     assert layer.split()[0] in doc.lower() or layer in doc.lower()
+
+
+def test_the_market_report_matches_its_raw_data():
+    """The growth table is generated from the JSON snapshot, so it must agree.
+
+    The table used to be typed by hand against data that had already moved, and
+    a repo that had been renamed was still listed under its old name. Both are
+    the same failure: a published figure that nothing re-checks.
+    """
+    import json
+    import re
+
+    report = (ROOT / "data" / "REPORT.md").read_text(encoding="utf-8")
+    raw = json.loads(
+        (ROOT / "data" / "github-verified-2026-10-20.json").read_text(encoding="utf-8")
+    )
+    # Only rows of the growth table carry a star count. Other tables name
+    # repositories too (the revenue-signal table, for instance) without
+    # quoting figures, so they are deliberately out of scope.
+    # ASCII only: the report also has Arabic header cells like "نجوم/يوم" that a
+    # Unicode-aware \w would happily read as a repository name.
+    row = re.compile(
+        r"\|\s*\*\*([A-Za-z0-9._-]+/[A-Za-z0-9._-]+)\*\*\s*\|[^|]*\|"
+        r"\s*([\d,]+)\s*\|\s*(\d+)\s*ي\s*\|\s*\*\*([\d,]+)\*\*"
+    )
+    rows = {m.group(1): m.group(2) for m in row.finditer(report)}
+    assert rows, "the growth table is missing from the report"
+
+    known = {e["repo"]: f"{e['stars']:,}" for e in raw}
+    unknown = set(rows) - set(known)
+    assert not unknown, f"report cites repos absent from the snapshot: {sorted(unknown)}"
+
+    for repo, quoted in rows.items():
+        assert quoted == known[repo], (
+            f"{repo}: report says {quoted} stars, snapshot says {known[repo]}"
+        )

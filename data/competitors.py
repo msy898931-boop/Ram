@@ -5,7 +5,7 @@ import subprocess
 import sys
 from datetime import datetime, timezone
 
-COMPETITORS = ["anthropics/claude-code", "openai/codex", "microsoft/vscode-copilot-chat", "All-Hands-AI/OpenHands", "paul-gauthier/aider", "cline/cline", "continuedev/continue", "block/goose", "google-gemini/gemini-cli", "QwenLM/qwen-code", "deepseek-ai/deepseek-harness", "xai-org/grok-build", "sourcegraph/cody", "sst/opencode", "getAsterisk/claudia", "RooCodeInc/Roo-Code", "kilo-org/kilocode", "charmbracelet/crush", "agentclientprotocol/agent-client-protocol", "modelcontextprotocol/servers", "langchain-ai/langgraph", "crewAIInc/crewAI", "microsoft/autogen", "openai/swarm", "geekan/MetaGPT", "Significant-Gravitas/AutoGPT", "n8n-io/n8n", "langgenius/dify", "activepieces/activepieces", "nomic-ai/gpt4all", "ollama/ollama", "vllm-project/vllm"]
+COMPETITORS = ["anthropics/claude-code", "openai/codex", "microsoft/vscode-copilot-chat", "OpenHands/OpenHands", "paul-gauthier/aider", "cline/cline", "continuedev/continue", "block/goose", "google-gemini/gemini-cli", "QwenLM/qwen-code", "deepseek-ai/deepseek-harness", "xai-org/grok-build", "sourcegraph/cody", "anomalyco/opencode", "getAsterisk/claudia", "RooCodeInc/Roo-Code", "kilo-org/kilocode", "charmbracelet/crush", "agentclientprotocol/agent-client-protocol", "modelcontextprotocol/servers", "langchain-ai/langgraph", "crewAIInc/crewAI", "microsoft/autogen", "openai/swarm", "geekan/MetaGPT", "Significant-Gravitas/AutoGPT", "n8n-io/n8n", "langgenius/dify", "activepieces/activepieces", "nomic-ai/gpt4all", "ollama/ollama", "vllm-project/vllm"]
 
 now = datetime.now(timezone.utc)
 rows = []

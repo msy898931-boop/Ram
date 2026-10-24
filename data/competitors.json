@@ -15,7 +15,7 @@
   "desc": "DeepSeek Harness: Everything is a Plugin."
  },
  {
-  "repo": "sst/opencode",
+  "repo": "anomalyco/opencode",
   "stars": 220698,
   "age": 541,
   "spd": 407.9,
@@ -150,7 +150,7 @@
   "desc": "A high-throughput and memory-efficient inference and serving engine for LLMs"
  },
  {
-  "repo": "All-Hands-AI/OpenHands",
+  "repo": "OpenHands/OpenHands",
   "stars": 91693,
   "age": 955,
   "spd": 96.0,
