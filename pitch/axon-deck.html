@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AXON — طبقة الحكم المؤسسية لوكلاء AI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;800;900&family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#05080d;
+  --panel:#0a1017;
+  --panel2:#0d1620;
+  --ink:#e8f1fb;
+  --muted:#8497ad;
+  --faint:#4d5f74;
+  --line:rgba(125,175,225,.14);
+  --line2:rgba(125,175,225,.28);
+  --signal:#43e0c8;
+  --amber:#ffb454;
+  --danger:#ff5d6c;
+  --blue:#5aa9ff;
+  --display:'Cairo',system-ui,sans-serif;
+  --body:'IBM Plex Sans Arabic',system-ui,sans-serif;
+  --mono:'IBM Plex Mono',ui-monospace,monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%}
+body{
+  background:var(--bg);
+  color:var(--ink);
+  font-family:var(--body);
+  overflow:hidden;
+  -webkit-font-smoothing:antialiased;
+}
+/* ---- ambient atmosphere ---- */
+body::before{
+  content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:
+    radial-gradient(900px 600px at 88% -10%, rgba(67,224,200,.10), transparent 60%),
+    radial-gradient(700px 500px at 5% 105%, rgba(90,169,255,.09), transparent 60%);
+}
+body::after{
+  content:"";position:fixed;inset:0;pointer-events:none;z-index:1;opacity:.5;
+  background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);
+  background-size:64px 64px;
+  mask-image:radial-gradient(circle at 50% 40%, #000 20%, transparent 78%);
+  -webkit-mask-image:radial-gradient(circle at 50% 40%, #000 20%, transparent 78%);
+}
+.deck{position:relative;z-index:2;height:100%;}
+.slide{
+  position:absolute;inset:0;
+  display:none;flex-direction:column;
+  padding:clamp(28px,4.4vw,72px) clamp(28px,5vw,96px);
+  opacity:0;
+}
+.slide.active{display:flex;animation:enter .55s cubic-bezier(.16,.84,.34,1) both}
+@keyframes enter{from{opacity:0;transform:translateY(14px) scale(.995)}to{opacity:1;transform:none}}
+
+/* ---- chrome ---- */
+.rail{position:fixed;top:0;bottom:0;left:0;width:3px;background:rgba(125,175,225,.10);z-index:6}
+.rail i{display:block;width:100%;background:linear-gradient(180deg,var(--signal),var(--blue));transition:height .45s cubic-bezier(.16,.84,.34,1);box-shadow:0 0 14px rgba(67,224,200,.5)}
+.hud{position:fixed;z-index:7;display:flex;align-items:center;gap:10px;font-family:var(--mono);font-size:11px;letter-spacing:.14em;color:var(--faint)}
+.hud.bl{left:22px;bottom:18px}
+.hud.br{right:22px;bottom:18px}
+.hud .dot{width:7px;height:7px;border-radius:50%;background:var(--signal);box-shadow:0 0 10px var(--signal);animation:pulse 2.4s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.25}}
+.tag{font-family:var(--mono);font-size:11px;letter-spacing:.2em;color:var(--signal);text-transform:uppercase}
+
+/* ---- typography ---- */
+h1{font-family:var(--display);font-weight:900;line-height:1.06;letter-spacing:-.02em}
+h2{font-family:var(--display);font-weight:800;font-size:clamp(26px,3.1vw,46px);line-height:1.14;letter-spacing:-.015em;margin-bottom:6px}
+h3{font-family:var(--display);font-weight:700;font-size:clamp(16px,1.35vw,21px)}
+p{color:var(--muted);font-size:clamp(13.5px,1.15vw,17px);line-height:1.72;font-weight:400}
+strong{color:var(--ink);font-weight:600}
+.mono{font-family:var(--mono)}
+.hl{color:var(--signal)}
+.hl-a{color:var(--amber)}
+.hl-d{color:var(--danger)}
+.rule{height:1px;background:linear-gradient(90deg,var(--line2),transparent);margin:18px 0}
+
+.head{display:flex;justify-content:space-between;align-items:flex-end;gap:24px;margin-bottom:clamp(16px,2.4vw,34px);flex:none}
+.head .idx{font-family:var(--mono);font-size:clamp(34px,4vw,60px);font-weight:600;color:transparent;-webkit-text-stroke:1px var(--line2);line-height:1}
+.body{flex:1;min-height:0;display:flex;flex-direction:column;justify-content:center}
+
+/* ---- cards ---- */
+.grid{display:grid;gap:14px}
+.g2{grid-template-columns:repeat(2,1fr)}
+.g3{grid-template-columns:repeat(3,1fr)}
+.g4{grid-template-columns:repeat(4,1fr)}
+.card{
+  background:linear-gradient(160deg,var(--panel2),var(--panel));
+  border:1px solid var(--line);border-radius:14px;padding:clamp(15px,1.5vw,24px);
+  position:relative;overflow:hidden;transition:border-color .3s,transform .3s;
+}
+.card:hover{border-color:var(--line2);transform:translateY(-2px)}
+.card::before{content:"";position:absolute;top:0;right:0;width:38px;height:2px;background:var(--signal);opacity:.7}
+.card.a::before{background:var(--amber)}
+.card.d::before{background:var(--danger)}
+.card.b::before{background:var(--blue)}
+.card .k{font-family:var(--mono);font-size:10.5px;letter-spacing:.18em;color:var(--faint);text-transform:uppercase;margin-bottom:9px}
+.card p{font-size:clamp(12.5px,1.02vw,15px);line-height:1.62}
+.card h3{margin-bottom:7px}
+.icon{font-size:clamp(20px,2vw,28px);margin-bottom:10px;display:block;line-height:1}
+
+/* stat */
+.stat .n{font-family:var(--mono);font-weight:600;font-size:clamp(24px,2.9vw,44px);line-height:1;color:var(--ink)}
+.stat .l{font-size:clamp(11.5px,.95vw,14px);color:var(--muted);margin-top:8px}
+
+/* metric strip */
+.strip{display:flex;gap:clamp(14px,2.4vw,42px);flex-wrap:wrap;align-items:flex-end}
+.strip .m .n{font-family:var(--mono);font-weight:600;font-size:clamp(22px,2.5vw,38px);line-height:1}
+.strip .m .l{font-size:clamp(11px,.92vw,13.5px);color:var(--muted);margin-top:7px}
+
+/* list */
+.rows{display:flex;flex-direction:column;gap:0}
+.row{display:grid;grid-template-columns:auto 1fr;gap:16px;align-items:start;padding:clamp(10px,1.15vw,17px) 0;border-bottom:1px solid var(--line)}
+.row:last-child{border-bottom:0}
+.row .num{font-family:var(--mono);font-size:12px;color:var(--signal);padding-top:3px;letter-spacing:.06em}
+.row .t{font-weight:600;font-size:clamp(13.5px,1.12vw,16.5px);margin-bottom:3px}
+.row .d{font-size:clamp(12px,.98vw,14.5px);color:var(--muted);line-height:1.6}
+
+/* table */
+table{width:100%;border-collapse:collapse;font-size:clamp(12px,1.02vw,15px)}
+th{font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--faint);text-align:right;padding:0 12px 11px;border-bottom:1px solid var(--line2);font-weight:500}
+td{padding:clamp(9px,.95vw,14px) 12px;border-bottom:1px solid var(--line);color:var(--muted)}
+tr:hover td{background:rgba(125,175,225,.035)}
+td.y{color:var(--signal);font-weight:600}
+td.n{color:var(--danger);opacity:.75}
+td.em{color:var(--ink);font-weight:600}
+tr.us td{background:rgba(67,224,200,.055);border-bottom-color:rgba(67,224,200,.3)}
+tr.us td.em{color:var(--signal)}
+
+/* terminal */
+.term{background:#04070b;border:1px solid var(--line2);border-radius:12px;overflow:hidden;box-shadow:0 24px 70px rgba(0,0,0,.6)}
+.term .bar{display:flex;align-items:center;gap:7px;padding:10px 14px;background:var(--panel2);border-bottom:1px solid var(--line)}
+.term .bar i{width:9px;height:9px;border-radius:50%;background:var(--faint)}
+.term .bar i:first-child{background:var(--danger)}.term .bar i:nth-child(2){background:var(--amber)}.term .bar i:nth-child(3){background:var(--signal)}
+.term .bar span{font-family:var(--mono);font-size:10.5px;color:var(--faint);margin-right:auto;letter-spacing:.1em}
+.term pre{font-family:var(--mono);font-size:clamp(10.5px,.86vw,13px);line-height:1.85;padding:clamp(14px,1.4vw,20px);color:#9fb4c9;white-space:pre-wrap;direction:ltr;text-align:left}
+.term .g{color:var(--signal)}.term .r{color:var(--danger)}.term .y{color:var(--amber)}.term .w{color:#dbe7f3}
+
+/* cover */
+.cover{justify-content:center;gap:26px}
+.cover .badge{display:inline-flex;align-items:center;gap:10px;border:1px solid var(--line2);border-radius:100px;padding:7px 16px;font-family:var(--mono);font-size:11px;letter-spacing:.18em;color:var(--muted);width:fit-content}
+.cover h1{font-size:clamp(52px,9vw,132px);letter-spacing:-.035em;line-height:.94}
+.cover .sub{font-size:clamp(16px,1.9vw,27px);color:var(--muted);font-weight:300;max-width:20ch;line-height:1.5}
+.cover .en{font-family:var(--mono);font-size:clamp(11px,1vw,14px);letter-spacing:.28em;color:var(--faint);text-transform:uppercase}
+.cover .metrics{display:flex;gap:clamp(18px,3vw,54px);margin-top:8px;flex-wrap:wrap}
+.cover .metrics div{border-right:1px solid var(--line2);padding-right:clamp(18px,2vw,32px)}
+.cover .metrics div:first-child{border-right:0;padding-right:0}
+
+/* chart */
+.chart{width:100%;height:100%;min-height:0}
+.chart text{font-family:var(--mono);font-size:10px;fill:var(--faint)}
+
+/* big quote */
+.quote{font-family:var(--display);font-weight:800;font-size:clamp(24px,3.4vw,52px);line-height:1.3;letter-spacing:-.02em}
+.quote em{font-style:normal;color:var(--signal)}
+
+/* ask */
+.ask{display:grid;grid-template-columns:1.15fr .85fr;gap:clamp(18px,2.6vw,44px);align-items:center}
+.askbox{border:1px solid var(--line2);border-radius:16px;padding:clamp(20px,2.4vw,38px);background:linear-gradient(160deg,rgba(67,224,200,.07),transparent 70%)}
+.allocation{display:flex;flex-direction:column;gap:13px;margin-top:18px}
+.alloc .top{display:flex;justify-content:space-between;font-size:clamp(11.5px,1vw,14px);margin-bottom:6px}
+.alloc .track{height:6px;border-radius:100px;background:rgba(125,175,225,.12);overflow:hidden}
+.alloc .fill{height:100%;border-radius:100px;background:linear-gradient(90deg,var(--signal),var(--blue));animation:grow 1s cubic-bezier(.16,.84,.34,1) both}
+@keyframes grow{from{width:0!important}}
+
+/* nav hint */
+.hint{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);z-index:7;font-family:var(--mono);font-size:10.5px;color:var(--faint);letter-spacing:.12em;transition:opacity .6s;text-align:center}
+.hint b{color:var(--muted);font-weight:500}
+
+/* print / PDF */
+@media print{
+  @page{size:1280px 720px;margin:0}
+  html,body{overflow:visible;height:auto;background:#05080d !important}
+  body::before,body::after,.rail,.hud,.hint{display:none!important}
+  .deck{height:auto}
+  .slide{position:relative;inset:auto;display:flex!important;opacity:1!important;animation:none!important;
+    width:1280px;height:720px;page-break-after:always;break-after:page;overflow:hidden}
+}
+</style>
+</head>
+<body>
+
+<div class="rail"><i id="prog"></i></div>
+<div class="hud bl"><span class="dot"></span><span>AXON · SEED ROUND · 2026</span></div>
+<div class="hud br"><span id="counter">01 / 15</span></div>
+<div class="hint" id="hint"><b>→</b> / <b>←</b> للتنقل &nbsp;·&nbsp; <b>F</b> ملء الشاشة &nbsp;·&nbsp; <b>P</b> حفظ PDF</div>
+
+<div class="deck" id="deck">
+
+<!-- ============ 01 COVER ============ -->
+<section class="slide active cover">
+  <div class="badge"><span class="dot" style="width:6px;height:6px;border-radius:50%;background:var(--signal);box-shadow:0 0 8px var(--signal)"></span> SEED · CONFIDENTIAL</div>
+  <h1>AXON</h1>
+  <div class="sub">طبقة الحكم المؤسسية لكل وكلاء الذكاء الاصطناعي في الشركة.</div>
+  <div class="en">The control plane for AI agents</div>
+  <div class="rule" style="max-width:560px"></div>
+  <div class="metrics">
+    <div><div class="stat"><div class="n hl">$29.3B</div><div class="l">تقييم Cursor — السوق مثبت</div></div></div>
+    <div><div class="stat"><div class="n hl-a">68x</div><div class="l">نسبة LTV / CAC</div></div></div>
+    <div><div class="stat"><div class="n hl">MVP</div><div class="l">مبني وشغّال اليوم</div></div></div>
+  </div>
+</section>
+
+<!-- ============ 02 PROBLEM ============ -->
+<section class="slide">
+  <div class="head">
+    <div><span class="tag">01 — المشكلة</span><h2>كل شركة عم تنشر وكلاء.<br>قليل منها يقدر يجاوب على أربعة أسئلة.</h2></div>
+    <div class="idx">01</div>
+  </div>
+  <div class="body">
+    <div class="grid g4">
+      <div class="card d"><span class="icon">🕵️</span><h3>مين سمح؟</h3><p>لا يوجد نظام صلاحيات موحّد. ما حد يعرف مين فوّض الوكيل يعمل الإجراء.</p></div>
+      <div class="card d"><span class="icon">💸</span><h3>قديش صرف؟</h3><p>فواتير الـtokens تنفجر بلا سقف، بلا تتبّع، وبلا نسبة لكل قسم.</p></div>
+      <div class="card d"><span class="icon">🚨</span><h3>وين راحت البيانات؟</h3><p>بيانات حساسة تُرسل لموديلات خارجية بلا إخفاء ولا تحكّم.</p></div>
+      <div class="card d"><span class="icon">📜</span><h3>تقدر تثبت للمدقّق؟</h3><p>السجلات قابلة للتعديل. ما في دليل موثوق على شو عمل الوكيل.</p></div>
+    </div>
+    <div class="rule"></div>
+    <p style="max-width:82ch">النتيجة: <strong>90% من مشاريع الوكلاء تتوقف عند مرحلة التجربة.</strong> مو لأن الوكيل ضعيف — لأن الشركة ما تقدر <strong>تحكمه</strong>.</p>
+  </div>
+</section>
+
+<!-- ============ 03 INSIGHT ============ -->
+<section class="slide">
+  <div class="head">
+    <div><span class="tag">02 — الفكرة</span><h2>الكل يبيع الوكيل.<br>ما حد يبيع الحاكم.</h2></div>
+    <div class="idx">02</div>
+  </div>
+  <div class="body">
+    <div class="grid g2" style="align-items:center">
+      <div>
+        <div class="quote" style="margin-bottom:22px">وكلاء الذكاء الاصطناعي رح يكونوا في <em>كل</em> شركة.</div>
+        <p style="margin-bottom:14px">اللي رح يربح مو اللي يبني أذكى وكيل — بل اللي <strong>يحكم</strong> كل الوكلاء: الصلاحيات، التكلفة، البيانات، والإثبات.</p>
+        <p>AXON ما ينافس الوكلاء. <strong>يُحكّمهم.</strong> نتكامل مع Claude Code و Codex و Cursor و Qwen وأي موديل — ونفرض فوقهم سياسة واحدة.</p>
+      </div>
+      <div class="term">
+        <div class="bar"><i></i><i></i><i></i><span>axon — governance demo</span></div>
+        <pre><span class="w">$ python3 examples/demo.py</span>
+
+<span class="w">2. Agent tries to read production secrets</span>
+   <span class="r">DENIED</span> tool.read_file /home/deploy/secrets/db.txt
+   <span class="y">matched rule: deny *:tool.*->*secrets*</span>
+
+<span class="w">3. Agent tries a production write w/o approval</span>
+   <span class="r">DENIED</span> tool.write_file /prod/app/config.yml
+
+<span class="w">4. Cost cap stops a runaway loop</span>
+   <span class="r">STOPPED</span> budget cap $0.0000 exceeded
+
+<span class="w">5. Auditor verifies the ledger</span>
+   <span class="g">verify() -&gt; True  (chain intact, 26 records)</span>
+
+<span class="w">6. Tamper attempt</span>
+   <span class="g">verify() -&gt; False (tampered record 2)</span></pre>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 04 SOLUTION ============ -->
+<section class="slide">
+  <div class="head">
+    <div><span class="tag">03 — الحل</span><h2>خمسة مكوّنات. نواة مفتوحة، وحكم مدفوع.</h2></div>
+    <div class="idx">03</div>
+  </div>
+  <div class="body">
+    <div class="grid g3" style="margin-bottom:14px">
+      <div class="card"><span class="icon">🧠</span><div class="k">مفتوح · Apache-2.0</div><h3>AXON Core</h3><p>محرك تشغيل أي وكيل، أي موديل، داخل عزل آمن (sandbox).</p></div>
+      <div class="card a"><span class="icon">🛡️</span><div class="k">مدفوع · Enterprise</div><h3>AXON Shield</h3><p>صلاحيات deny-by-default، سجل تدقيق غير قابل للتلاعب، وموافقات بشرية.</p></div>
+      <div class="card a"><span class="icon">📊</span><div class="k">مدفوع · Enterprise</div><h3>AXON Observe</h3><p>تتبّع كامل + سقف تكلفة صلب + تقييم أداء الوكيل قبل الإنتاج.</p></div>
+    </div>
+    <div class="grid g2">
+      <div class="card a"><span class="icon">🔐</span><div class="k">مدفوع · Enterprise</div><h3>AXON Vault</h3><p>إدارة أسرار مركزية، إخفاء البيانات الحساسة، ونشر air-gapped.</p></div>
+      <div class="card b"><span class="icon">☁️</span><div class="k">SaaS · بالاستخدام</div><h3>AXON Cloud</h3><p>نسخة مستضافة جاهزة للشركات الصغيرة والمتوسطة.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 05 PROOF ============ -->
+<section class="slide">
+  <div class="head">
+    <div><span class="tag">04 — الإثبات</span><h2>مو عرض تقديمي. الكود شغّال اليوم.</h2></div>
+    <div class="idx">04</div>
+  </div>
+  <div class="body">
+    <div class="grid g2" style="align-items:start">
+      <div>
+        <div class="rows">
+          <div class="row"><div class="num">01</div><div><div class="t">سجل تدقيق غير قابل للتلاعب</div><div class="d"><span class="mono">hash = SHA256(prev_hash ‖ record)</span> — أي تعديل بتاريخ السجل ينكشف فوراً.</div></div></div>
+          <div class="row"><div class="num">02</div><div><div class="t">محرك صلاحيات fail-closed</div><div class="d">أي إجراء بلا تفويض صريح = مرفوض. مو إعداد، بل سلوك افتراضي.</div></div></div>
+          <div class="row"><div class="num">03</div><div><div class="t">سقف تكلفة صلب</div><div class="d">يوقف الوكيل <strong>قبل</strong> نداء الموديل التالي — ما في حلقة تفرّغ الميزانية.</div></div></div>
+          <div class="row"><div class="num">04</div><div><div class="t">طبقة model-agnostic</div><div class="d">Anthropic · OpenAI · Gemini · Qwen · Ollama/vLLM — بعقد واحد.</div></div></div>
+        </div>
+      </div>
+      <div>
+        <div class="term" style="margin-bottom:14px">
+          <div class="bar"><i></i><i></i><i></i><span>pytest -q</span></div>
+          <pre><span class="w">$ pytest -q</span>
+<span class="g">............</span>                                    [100%]
+<span class="g">12 passed</span> in 0.16s</pre>
+        </div>
+        <div class="term">
+          <div class="bar"><i></i><i></i><i></i><span>axon policy-check</span></div>
+          <pre><span class="w">$ axon policy-check tool.write_file --target /prod/db</span>
+<span class="r">DENY</span>   no matching rule (deny by default)
+
+<span class="w">$ axon policy-check tool.write_file --target /prod/db \</span>
+<span class="w">      --tag approved</span>
+<span class="g">ALLOW</span>  matched rule: allow *:tool.write_file-&gt;/prod/*</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 06 MARKET ============ -->
+<section class="slide">
+  <div class="head">
+    <div><span class="tag">05 — السوق</span><h2>سوق بانفجار، وطبقة الحكم فارغة.</h2></div>
+    <div class="idx">05</div>
+  </div>
+  <div class="body">
+    <div class="strip" style="margin-bottom:clamp(18px,2.4vw,36px)">
+      <div class="m"><div class="n hl">$29.3B</div><div class="l">تقييم Cursor (2026)</div></div>
+      <div class="m"><div class="n hl">$3B</div><div class="l">ARR Cursor</div></div>
+      <div class="m"><div class="n hl-a">$4B</div><div class="l">تقييم Cognition / Devin</div></div>
+      <div class="m"><div class="n">259K</div><div class="l">نجمة DeepSeek Harness</div></div>
+      <div class="m"><div class="n">3,657</div><div class="l">نجمة/يوم — أسرع نمو</div></div>
+    </div>
+    <div class="rule"></div>
+    <div class="grid g3">
+      <div class="card"><div class="k">TAM</div><div class="n mono" style="font-size:clamp(22px,2.4vw,34px);font-weight:600">$50B</div><p style="margin-top:8px">كل برمجيات الـAI المؤسسية.</p></div>
+      <div class="card a"><div class="k">SAM</div><div class="n mono" style="font-size:clamp(22px,2.4vw,34px);font-weight:600">$12B</div><p style="margin-top:8px">منصات وأدوات الوكلاء المؤسسية.</p></div>
+      <div class="card b"><div class="k">SOM — 3 سنوات</div><div class="n mono" style="font-size:clamp(22px,2.4vw,34px);font-weight:600">$400M</div><p style="margin-top:8px">حصة واقعية بفريق منفّذ.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 07 WHY NOW ============ -->
+<section class="slide">
+  <div class="head">
+    <div><span class="tag">06 — لماذا الآن</span><h2>ثلاث قوى تصطدم في نفس اللحظة.</h2></div>
+    <div class="idx">06</div>
+  </div>
+  <div class="body">
+    <div class="rows">
+      <div class="row"><div class="num">01</div><div><div class="t">الطلب انفجر قبل الحكم</div><div class="d">Cursor بلغ $3B ARR و Cognition $4B — لكن كلاهما يحل <strong>الوكيل الفردي</strong>، ولا أحد يحل <strong>1000 وكيل داخل مؤسسة</strong>.</div></div></div>
+      <div class="row"><div class="num">02</div><div><div class="t">المؤسسات صارت مضطرة قانونياً</div><div class="d">GDPR · HIPAA · SOC 2 · DORA — كلها تسأل نفس السؤال: مين سمح، وقديش صرف، وين راحت البيانات. اليوم ما في جواب.</div></div></div>
+      <div class="row"><div class="num">03</div><div><div class="t">التقنية صارت ناضجة</div><div class="d">MCP، الـsandboxes (gVisor/Firecracker)، وOpenTelemetry — كل حجر بناء جاهز. اللي ناقص هو الطبقة اللي تجمعهم.</div></div></div>
+      <div class="row"><div class="num">04</div><div><div class="t">نافذة الـ18 شهر</div><div class="d">المزوّدون الكبار رح يدخلوا — لكن بناء طبقة حكم model-agnostic ومحايدة يحتاج وقت. الأول يفوز بالمعيار.</div></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 08 BUSINESS MODEL ============ -->
+<section class="slide">
+  <div class="head">
+    <div><span class="tag">07 — نموذج العمل</span><h2>نواة مجانية تبني المجتمع.<br>حكم مدفوع يبني الإيراد.</h2></div>
+    <div class="idx">07</div>
+  </div>
+  <div class="body">
+    <table>
+      <thead><tr><th>الطبقة</th><th>السعر</th><th>الجمهور</th><th>المحتوى</th></tr></thead>
+      <tbody>
+        <tr><td class="em">AXON Core</td><td class="y">مجاني · Apache-2.0</td><td>مطوّرون · مجتمع</td><td>محرك التشغيل، العزل، الموصّلات</td></tr>
+        <tr><td class="em">AXON Team</td><td class="em">$29 / seat / شهر</td><td>فرق صغيرة</td><td>Shield أساسي + لوحة مبسطة</td></tr>
+        <tr><td class="em">AXON Business</td><td class="em">$99 / seat / شهر</td><td>شركات متوسطة</td><td>Shield + Observe + تكاملات</td></tr>
+        <tr class="us"><td class="em">AXON Enterprise</td><td class="y">$50K – $500K / سنة</td><td>بنوك · حكومة · صحة</td><td>كل المكوّنات + air-gap + امتثال</td></tr>
+        <tr><td class="em">AXON Cloud</td><td class="em">بالاستخدام + حصص</td><td>الجميع</td><td>نسخة مستضافة جاهزة</td></tr>
+      </tbody>
+    </table>
+    <div class="rule"></div>
+    <div class="strip">
+      <div class="m"><div class="n hl">82%</div><div class="l">هامش إجمالي</div></div>
+      <div class="m"><div class="n hl">68x</div><div class="l">LTV / CAC</div></div>
+      <div class="m"><div class="n hl-a">2.2 شهر</div><div class="l">استرداد تكلفة الاكتساب</div></div>
+      <div class="m"><div class="n">8%</div><div class="l">تسرّب سنوي (Enterprise)</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 09 TRACTION PLAN ============ -->
+<section class="slide">
+  <div class="head">
+    <div><span class="tag">08 — خطة النمو</span><h2>من صفر إلى $25M ARR في 36 شهراً.</h2></div>
+    <div class="idx">08</div>
+  </div>
+  <div class="body">
+    <div style="display:grid;grid-template-columns:1.25fr .75fr;gap:clamp(16px,2.4vw,40px);align-items:center;height:100%">
+      <div class="chart">
+        <svg viewBox="0 0 520 300" preserveAspectRatio="xMidYMid meet" style="width:100%;height:100%">
+          <defs>
+            <linearGradient id="ag" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#43e0c8" stop-opacity=".38"/>
+              <stop offset="100%" stop-color="#43e0c8" stop-opacity="0"/>
+            </linearGradient>
+          </defs>
+          <line x1="50" y1="250" x2="500" y2="250" stroke="rgba(125,175,225,.25)"/>
+          <line x1="50" y1="190" x2="500" y2="190" stroke="rgba(125,175,225,.08)"/>
+          <line x1="50" y1="130" x2="500" y2="130" stroke="rgba(125,175,225,.08)"/>
+          <line x1="50" y1="70"  x2="500" y2="70"  stroke="rgba(125,175,225,.08)"/>
+          <text x="46" y="254" text-anchor="end">0</text>
+          <text x="46" y="194" text-anchor="end">7</text>
+          <text x="46" y="134" text-anchor="end">15</text>
+          <text x="46" y="74"  text-anchor="end">25</text>
+          <path d="M70,244 L160,226 L250,190 L340,120 L430,68 L430,250 L70,250 Z" fill="url(#ag)"/>
+          <polyline points="70,244 160,226 250,190 340,120 430,68" fill="none" stroke="#43e0c8" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+          <g fill="#43e0c8">
+            <circle cx="70" cy="244" r="4"/><circle cx="160" cy="226" r="4"/><circle cx="250" cy="190" r="4"/>
+            <circle cx="340" cy="120" r="4"/><circle cx="430" cy="68" r="6"/>
+          </g>
+          <text x="70"  y="272" text-anchor="middle">S1</text>
+          <text x="160" y="272" text-anchor="middle">S2</text>
+          <text x="250" y="272" text-anchor="middle">S3</text>
+          <text x="340" y="272" text-anchor="middle">S4</text>
+          <text x="430" y="272" text-anchor="middle">S5</text>
+          <text x="430" y="52" text-anchor="middle" fill="#43e0c8" font-size="12">$180M</text>
+          <text x="70"  y="232" text-anchor="middle" fill="#8497ad" font-size="10">$0.5M</text>
+          <text x="250" y="178" text-anchor="middle" fill="#8497ad" font-size="10">$25M</text>
+        </svg>
+      </div>
+      <div>
+        <div class="rows">
+          <div class="row"><div class="num">Y1</div><div><div class="t">20 عميل · $500K ARR</div><div class="d">إطلاق مفتوح المصدر + شركاء تصميم.</div></div></div>
+          <div class="row"><div class="num">Y2</div><div><div class="t">150 عميل · $5M ARR</div><div class="d">Seed + فريق مبيعات أول.</div></div></div>
+          <div class="row"><div class="num">Y3</div><div><div class="t">600 عميل · $25M ARR</div><div class="d">Enterprise GA + SOC 2.</div></div></div>
+          <div class="row"><div class="num">Y5</div><div><div class="t">3,500 عميل · $180M ARR</div><div class="d">Marketplace + توسّع أفقي.</div></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 10 COMPETITION ============ -->
+<section class="slide">
+  <div class="head">
+    <div><span class="tag">09 — المنافسة</span><h2>لا أحد يجمع الأربعة معاً.</h2></div>
+    <div class="idx">09</div>
+  </div>
+  <div class="body">
+    <table>
+      <thead><tr><th>المنصة</th><th>model-agnostic</th><th>حوكمة وصلاحيات</th><th>سجل غير قابل للتلاعب</th><th>self-hosted</th><th>سقف تكلفة</th></tr></thead>
+      <tbody>
+        <tr><td class="em">Cursor</td><td class="n">لا</td><td class="n">لا</td><td class="n">لا</td><td class="n">لا</td><td class="n">جزئي</td></tr>
+        <tr><td class="em">Claude Code</td><td class="n">لا</td><td class="n">لا</td><td class="n">لا</td><td class="n">لا</td><td class="n">لا</td></tr>
+        <tr><td class="em">GitHub Copilot</td><td class="y">نعم</td><td class="n">لا</td><td class="n">لا</td><td class="n">لا</td><td class="n">جزئي</td></tr>
+        <tr><td class="em">OpenHands</td><td class="y">نعم</td><td class="n">جزئي</td><td class="n">لا</td><td class="y">نعم</td><td class="n">لا</td></tr>
+        <tr><td class="em">n8n / Dify</td><td class="y">نعم</td><td class="n">لا</td><td class="n">لا</td><td class="y">نعم</td><td class="n">لا</td></tr>
+        <tr class="us"><td class="em">AXON</td><td class="y">نعم</td><td class="y">نعم</td><td class="y">نعم</td><td class="y">نعم</td><td class="y">نعم</td></tr>
+      </tbody>
+    </table>
+    <div class="rule"></div>
+    <p>المنافسون يبيعون <strong>وكيلاً</strong>. نحن نبيع <strong>الحاكم</strong> — ونتكامل معهم بدل محاربتهم.</p>
+  </div>
+</section>
+
+<!-- ============ 11 MOAT ============ -->
+<section class="slide">
+  <div class="head">
+    <div><span class="tag">10 — الخندق الدفاعي</span><h2>أربعة أصول تتراكم مع الوقت.</h2></div>
+    <div class="idx">10</div>
+  </div>
+  <div class="body">
+    <div class="grid g2">
+      <div class="card"><span class="icon">🔗</span><h3>تكلفة التحويل</h3><p>كل سياسة تُكتب وكل تكامل يُربط يصعّب الاستبدال. الحوكمة تُبنى داخل العمليات، مو فوقها.</p></div>
+      <div class="card a"><span class="icon">📈</span><h3>بيانات التقييم</h3><p>كل تشغيل وكيل يحسّن مقاييسنا المرجعية — ميزة تتحسّن تلقائياً مع كل عميل جديد.</p></div>
+      <div class="card b"><span class="icon">🌐</span><h3>سوق المهارات</h3><p>تأثير شبكي: كل مهارة أو وكيل يُنشر يزيد قيمة المنصة لكل المستخدمين.</p></div>
+      <div class="card"><span class="icon">📋</span><h3>شهادات الامتثال</h3><p>SOC 2 · ISO 27001 · HIPAA — عائق دخول عالٍ يشتري لنا وقتاً أمام المنافسين.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 12 TEAM ============ -->
+<section class="slide">
+  <div class="head">
+    <div><span class="tag">11 — الفريق</span><h2>خمسة مؤسسين. مهمة واحدة.</h2></div>
+    <div class="idx">11</div>
+  </div>
+  <div class="body">
+    <div class="grid g3" style="margin-bottom:14px">
+      <div class="card"><div class="k">حرج · 2-5% أسهم</div><h3>CTO مؤسس</h3><p>أنظمة موزّعة + قيادة فريق. المعمارية وقرارات build-vs-buy.</p></div>
+      <div class="card"><div class="k">حرج · 0.5-1.5%</div><h3>مهندس Runtime</h3><p>Rust/Go، gVisor، Firecracker. طبقة العزل والأداء.</p></div>
+      <div class="card"><div class="k">حرج · 0.5-1.5%</div><h3>مهندس أمن</h3><p>OPA/Rego، نماذج التهديدات، خرائط الامتثال.</p></div>
+    </div>
+    <div class="grid g2">
+      <div class="card"><div class="k">مهم · 0.3-1%</div><h3>مهندس Backend</h3><p>Go، gRPC، Postgres — طبقة التحكّم والتكاملات.</p></div>
+      <div class="card"><div class="k">مهم · 0.3-1%</div><h3>مهندس Full-stack</h3><p>Next.js + TypeScript — لوحة التحكم وتجربة المطوّر.</p></div>
+    </div>
+    <div class="rule"></div>
+    <p>الاستقطاب من <strong>GitHub</strong> (مساهمو OpenHands/gVisor/OPA)، <strong>HackerNews</strong>، ومجتمعات Rust/Go. أول ثلاثة من <strong>الشبكة المباشرة</strong>.</p>
+  </div>
+</section>
+
+<!-- ============ 13 ROADMAP ============ -->
+<section class="slide">
+  <div class="head">
+    <div><span class="tag">12 — خارطة الطريق</span><h2>60 يوماً للـMVP. 36 شهراً للسوق.</h2></div>
+    <div class="idx">12</div>
+  </div>
+  <div class="body">
+    <div class="rows">
+      <div class="row"><div class="num">الآن</div><div><div class="t"><span class="hl">✅ MVP مبني وشغّال</span> — 12 اختبار ناجح</div><div class="d">سجل تدقيق، محرك صلاحيات، سقف تكلفة، طبقة model-agnostic، CLI، عرض توضيحي.</div></div></div>
+      <div class="row"><div class="num">شهر 3-6</div><div><div class="t">إطلاق مفتوح المصدر</div><div class="d">5,000 نجمة · 50 مساهم · نشر على PyPI + Docker.</div></div></div>
+      <div class="row"><div class="num">شهر 7-12</div><div><div class="t">Enterprise MVP + Seed</div><div class="d">Shield + Observe · 20 شريك تصميم · $500K ARR.</div></div></div>
+      <div class="row"><div class="num">شهر 13-18</div><div><div class="t">Enterprise GA</div><div class="d">Vault · air-gap · SOC 2 Type II · 150 عميل · $5M ARR.</div></div></div>
+      <div class="row"><div class="num">شهر 19-36</div><div><div class="t">توسّع + Exit</div><div class="d">Marketplace · Compliance Packs · Series B أو استحواذ · $25M+ ARR.</div></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 14 ASK ============ -->
+<section class="slide">
+  <div class="head">
+    <div><span class="tag">13 — الطلب</span><h2>نطلب $3M Seed لـ18 شهراً.</h2></div>
+    <div class="idx">13</div>
+  </div>
+  <div class="body">
+    <div class="ask">
+      <div class="askbox">
+        <div class="k mono" style="font-size:11px;letter-spacing:.2em;color:var(--signal);margin-bottom:14px">توزيع الاستثمار</div>
+        <div class="allocation">
+          <div class="alloc">
+            <div class="top"><span>هندسة ورواتب (8 أشخاص)</span><span class="mono hl">60%</span></div>
+            <div class="track"><div class="fill" style="width:60%"></div></div>
+          </div>
+          <div class="alloc">
+            <div class="top"><span>بنية تحتية وتطوير</span><span class="mono">20%</span></div>
+            <div class="track"><div class="fill" style="width:20%;background:linear-gradient(90deg,#5aa9ff,#43e0c8)"></div></div>
+          </div>
+          <div class="alloc">
+            <div class="top"><span>تسويق ومجتمع مفتوح المصدر</span><span class="mono">12%</span></div>
+            <div class="track"><div class="fill" style="width:12%;background:linear-gradient(90deg,#ffb454,#43e0c8)"></div></div>
+          </div>
+          <div class="alloc">
+            <div class="top"><span>قانوني وامتثال</span><span class="mono">8%</span></div>
+            <div class="track"><div class="fill" style="width:8%;background:linear-gradient(90deg,#ff5d6c,#ffb454)"></div></div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="k mono" style="font-size:11px;letter-spacing:.2em;color:var(--faint);margin-bottom:12px">المعالم خلال 18 شهراً</div>
+        <div class="rows">
+          <div class="row"><div class="num">→</div><div><div class="t">5,000 نجمة GitHub</div></div></div>
+          <div class="row"><div class="num">→</div><div><div class="t">20 عميلاً مؤسسياً مدفوعاً</div></div></div>
+          <div class="row"><div class="num">→</div><div><div class="t">$500K ARR</div></div></div>
+          <div class="row"><div class="num">→</div><div><div class="t">SOC 2 Type II جاهز</div></div></div>
+          <div class="row"><div class="num">→</div><div><div class="t">جاهزية Series A بـ$12M</div></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 15 VISION ============ -->
+<section class="slide" style="justify-content:center">
+  <span class="tag" style="margin-bottom:22px">14 — الرؤية</span>
+  <div class="quote" style="max-width:24ch">الوكلاء رح يكونوا في <em>كل</em> شركة.<br>نحن نبني الحاكم اللي يديرهم.</div>
+  <div class="rule" style="max-width:520px;margin:32px 0"></div>
+  <div class="en" style="font-family:var(--mono);font-size:clamp(11px,1.1vw,15px);letter-spacing:.26em;color:var(--faint);text-transform:uppercase">AXON — Kubernetes for AI agents</div>
+  <div style="margin-top:38px;display:flex;gap:26px;flex-wrap:wrap">
+    <div class="stat"><div class="n hl">$3M</div><div class="l">Seed مطلوب</div></div>
+    <div class="stat"><div class="n hl-a">MVP</div><div class="l">جاهز الآن</div></div>
+    <div class="stat"><div class="n">$400M</div><div class="l">تقييم مستهدف 3 سنوات</div></div>
+  </div>
+  <p style="margin-top:40px;font-family:var(--mono);font-size:12px;letter-spacing:.1em;color:var(--faint)">founders@axon.dev</p>
+</section>
+
+</div>
+
+<script>
+const slides=[...document.querySelectorAll('.slide')];
+const prog=document.getElementById('prog');
+const counter=document.getElementById('counter');
+const hint=document.getElementById('hint');
+let i=0;
+function show(n){
+  i=Math.max(0,Math.min(slides.length-1,n));
+  slides.forEach((s,k)=>s.classList.toggle('active',k===i));
+  prog.style.height=((i+1)/slides.length*100)+'%';
+  counter.textContent=String(i+1).padStart(2,'0')+' / '+String(slides.length).padStart(2,'0');
+  history.replaceState(null,'','#'+(i+1));
+}
+function next(){show(i+1)} function prev(){show(i-1)}
+document.addEventListener('keydown',e=>{
+  if(['ArrowLeft','ArrowDown',' ','PageDown'].includes(e.key)){e.preventDefault();next()}
+  if(['ArrowRight','ArrowUp','PageUp'].includes(e.key)){e.preventDefault();prev()}
+  if(e.key==='Home')show(0); if(e.key==='End')show(slides.length-1);
+  if(e.key==='f'||e.key==='F'){document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen()}
+  if(e.key==='p'||e.key==='P'){e.preventDefault();window.print()}
+});
+document.addEventListener('click',e=>{if(!e.target.closest('a,button'))next()});
+document.addEventListener('wheel',e=>{if(Math.abs(e.deltaY)>28){e.deltaY>0?next():prev()}},{passive:true});
+let tx=0;
+document.addEventListener('touchstart',e=>tx=e.touches[0].clientX,{passive:true});
+document.addEventListener('touchend',e=>{const d=e.changedTouches[0].clientX-tx;if(Math.abs(d)>50){d<0?next():prev()}},{passive:true});
+setTimeout(()=>hint.style.opacity='0',5200);
+const start=parseInt(location.hash.slice(1),10);
+show(Number.isFinite(start)&&start>0?start-1:0);
+</script>
+</body>
+</html>

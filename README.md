@@ -100,7 +100,8 @@ same primitive.
 
 - [Full business plan](AXON-PLAN.md)
 - [Financial model](AXON-FINANCIALS.md)
-- [Investor pitch](AXON-PITCH.md)
+- [Investor pitch + speaker notes](AXON-PITCH.md)
+- [Pitch deck (interactive)](pitch/axon-deck.html)
 
 ## Contributing
 
