@@ -1,0 +1,27 @@
+# AXON identities — who may act, and with which role.
+#
+# A role's `tags` are what unlock `requires:` clauses in policy rules.
+# Adding a tag here widens what the role can do; policy rules stay the
+# authority on whether an action is permitted at all.
+roles:
+  admin:
+    tags: [approved, deploy, read_prod]
+  operator:
+    tags: [approved]
+  agent:
+    tags: []
+  readonly:
+    tags: []
+
+identities:
+  # Example: a deployment pins each agent's role and accountable human.
+  agent-1:
+    role: agent
+    owner: platform-team@example.com
+  ops-bot:
+    role: operator
+    owner: sre@example.com
+  break-glass:
+    role: admin
+    owner: ciso@example.com
+    enabled: false

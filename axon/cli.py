@@ -10,15 +10,44 @@ from pathlib import Path
 from . import __version__
 from .core.audit import AuditLedger
 from .core.budget import Budget, BudgetExceeded
+from .core.identity import IdentityError, IdentityRegistry
 from .core.policy import PolicyEngine
 from .core.runtime import AgentRuntime, PolicyDenied
+from .core.signing import SignatureError, Signer, signer_from_file
 from .providers import ProviderError, available_providers, default_provider, get_provider
 
 DEFAULT_POLICY = Path(__file__).resolve().parent / "policies" / "default.yaml"
+DEFAULT_IDENTITIES = Path(__file__).resolve().parent / "policies" / "identities.yaml"
+DEFAULT_KEY = Path("./axon-signing.key")
+
+
+def _registry(args) -> IdentityRegistry | None:
+    """Load the identity registry. `--no-rbac` opts out for local dev."""
+    if getattr(args, "no_rbac", False):
+        return None
+    path = getattr(args, "identities", None)
+    if path:
+        return IdentityRegistry.from_yaml(path)
+    return IdentityRegistry.from_yaml(DEFAULT_IDENTITIES)
+
+
+def _signer(args, *, create: bool) -> Signer | None:
+    """Resolve the signing key. Returns None when signing is not requested."""
+    key_path = getattr(args, "key", None)
+    if not key_path:
+        return None
+    path = Path(key_path)
+    if not path.exists() and not create:
+        raise SignatureError(f"signing key {path} not found")
+    return signer_from_file(path)
+
+
+def _ledger(args, *, create: bool = False) -> AuditLedger:
+    return AuditLedger(args.ledger, signer=_signer(args, create=create))
 
 
 def _runtime(args) -> AgentRuntime:
-    ledger = AuditLedger(args.ledger)
+    ledger = _ledger(args, create=True)
     policy = PolicyEngine.from_yaml(args.policy or DEFAULT_POLICY)
     provider = get_provider(args.provider) if args.provider else default_provider()
     return AgentRuntime(
@@ -27,6 +56,7 @@ def _runtime(args) -> AgentRuntime:
         policy=policy,
         budget=Budget(limit_usd=args.budget),
         provider=provider,
+        registry=_registry(args),
     )
 
 
@@ -76,12 +106,56 @@ def cmd_models(args) -> int:
 
 
 def cmd_audit(args) -> int:
-    ledger = AuditLedger(args.ledger)
-    ok, msg = ledger.verify()
+    ledger = _ledger(args)
+    pub = None
+    if getattr(args, "pubkey", None):
+        pub = Path(args.pubkey).read_bytes()
+        pub = bytes.fromhex(pub.decode().strip()) if len(pub.strip()) == 64 else pub
+    ok, msg = ledger.verify(public_key=pub)
     print(f"verify: {'OK' if ok else 'FAILED'} — {msg}")
     for rec in ledger.records():
-        print(f"#{rec.seq:<4} {rec.decision:<6} {rec.actor:<16} {rec.action:<22} {rec.target[:40]}")
+        mark = "S" if rec.signature else "-"
+        print(f"#{rec.seq:<4} {mark} {rec.decision:<6} {rec.actor:<16} {rec.action:<22} {rec.target[:40]}")
     return 0 if ok else 1
+
+
+def cmd_keygen(args) -> int:
+    path = Path(args.key)
+    if path.exists() and not args.force:
+        print(f"error: {path} already exists (use --force to overwrite)", file=sys.stderr)
+        return 5
+    signer = signer_from_file(path)
+    pub_path = Path(args.pubkey or str(path) + ".pub")
+    pub_path.write_text(signer.public_key.hex() + "\n", encoding="utf-8")
+    print(f"private key : {path}  (keep secret, 0600)")
+    print(f"public key  : {pub_path}")
+    print(f"fingerprint : {signer.fingerprint}")
+    print("\nGive the public key to your auditor. They run:")
+    print(f"  axon audit --ledger <ledger> --pubkey {pub_path}")
+    return 0
+
+
+def cmd_identities(args) -> int:
+    reg = _registry(args)
+    if reg is None:
+        print("RBAC disabled (--no-rbac)")
+        return 0
+    roles = reg.roles()
+    print("roles:")
+    for role, tags in sorted(roles.items()):
+        print(f"  {role:<12} tags: {', '.join(sorted(tags)) or '(none)'}")
+    print("\nidentities:")
+    print(f"  {'name':<16}{'role':<12}{'owner':<26}tags")
+    print("  " + "-" * 68)
+    for name in reg.known():
+        try:
+            ident = reg.get(name)
+        except IdentityError:
+            print(f"  {name:<16}{'(disabled)':<12}")
+            continue
+        print(f"  {ident.name:<16}{ident.role:<12}{ident.owner or '-':<26}"
+              f"{', '.join(sorted(ident.tags)) or '(none)'}")
+    return 0
 
 
 def cmd_export_otel(args) -> int:
@@ -113,6 +187,12 @@ def build_parser() -> argparse.ArgumentParser:
     r.add_argument("--ledger", default="./axon-audit.jsonl")
     r.add_argument("--policy", default=None)
     r.add_argument("--tool", action="append", help="name=target (repeatable)")
+    r.add_argument("--key", default=None,
+                   help=f"Ed25519 signing key for the ledger (created if missing; "
+                        f"default path when set: {DEFAULT_KEY})")
+    r.add_argument("--identities", default=None, help="identity/role registry YAML")
+    r.add_argument("--no-rbac", action="store_true",
+                   help="skip the identity registry (local dev only; roles not enforced)")
     r.set_defaults(func=cmd_run)
 
     m = sub.add_parser("models", help="list providers and model prices")
@@ -120,7 +200,21 @@ def build_parser() -> argparse.ArgumentParser:
 
     a = sub.add_parser("audit", help="verify and print the audit ledger")
     a.add_argument("--ledger", default="./axon-audit.jsonl")
+    a.add_argument("--pubkey", default=None,
+                   help="auditor's public key; enforces that every record is signed by it")
+    a.add_argument("--key", default=None, help=argparse.SUPPRESS)
     a.set_defaults(func=cmd_audit)
+
+    k = sub.add_parser("keygen", help="generate an Ed25519 signing key pair")
+    k.add_argument("--key", default="./axon-signing.key")
+    k.add_argument("--pubkey", default=None)
+    k.add_argument("--force", action="store_true")
+    k.set_defaults(func=cmd_keygen)
+
+    i = sub.add_parser("identities", help="list roles and identities from the registry")
+    i.add_argument("--identities", default=None)
+    i.add_argument("--no-rbac", action="store_true", help=argparse.SUPPRESS)
+    i.set_defaults(func=cmd_identities)
 
     o = sub.add_parser("export-otel", help="export the ledger as OpenTelemetry spans")
     o.add_argument("--ledger", default="./axon-audit.jsonl")
@@ -140,6 +234,12 @@ def main(argv=None) -> int:
     args = build_parser().parse_args(argv)
     try:
         return args.func(args)
+    except SignatureError as exc:
+        print(f"signing error: {exc}", file=sys.stderr)
+        return 6
+    except IdentityError as exc:
+        print(f"identity error: {exc}", file=sys.stderr)
+        return 7
     except ValueError as exc:
         print(f"error: {exc}", file=sys.stderr)
         return 5

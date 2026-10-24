@@ -1,0 +1,109 @@
+# Shield pack: regulated
+#
+# For finance, healthcare, and public-sector deployments. Nothing is allowed
+# implicitly: every permitted action is enumerated, all data access is scoped
+# to a single dataset root, and any write or delegation requires a human
+# approval tag. This is the pack to hand to an auditor.
+rules:
+  # Absolute refusals, enumerated so a reviewer can see them listed.
+  - action: "tool.*"
+    actor: "*"
+    target: "*secrets*"
+    effect: deny
+  - action: "tool.*"
+    actor: "*"
+    target: "*/.env"
+    effect: deny
+  - action: "tool.*"
+    actor: "*"
+    target: "*/.ssh/*"
+    effect: deny
+  - action: "tool.*"
+    actor: "*"
+    target: "*credential*"
+    effect: deny
+  - action: "tool.delete_everything"
+    actor: "*"
+    target: "*"
+    effect: deny
+  - action: "tool.write_file"
+    actor: "*"
+    target: "/etc/*"
+    effect: deny
+
+  # Reads are scoped to the approved dataset root and nothing else.
+  - action: "tool.read_file"
+    actor: "*"
+    target: "/datasets/approved/*"
+    effect: allow
+
+  # Any write requires approval, without exception.
+  - action: "tool.write_file"
+    actor: "*"
+    target: "*"
+    effect: allow
+    requires: ["approved"]
+
+  # Only reviewed models, and only through the vault for credentials.
+  - action: "model.complete"
+    actor: "*"
+    target: "claude-*"
+    effect: allow
+  - action: "model.complete"
+    actor: "*"
+    target: "gpt-*"
+    effect: allow
+  - action: "model.complete"
+    actor: "*"
+    target: "mock"
+    effect: allow
+
+  # Delegation requires approval, so an orchestrator cannot fan out silently.
+  - action: "agent.delegate"
+    actor: "*"
+    target: "*"
+    effect: allow
+    requires: ["approved"]
+
+  # Credentials only from the regulated vault namespace.
+  - action: "vault.read"
+    actor: "*"
+    target: "regulated/*"
+    effect: allow
+    requires: ["approved"]
+
+# The strictest pack: reads are scoped to one dataset root, every write and
+# every delegation needs an approval tag, and credentials come only from the
+# regulated vault namespace.
+shield:
+  probes:
+    - action: "tool.read_file"
+      target: "/datasets/approved/q3.csv"
+      must_allow: true
+    - action: "tool.read_file"
+      target: "/datasets/other/q3.csv"
+      must_allow: false          # outside the approved root
+    - action: "tool.write_file"
+      target: "/datasets/approved/out.csv"
+      must_allow: false          # no approval tag
+    - action: "tool.write_file"
+      target: "/datasets/approved/out.csv"
+      tags: ["approved"]
+      must_allow: true
+    - action: "agent.delegate"
+      actor: "ops-bot"
+      target: "worker-1"
+      must_allow: false          # delegation needs approval here
+    - action: "agent.delegate"
+      actor: "ops-bot"
+      target: "worker-1"
+      tags: ["approved"]
+      must_allow: true
+    - action: "vault.read"
+      target: "regulated/db-password"
+      tags: ["approved"]
+      must_allow: true
+    - action: "vault.read"
+      target: "sandbox/scratch"
+      tags: ["approved"]
+      must_allow: false

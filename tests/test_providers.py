@@ -221,7 +221,7 @@ def test_runtime_governs_a_real_provider_over_http(api, tmp_path):
     runtime = AgentRuntime(
         agent_id="a1",
         ledger=AuditLedger(tmp_path / "l.jsonl"),
-        policy=PolicyEngine.allow_all(),
+        policy=PolicyEngine.permissive(),
         budget=Budget(limit_usd=1.0),
         provider=provider,
     )

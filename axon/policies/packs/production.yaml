@@ -1,0 +1,84 @@
+# Shield pack: production
+#
+# For agents running against live systems. Reads are narrow, writes require
+# an approval tag, delegation is restricted to a named orchestrator, and
+# secrets are reachable only through the vault action.
+rules:
+  # Hard blocks first: first match wins, so these must precede any allow.
+  - action: "tool.*"
+    actor: "*"
+    target: "*secrets*"
+    effect: deny
+  - action: "tool.*"
+    actor: "*"
+    target: "*/.env"
+    effect: deny
+  - action: "tool.write_file"
+    actor: "*"
+    target: "/etc/*"
+    effect: deny
+
+  # Sandbox reads only.
+  - action: "tool.read_file"
+    actor: "*"
+    target: "/sandbox/*"
+    effect: allow
+
+  # Production writes need a human approval tag.
+  - action: "tool.write_file"
+    actor: "*"
+    target: "/prod/*"
+    effect: allow
+    requires: ["approved"]
+
+  # Approved model families only.
+  - action: "model.complete"
+    actor: "*"
+    target: "claude-*"
+    effect: allow
+  - action: "model.complete"
+    actor: "*"
+    target: "gpt-*"
+    effect: allow
+  - action: "model.complete"
+    actor: "*"
+    target: "mock"
+    effect: allow
+
+  # Only the orchestrator may delegate.
+  - action: "agent.delegate"
+    actor: "ops-bot"
+    target: "*"
+    effect: allow
+
+  # Secret leases are opt-in per secret, and audited when issued.
+  - action: "vault.read"
+    actor: "*"
+    target: "sandbox/*"
+    effect: allow
+
+# Expectations this pack declares about itself, checked by `axon shield --check`.
+# Baseline refusals (secrets, .env, /etc writes, destructive tools) are added
+# automatically and are not repeated here.
+shield:
+  probes:
+    - action: "tool.read_file"
+      target: "/sandbox/notes.txt"
+      must_allow: true
+    - action: "tool.write_file"
+      target: "/prod/db"
+      must_allow: false          # no `approved` tag supplied
+    - action: "tool.write_file"
+      target: "/prod/db"
+      tags: ["approved"]
+      must_allow: true
+    - action: "agent.delegate"
+      actor: "worker-1"
+      target: "worker-2"
+      must_allow: false          # only ops-bot may delegate
+    - action: "vault.read"
+      target: "sandbox/api-key"
+      must_allow: true
+    - action: "vault.read"
+      target: "prod/api-key"
+      must_allow: false          # only the sandbox namespace is readable

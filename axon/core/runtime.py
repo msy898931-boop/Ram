@@ -15,6 +15,7 @@ from typing import Any, Callable
 
 from .audit import AuditLedger
 from .budget import Budget, BudgetExceeded
+from .identity import IdentityRegistry
 from .policy import PolicyEngine
 from axon.providers import Completion, default_provider, get_provider
 
@@ -50,21 +51,63 @@ class AgentRuntime:
         policy: PolicyEngine,
         budget: Budget,
         provider: Any | None = None,
+        registry: IdentityRegistry | None = None,
+        vault: Any | None = None,
     ):
         self.agent_id = agent_id
         self.ledger = ledger
         self.policy = policy
         self.budget = budget
         self.provider = provider or default_provider()
+        self.registry = registry
+        self.vault = vault
+        # Role-derived tags are merged with any explicitly granted ones, so a
+        # caller cannot hand an agent authority its role does not carry.
+        self.identity = registry.get(agent_id) if registry is not None else None
+        self.granted_tags: set[str] = set(self.identity.tags) if self.identity else set()
+
+    @property
+    def owner(self) -> str:
+        """The human accountable for this agent, if the registry knows one."""
+        return self.identity.owner if self.identity else ""
+
+    def grant(self, *tags: str) -> None:
+        """Grant extra tags for the lifetime of this runtime.
+
+        Deliberately explicit and narrow: tags are consumed by `requires:`
+        clauses, so this is how a human approval workflow unlocks a specific
+        action without loosening the policy itself.
+        """
+        self.granted_tags |= set(tags)
+
+    def revoke(self, *tags: str) -> None:
+        self.granted_tags -= set(tags)
+
+    def _tags(self, extra: set[str] | None) -> set[str]:
+        return self.granted_tags | (extra or set())
+
+    def _identity_metadata(self, tags: set[str] | None = None) -> dict[str, Any]:
+        """Who acted and under what authority — attached to every record.
+
+        An audit trail is only useful if each entry names the accountable
+        principal, so this is added uniformly rather than per call site.
+        """
+        return {
+            "role": self.identity.role if self.identity else "unregistered",
+            "owner": self.owner,
+            "tags": sorted(self._tags(tags)),
+        }
 
     def _authorize(self, action: str, target: str = "", tags: set[str] | None = None) -> None:
-        decision = self.policy.evaluate(self.agent_id, action, target, tags)
+        effective = self._tags(tags)
+        decision = self.policy.evaluate(self.agent_id, action, target, effective)
         self.ledger.append(
             self.agent_id,
             action,
             target=target,
             decision="allow" if decision.allowed else "deny",
             reason=decision.reason,
+            metadata=self._identity_metadata(tags),
         )
         if not decision.allowed:
             raise PolicyDenied(f"{self.agent_id} denied '{action}' on '{target}': {decision.reason}")
@@ -85,6 +128,7 @@ class AgentRuntime:
                 "input_tokens": completion.usage.input_tokens,
                 "output_tokens": completion.usage.output_tokens,
                 "cost_usd": round(completion.usage.cost_usd, 6),
+                **self._identity_metadata(),
             },
         )
         return completion
@@ -106,9 +150,23 @@ class AgentRuntime:
             target=target,
             decision="allow",
             reason="executed" if ok else "failed",
-            metadata={"ok": ok},
+            metadata={"ok": ok, **self._identity_metadata()},
         )
         return ToolResult(name=name, output=output, allowed=True)
+
+    def read_secret(self, key: str, *, ttl: float | None = None, reusable: bool = False):
+        """Request a secret lease through the policy engine.
+
+        The agent never receives the raw value from the environment; it gets
+        a lease whose access is authorized, recorded, and revocable.
+        """
+        if self.vault is None:
+            raise PolicyDenied(
+                f"{self.agent_id} requested secret '{key}' but no vault is configured"
+            )
+        return self.vault.issue(
+            self.agent_id, key, ttl=ttl, reusable=reusable, authorizer=self._authorize
+        )
 
     def run(self, task: str, *, model: str = "mock", tools: dict[str, tuple[str, Callable[[], str]]] | None = None) -> RunResult:
         """Minimal single-agent loop: plan -> tool(s) -> summarise.
@@ -119,7 +177,12 @@ class AgentRuntime:
         import uuid
 
         run_id = uuid.uuid4().hex[:12]
-        self.ledger.append(self.agent_id, "run.start", target=task[:120], metadata={"run_id": run_id})
+        self.ledger.append(
+            self.agent_id,
+            "run.start",
+            target=task[:120],
+            metadata={"run_id": run_id, **self._identity_metadata()},
+        )
         result = RunResult(run_id=run_id)
 
         plan = self.think(f"Plan how to accomplish: {task}", model=model)
@@ -142,6 +205,11 @@ class AgentRuntime:
             self.agent_id,
             "run.end",
             decision="allow",
-            metadata={"run_id": run_id, "cost_usd": round(result.cost_usd, 6), "denied": result.denied},
+            metadata={
+                "run_id": run_id,
+                "cost_usd": round(result.cost_usd, 6),
+                "denied": result.denied,
+                **self._identity_metadata(),
+            },
         )
         return result

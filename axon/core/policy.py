@@ -63,13 +63,28 @@ class PolicyEngine:
         return cls(rules)
 
     @classmethod
-    def allow_all(cls) -> "PolicyEngine":
+    def permissive(cls) -> "PolicyEngine":
         """Explicit opt-out of governance. For local dev and tests only.
 
         Never use in production: it disables the fail-closed guarantee that
-        is AXON's entire point.
+        is AXON's entire point. Kept as a loud, greppable name so an audit
+        of a deployment can find every use with one search.
         """
         return cls([Rule(action="*", actor="*", target="*", effect="allow")])
+
+    @classmethod
+    def bootstrap(cls) -> "PolicyEngine":
+        """A safe starting policy: model calls allowed, nothing else.
+
+        This is what `axon run` uses when the caller passes no policy file.
+        Unlike `permissive()` it keeps tools denied, so a first run cannot
+        touch a filesystem or a network by accident.
+        """
+        return cls([
+            Rule(action="model.complete", actor="*", target="*", effect="allow"),
+            Rule(action="run.start", actor="*", target="*", effect="allow"),
+            Rule(action="run.end", actor="*", target="*", effect="allow"),
+        ])
 
     def evaluate(
         self, actor: str, action: str, target: str = "", tags: set[str] | None = None

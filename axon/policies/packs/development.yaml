@@ -1,0 +1,59 @@
+# Shield pack: development
+#
+# For local work. Wider than production but still refuses secrets and
+# destructive actions, so a developer cannot accidentally build a habit
+# that fails in production.
+rules:
+  - action: "tool.*"
+    actor: "*"
+    target: "*secrets*"
+    effect: deny
+  - action: "tool.*"
+    actor: "*"
+    target: "*/.env"
+    effect: deny
+  - action: "tool.delete_everything"
+    actor: "*"
+    target: "*"
+    effect: deny
+
+  - action: "tool.read_file"
+    actor: "*"
+    target: "*"
+    effect: allow
+  - action: "tool.write_file"
+    actor: "*"
+    target: "/workspace/*"
+    effect: allow
+  - action: "tool.write_file"
+    actor: "*"
+    target: "/tmp/*"
+    effect: allow
+
+  - action: "model.complete"
+    actor: "*"
+    target: "*"
+    effect: allow
+
+  - action: "agent.delegate"
+    actor: "*"
+    target: "*"
+    effect: allow
+
+# This pack is intentionally permissive for delegation and model choice; it
+# still refuses secrets and destructive tools via the baseline probes.
+shield:
+  probes:
+    - action: "tool.read_file"
+      target: "/anywhere/file.txt"
+      must_allow: true
+    - action: "tool.write_file"
+      target: "/workspace/out.txt"
+      must_allow: true
+    - action: "tool.write_file"
+      target: "/etc/passwd"
+      must_allow: false
+    - action: "agent.delegate"
+      actor: "worker-1"
+      target: "worker-2"
+      must_allow: true

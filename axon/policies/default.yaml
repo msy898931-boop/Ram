@@ -46,3 +46,11 @@ rules:
     actor: "*"
     target: "mock"
     effect: allow
+
+  # 5. Delegation is deny-by-default like everything else. A parent may only
+  #    hand work to a named child when a rule here allows it, so adding an
+  #    agent does not silently grant it the ability to spawn others.
+  - action: "agent.delegate"
+    actor: "ops-bot"
+    target: "*"
+    effect: allow
