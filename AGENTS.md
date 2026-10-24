@@ -11,10 +11,12 @@ Apache-2.0 core; Shield/Observe/Vault are the commercial layer.
 | Path | Purpose |
 |---|---|
 | `axon/core/` | `policy.py` (rule engine), `audit.py` (hash-chained ledger), `budget.py` (cost caps), `runtime.py` (governed loop) |
+| `axon/security/` | `auth.py` (tokens, rate limit, replay), `injection.py` (prompt-injection scan), `canary.py` (exfiltration tripwires), `headers.py` (HTTP headers + `Posture`) |
 | `axon/providers/` | `base.py`, `transport.py` (retries + typed errors), `anthropic.py`, `openai.py`, `__init__.py` (registry) |
 | `axon/core/providers.py` | Compatibility shim — do not add logic here |
-| `axon/cli.py` | `run`, `models`, `audit`, `policy-check`, `export-otel` |
-| `tests/` | Provider tests use a **real local HTTP server**, not mocks — keep it that way |
+| `axon/cli.py` | `run`, `models`, `audit`, `policy-check`, `export-otel`, `token`, `canary`, `posture`, `scan` |
+| `docs/SECURITY-LAYERS.md` | What each security layer stops, and what it does not |
+| `tests/` | Provider tests use a **real local HTTP server**, not mocks — keep it that way. Security tests attack a real server on an ephemeral port |
 | `pitch/` | Arabic RTL investor deck (`axon-deck.html` + generated `AXON-Deck.pdf`) |
 | `data/` | GitHub market research + raw verified dataset |
 | `scripts/launch.sh` | Idempotent repo create / push / topics / release |
@@ -23,14 +25,38 @@ Apache-2.0 core; Shield/Observe/Vault are the commercial layer.
 
 ```bash
 pip install -e ".[dev]"
-python -m pytest -q                     # 128 tests, ~13s
+python -m pytest -q                     # 246 tests, ~26s
+python -m pytest tests/test_security_*.py -q   # 118 adversarial security tests
 python -m ruff check .                  # lint gate, must be clean
 python -m axon.cli --version
 python -m axon.cli models               # provider + price table
 python -m axon.cli run "task" --provider mock --budget 0.5
 python -m axon.cli policy-check tool.read_file --target /home/x/secrets/k
 python -m axon.cli audit --ledger ./audit.jsonl
+python -m axon.cli token create --name operator --out tokens.yaml
+python -m axon.cli posture --tokens tokens.yaml --canaries canaries.txt
+python -m axon.cli scan --file untrusted.txt
 ```
+
+## Security invariants (do not weaken these)
+
+- The dashboard **refuses** a non-loopback bind without an authenticator. Do
+  not turn that into a warning; a warning does not stop the breach.
+- `/healthz` is the only unauthenticated route. Do not add another.
+- Tokens are stored as digests, never plaintext. Never write a token value to
+  a file, a log, or the ledger.
+- Canary values never reach the ledger. Only the fingerprint and a redacted
+  context are recorded, so the evidence cannot become a second leak.
+- Response headers must be written **before** `end_headers()`. Writing them
+  after silently drops them — this bug shipped once and was caught by
+  `test_security_dashboard.py`.
+- Error responses must not echo exception text; it names internal paths.
+- `axon posture` must keep saying that 100/100 means "every control is on",
+  not "unbreakable". Do not let the honesty get optimised away.
+- The injection detector's accuracy is asserted by tests
+  (`test_security_injection.py`): every attack denied, no benign document
+  denied. A detector that denies everything is useless, so the
+  false-positive test matters as much as the attack test.
 
 ## Notes for future sessions
 

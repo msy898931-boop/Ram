@@ -55,6 +55,9 @@ class AgentRuntime:
         provider: Any | None = None,
         registry: IdentityRegistry | None = None,
         vault: Any | None = None,
+        canaries: Any | None = None,
+        scan_tool_output: bool = False,
+        injection_threshold: float = 0.4,
     ):
         self.agent_id = agent_id
         self.ledger = ledger
@@ -63,6 +66,13 @@ class AgentRuntime:
         self.provider = provider or default_provider()
         self.registry = registry
         self.vault = vault
+        # Tool output is the main way attacker-controlled text reaches an
+        # agent, so it is the main place to scan it. Off by default to keep
+        # the existing behaviour of `run()` unchanged; a deployment turns it
+        # on deliberately.
+        self.canaries = canaries
+        self.scan_tool_output = scan_tool_output
+        self.injection_threshold = injection_threshold
         # Role-derived tags are merged with any explicitly granted ones, so a
         # caller cannot hand an agent authority its role does not carry.
         self.identity = registry.get(agent_id) if registry is not None else None
@@ -135,10 +145,51 @@ class AgentRuntime:
         )
         return completion
 
+    def _inspect(self, output: str, target: str) -> tuple[str, str]:
+        """Scan untrusted tool output. Returns (decision, reason).
+
+        Two independent detectors run here, because they answer different
+        questions. The canary answers "did a specific secret leave?" with a
+        fact. The injection scanner answers "does this text look like an
+        attempt to steer the agent?" with a probability. Both are recorded, so
+        an operator can see which one fired.
+        """
+        reasons: list[str] = []
+        decision = "allow"
+
+        if self.canaries is not None:
+            hits = self.canaries.scan(output, where="tool_result")
+            for hit in hits:
+                # A canary in tool output is unambiguous: the value is random
+                # and has no legitimate reason to appear here.
+                decision = "deny"
+                reasons.append(hit.describe())
+
+        if self.scan_tool_output:
+            from ..security.injection import scan, verdict
+
+            result = scan(output)
+            outcome = verdict(result, threshold=self.injection_threshold)
+            if outcome != "allow":
+                reasons.append(
+                    f"injection {outcome} (score {result.score}, worst {result.worst}): "
+                    + "; ".join(f.kind for f in result.findings[:5])
+                )
+                if outcome == "deny":
+                    decision = "deny"
+
+        return decision, "; ".join(reasons)
+
     def call_tool(
         self, name: str, target: str, fn: Callable[[], str], tags: set[str] | None = None
     ) -> ToolResult:
-        """One governed tool call. `fn` runs only if authorized."""
+        """One governed tool call. `fn` runs only if authorized.
+
+        The tool's *output* is inspected before it is handed back, because
+        that output is attacker-reachable text: a fetched page, an issue body,
+        a file the agent was told to read. A canary or a strong injection hit
+        turns the result into a denial and is recorded as one.
+        """
         self._authorize(f"tool.{name}", target=target, tags=tags)
         try:
             output = fn()
@@ -146,14 +197,27 @@ class AgentRuntime:
         except Exception as exc:  # tool failure is recorded, not swallowed
             output = f"error: {exc}"
             ok = False
+
+        inspection, reason = self._inspect(output, target)
+        blocked = inspection == "deny"
+
         self.ledger.append(
             self.agent_id,
             f"tool.{name}.result",
             target=target,
-            decision="allow",
-            reason="executed" if ok else "failed",
-            metadata={"ok": ok, **self._identity_metadata()},
+            decision="deny" if blocked else "allow",
+            reason=reason or ("executed" if ok else "failed"),
+            metadata={
+                "ok": ok,
+                "blocked": blocked,
+                **self._identity_metadata(tags),
+            },
         )
+        if blocked:
+            raise PolicyDenied(
+                f"{self.agent_id} result from tool '{name}' on '{target}' was "
+                f"withheld: {reason}"
+            )
         return ToolResult(name=name, output=output, allowed=True)
 
     def read_secret(self, key: str, *, ttl: float | None = None, reusable: bool = False):

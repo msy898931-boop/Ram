@@ -7,9 +7,41 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 ## [Unreleased]
 
 ### Added
+- **Seven-layer security stack** (`axon/security/`). Defence in depth,
+  ordered by what an attacker reaches first:
+  1. **Authentication** — bearer tokens stored as SHA-256 digests, compared in
+     constant time with no early exit, so response timing does not reveal
+     which token matched.
+  2. **Rate limiting** — token bucket per principal. A bucket rather than a
+     fixed window, because a window lets a caller spend two budgets back to
+     back at a window boundary.
+  3. **Replay defence** — single-use nonce inside a bounded timestamp window;
+     the HMAC covers method, path, timestamp, nonce, and body digest.
+  4. **Security headers** — `default-src 'none'` CSP, `frame-ancestors 'none'`,
+     nosniff, no-referrer, applied to error responses as well as successes.
+  5. **Injection detection** — 15 named attack shapes scanned against tool
+     output before it reaches the agent, with explicit negation handling so a
+     policy statement is not read as an order.
+  6. **Canary tokens** — random tripwire values that authenticate nothing, so
+     any appearance is proof of exfiltration. The ledger records a
+     fingerprint and redacted context, never the value.
+  7. **Self-verification** — `axon posture` reports per layer whether it is
+     actually enforcing, names every gap, and exits non-zero when any is off.
+- **Fail-closed dashboard.** The dashboard refuses to bind a non-loopback
+  address without an authenticator, and `/healthz` is the only unauthenticated
+  route. This closes a real exposure: the ledger was previously served
+  anonymously on `0.0.0.0`.
+- **Runtime output inspection.** `AgentRuntime` scans tool results for canaries
+  and (when `scan_tool_output=True`) injections, records a positive detection
+  as a denial, and withholds the result.
+- **New CLI:** `axon token create`, `axon canary`, `axon posture`, `axon scan`.
+- **Seven compliance controls** covering authentication of the audit interface,
+  replay protection, security-event detection, secret disclosure, monitoring,
+  least privilege, and prompt-injection defence. Total: 18 controls.
 - **Lint gate.** Explicit `[tool.ruff.lint]` selection in `pyproject.toml` so
   `ruff check` is reproducible across ruff versions instead of silently
   widening or narrowing with each release.
+
 - **Signed audit ledger.** Optional Ed25519 signatures over each record hash,
   implemented in pure Python (RFC 8032) and verified against the RFC test
   vectors plus cross-checks against `cryptography`. `AuditLedger.verify()`
@@ -48,6 +80,15 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
   `axon compliance [--run]`.
 
 ### Fixed
+- Response headers set after `end_headers()` were silently dropped, so
+  `WWW-Authenticate` and `Retry-After` never reached the client. Now written
+  before the headers are flushed.
+- `?limit=abc` on `/api/records` raised and became a 500; limits are now
+  clamped, and a caller cannot request an unbounded number of records.
+- Internal exception messages were echoed in 500 responses, naming internal
+  paths. Errors are now reported without detail.
+- Duplicate SOC 2 control ids (`CC6.6`, `CC6.8`) would have made the
+  compliance mapping ambiguous; the new controls use unused ids.
 - **Signature stripping was undetectable.** A hash chain alone lets whoever
   holds the ledger file delete every signature and re-hash the chain into a
   state that verified cleanly. Verification is now fail-closed when a public

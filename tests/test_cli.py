@@ -100,4 +100,10 @@ def test_shield_command_passes_every_pack(workspace, capsys):
 def test_compliance_command_maps_every_control(workspace, capsys):
     code, out = _run(["compliance"], capsys)
     assert code == 0
-    assert "11/11 controls" in out
+    # Assert the invariant (every control is mapped) rather than a hardcoded
+    # total, so adding a control does not require editing this test.
+    from axon.compliance import CONTROLS
+
+    total = len(CONTROLS)
+    assert f"{total}/{total} controls" in out
+    assert "FAIL" not in out

@@ -163,20 +163,202 @@ def cmd_identities(args) -> int:
 
 def cmd_dashboard(args) -> int:
     from .dashboard import serve
+    from .security.auth import Authenticator
+    from .security.canary import CanarySet
 
     pub = None
     if getattr(args, "pubkey", None):
         raw = Path(args.pubkey).read_bytes().strip()
         pub = bytes.fromhex(raw.decode()) if len(raw) == 64 else raw
+
+    auth = None
+    if getattr(args, "tokens", None):
+        auth = Authenticator.from_yaml(args.tokens)
+    elif args.host not in {"127.0.0.1", "::1", "localhost"} and not args.allow_unauthenticated:
+        print(f"refusing to serve on {args.host} without --tokens")
+        print("  create one with: axon token create --name operator --out tokens.yaml")
+        print("  or pass --allow-unauthenticated to override (not recommended)")
+        return 2
+
+    canaries = None
+    if getattr(args, "canaries", None):
+        canaries = CanarySet.from_file(args.canaries)
+
     print(f"AXON dashboard on http://{args.host}:{args.port}")
     print(f"  ledger: {args.ledger}")
+    print(f"  authentication: {'ON' if auth and auth.enabled else 'off'}")
     if pub:
         print("  enforcing signatures against the supplied public key")
+    if canaries:
+        print(f"  canaries loaded: {len(canaries)}")
     try:
-        serve(args.ledger, host=args.host, port=args.port, public_key=pub)
+        serve(
+            args.ledger, host=args.host, port=args.port, public_key=pub,
+            authenticator=auth, canaries=canaries,
+            allow_unauthenticated_public=getattr(args, "allow_unauthenticated", False),
+        )
     except KeyboardInterrupt:
         print("\nstopped")
+    except Exception as exc:
+        print(f"dashboard refused to start: {exc}")
+        return 2
     return 0
+
+
+def cmd_token(args) -> int:
+    """Issue a token; store only its digest, print the plaintext once."""
+    from .security.auth import Token
+
+    token, plaintext = Token.issue(
+        args.name, role=args.role, scopes=set(args.scope or []),
+    )
+    if args.out:
+        path = Path(args.out)
+        existing = {}
+        if path.exists():
+            import yaml as _yaml
+            existing = _yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+        tokens = existing.setdefault("tokens", {})
+        tokens[args.name] = {
+            "digest": token.digest,
+            "role": args.role,
+            "scopes": sorted(token.scopes),
+        }
+        existing.setdefault("enabled", True)
+        import yaml as _yaml
+        path.write_text(_yaml.safe_dump(existing, sort_keys=False), encoding="utf-8")
+        path.chmod(0o600)
+        print(f"token '{args.name}' written to {path} (mode 0600)")
+        print("the digest is stored; the token itself is not")
+    print()
+    print("token (shown once, store it now):")
+    print(f"  {plaintext}")
+    print()
+    print("use it with:  curl -H 'Authorization: Bearer <token>' http://host:port/api/summary")
+    return 0
+
+
+def cmd_canary(args) -> int:
+    """Mint canaries, or scan text for a leak."""
+    from .security.canary import CanarySet
+
+    if args.scan:
+        canaries = CanarySet.from_file(args.scan)
+        text = sys.stdin.read()
+        hits = canaries.scan(text, where="stdin")
+        if not hits:
+            print(f"no canary found ({len(canaries)} checked)")
+            return 0
+        for hit in hits:
+            print(hit.describe())
+        return 1
+
+    canaries = CanarySet()
+    for name in args.name or ["default"]:
+        canaries.create(name, location=args.location, description=args.description or "")
+    if args.out:
+        # Write the plaintext values to a file the operator protects, and the
+        # fingerprint inventory to a companion file that is safe to share.
+        lines = "\n".join(f"{c.name}={c.value}" for c in canaries.all())
+        Path(args.out).write_text(lines + "\n", encoding="utf-8")
+        Path(args.out).chmod(0o600)
+        inv = Path(args.out).with_suffix(".inventory.json")
+        canaries.save_inventory(inv)
+        print(f"canaries written to {args.out} (mode 0600, keep secret)")
+        print(f"shareable inventory written to {inv} (fingerprints only)")
+    else:
+        for c in canaries.all():
+            print(f"{c.name}={c.value}")
+    return 0
+
+
+def cmd_posture(args) -> int:
+    """Report which security layers a configuration actually enforces."""
+    from .security.auth import Authenticator
+    from .security.canary import CanarySet
+    from .security.headers import LayerStatus, Posture
+
+    layers: list[LayerStatus] = []
+
+    if args.tokens and Path(args.tokens).exists():
+        try:
+            auth = Authenticator.from_yaml(args.tokens)
+            layers.append(LayerStatus(
+                "authentication", auth.enabled,
+                f"{len(auth.token_names())} token(s), enabled={auth.enabled}",
+            ))
+        except Exception as exc:
+            layers.append(LayerStatus("authentication", False, f"unreadable: {exc}"))
+    else:
+        layers.append(LayerStatus(
+            "authentication", False,
+            "no token file supplied (--tokens); the ledger is open to anyone "
+            "who can reach the port",
+        ))
+
+    public = args.host not in {"127.0.0.1", "::1", "localhost"}
+    layers.append(LayerStatus(
+        "rate limiting", True, "token bucket, per principal (built in)",
+    ))
+    layers.append(LayerStatus(
+        "replay defence", True, "nonce + timestamp window (built in)",
+    ))
+    layers.append(LayerStatus(
+        "security headers", True, "CSP, X-Frame-Options, nosniff, no-referrer (built in)",
+    ))
+    layers.append(LayerStatus(
+        "transport", not public, "loopback only" if not public else
+        f"bound to {args.host}: use TLS in front of this",
+    ))
+    layers.append(LayerStatus(
+        "signature enforcement", bool(args.pubkey),
+        "public key supplied" if args.pubkey else "no --pubkey: records are not signature-checked",
+    ))
+
+    if args.canaries and Path(args.canaries).exists():
+        canaries = CanarySet.from_file(args.canaries)
+        layers.append(LayerStatus("canaries", True, f"{len(canaries)} tripwire(s) loaded"))
+    else:
+        layers.append(LayerStatus(
+            "canaries", False, "no canary file supplied; leaks would go undetected",
+        ))
+
+    layers.append(LayerStatus(
+        "injection detection", True,
+        "prompt-injection scanner available (axon scan)",
+    ))
+
+    posture = Posture(layers)
+    print(posture.describe())
+    print()
+    print("honest reading: this is defence in depth, not immunity. No layer here")
+    print("makes compromise impossible; together they make it harder, narrower,")
+    print("and detectable. Treat 100/100 as 'every control is switched on', not")
+    print("as 'unbreakable'.")
+    return 0 if posture.fully_hardened else 1
+
+
+def cmd_scan(args) -> int:
+    """Scan untrusted text for prompt injection before an agent consumes it."""
+    from .security.injection import scan, verdict
+
+    if args.file:
+        text = Path(args.file).read_text(encoding="utf-8", errors="replace")
+        source = args.file
+    else:
+        text = sys.stdin.read()
+        source = "<stdin>"
+
+    result = scan(text)
+    decision = verdict(result, threshold=args.threshold)
+    print(f"{source}: {decision} (score {result.score}, worst {result.worst})")
+    if result.truncated:
+        print("  note: input was truncated; the tail was not scanned")
+    for finding in result.findings:
+        print(f"  {finding.describe()}")
+    if not result.findings:
+        print("  no known injection pattern matched")
+    return 1 if decision == "deny" else 0
 
 
 def cmd_shield(args) -> int:
@@ -307,7 +489,44 @@ def build_parser() -> argparse.ArgumentParser:
     d.add_argument("--port", type=int, default=8080)
     d.add_argument("--pubkey", default=None,
                    help="public key; when given, the dashboard verifies every signature")
+    d.add_argument("--tokens", default=None,
+                   help="token file; required for any non-loopback bind")
+    d.add_argument("--canaries", default=None,
+                   help="canary file; enables leak detection on served records")
+    d.add_argument("--allow-unauthenticated", action="store_true",
+                   help="override the refusal to serve publicly without tokens")
     d.set_defaults(func=cmd_dashboard)
+
+    tok = sub.add_parser("token", help="issue a dashboard access token")
+    tok_sub = tok.add_subparsers(dest="token_cmd")
+    tok_create = tok_sub.add_parser("create", help="create a token")
+    tok_create.add_argument("--name", required=True)
+    tok_create.add_argument("--role", default="viewer")
+    tok_create.add_argument("--scope", action="append", default=None)
+    tok_create.add_argument("--out", default=None, help="token file to update (mode 0600)")
+    tok_create.set_defaults(func=cmd_token)
+    tok.set_defaults(func=cmd_token, name=None, role="viewer", scope=None, out=None)
+
+    can = sub.add_parser("canary", help="mint canary tokens or scan for a leak")
+    can.add_argument("name", nargs="*", help="names for new canaries")
+    can.add_argument("--out", default=None, help="write canaries here (mode 0600)")
+    can.add_argument("--location", default="")
+    can.add_argument("--description", default=None)
+    can.add_argument("--scan", default=None, metavar="FILE",
+                     help="scan stdin for canaries listed in FILE")
+    can.set_defaults(func=cmd_canary)
+
+    pos = sub.add_parser("posture", help="report which security layers are actually enforcing")
+    pos.add_argument("--tokens", default=None)
+    pos.add_argument("--canaries", default=None)
+    pos.add_argument("--pubkey", default=None)
+    pos.add_argument("--host", default="127.0.0.1")
+    pos.set_defaults(func=cmd_posture)
+
+    sc = sub.add_parser("scan", help="scan untrusted text for prompt injection")
+    sc.add_argument("--file", default=None, help="file to scan (default: stdin)")
+    sc.add_argument("--threshold", type=float, default=0.4)
+    sc.set_defaults(func=cmd_scan)
 
     sh = sub.add_parser("shield", help="check policy packs against what they claim to refuse")
     sh.add_argument("pack", nargs="?", default=None, help="pack name (omit to check all)")

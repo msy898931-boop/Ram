@@ -174,6 +174,119 @@ CONTROLS: tuple[Control, ...] = (
         ),
         tests=["test_axon.py", "test_orchestrator.py", "test_integrations.py"],
     ),
+    Control(
+        id="CC6.2",
+        framework="SOC 2",
+        title="Access to the audit record itself is authenticated",
+        requirement=(
+            "Boundaries protecting against unauthorized access are enforced at "
+            "every entry point, including the interfaces that expose logs."
+        ),
+        implementation=["axon/security/auth.py", "axon/dashboard.py"],
+        evidence=(
+            "Bearer tokens are stored as SHA-256 digests, compared in constant "
+            "time, and checked before the router runs; a non-loopback bind "
+            "without an authenticator is refused at startup."
+        ),
+        tests=["test_security_auth.py", "test_security_dashboard.py"],
+    ),
+    Control(
+        id="CC6.3",
+        framework="SOC 2",
+        title="Transmitted data cannot be replayed or tampered with in transit",
+        requirement=(
+            "The entity restricts the transmission and movement of information "
+            "to authorized parties and protects it against interception."
+        ),
+        implementation=["axon/security/auth.py", "axon/dashboard.py"],
+        evidence=(
+            "Requests may be signed with an HMAC over method, path, timestamp, "
+            "nonce, and body digest; single-use nonces inside a bounded time "
+            "window make a captured request unusable a second time."
+        ),
+        tests=["test_security_auth.py", "test_security_dashboard.py"],
+    ),
+    Control(
+        id="CC7.4",
+        framework="SOC 2",
+        title="The entity detects and responds to security events",
+        requirement=(
+            "Vulnerabilities, anomalies, and security incidents are detected "
+            "and the resulting events are recorded."
+        ),
+        implementation=["axon/security/injection.py", "axon/security/canary.py", "axon/core/runtime.py"],
+        evidence=(
+            "Untrusted tool output is scanned for injection and for canary "
+            "tokens before it is returned to the agent; a positive detection is "
+            "written to the ledger as a denial and the result is withheld."
+        ),
+        tests=["test_security_injection.py", "test_security_canary.py", "test_security_runtime.py"],
+    ),
+    Control(
+        id="CC6.4",
+        framework="SOC 2",
+        title="Secrets are not disclosed through agent output or logs",
+        requirement=(
+            "Confidential information is protected from disclosure in the "
+            "systems that process it."
+        ),
+        implementation=["axon/security/canary.py", "axon/vault.py"],
+        evidence=(
+            "Canary values are random and never written to the ledger; a hit "
+            "records the canary's fingerprint and a redacted context, so the "
+            "evidence does not become a second copy of the secret."
+        ),
+        tests=["test_security_canary.py", "test_security_runtime.py"],
+    ),
+    Control(
+        id="A.8.16",
+        framework="ISO/IEC 27001",
+        title="Monitoring activities are established and reviewed",
+        requirement=(
+            "Networks, systems, and applications are monitored for anomalous "
+            "behaviour and the results are acted upon."
+        ),
+        implementation=["axon/security/headers.py", "axon/security/injection.py"],
+        evidence=(
+            "`axon posture` reports, per control, whether it is actually "
+            "enforcing in a given configuration, and names every gap rather "
+            "than reporting a clean bill of health."
+        ),
+        tests=["test_security_cli.py"],
+    ),
+    Control(
+        id="A.8.3",
+        framework="ISO/IEC 27001",
+        title="Information access is restricted to what is required",
+        requirement=(
+            "Access to information and other associated assets is restricted "
+            "in line with the access control policy."
+        ),
+        implementation=["axon/security/auth.py", "axon/security/headers.py"],
+        evidence=(
+            "Scopes and roles gate each route; a strict Content-Security-Policy "
+            "and frame-ancestors 'none' limit what a browser will load from a "
+            "response the dashboard serves."
+        ),
+        tests=["test_security_auth.py", "test_security_dashboard.py"],
+    ),
+    Control(
+        id="AI-02",
+        framework="ISO/IEC 42001 (AI)",
+        title="Prompt injection and agent goal hijacking are detected",
+        requirement=(
+            "The AI system is protected against manipulation of its inputs, "
+            "including indirect instruction injection through data it reads."
+        ),
+        implementation=["axon/security/injection.py", "axon/core/runtime.py"],
+        evidence=(
+            "Tool output is scanned against named attack shapes before it "
+            "reaches the agent; the detection is explainable, naming the "
+            "pattern and the matching text, and its measured accuracy is "
+            "asserted by tests rather than claimed in prose."
+        ),
+        tests=["test_security_injection.py", "test_security_runtime.py"],
+    ),
 )
 
 
