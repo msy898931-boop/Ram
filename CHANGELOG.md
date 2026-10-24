@@ -41,6 +41,6 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - CLI: `run`, `audit`, `policy-check`, `export-otel`.
 - Apache-2.0 licence, README, SECURITY, CONTRIBUTING, Dockerfile.
 
-[Unreleased]: https://github.com/axon-agents/axon/compare/v0.2.0...HEAD
-[0.2.0]: https://github.com/axon-agents/axon/compare/v0.1.0...v0.2.0
-[0.1.0]: https://github.com/axon-agents/axon/releases/tag/v0.1.0
+[Unreleased]: https://github.com/msy898931-boop/Ram/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/msy898931-boop/Ram/compare/v0.1.0...v0.2.0
+[0.1.0]: https://github.com/msy898931-boop/Ram/releases/tag/v0.1.0

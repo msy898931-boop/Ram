@@ -9,7 +9,7 @@ Govern every agent. Audit every action. Cap every cost. Lock in no vendor.
 [![License: Apache-2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/)
 [![Tests](https://img.shields.io/badge/tests-28%20passing-brightgreen.svg)](tests/)
-[![CI](https://github.com/axon-agents/axon/actions/workflows/ci.yml/badge.svg)](https://github.com/axon-agents/axon/actions/workflows/ci.yml)
+[![CI](https://github.com/msy898931-boop/Ram/actions/workflows/ci.yml/badge.svg)](https://github.com/msy898931-boop/Ram/actions/workflows/ci.yml)
 [![Providers](https://img.shields.io/badge/providers-anthropic%20%7C%20openai%20%7C%20ollama-8A2BE2.svg)](#real-model-providers)
 [![Deny by default](https://img.shields.io/badge/policy-deny--by--default-critical.svg)](#why-it-is-different)
 
