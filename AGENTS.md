@@ -11,10 +11,10 @@ Apache-2.0 core; Shield/Observe/Vault are the commercial layer.
 | Path | Purpose |
 |---|---|
 | `axon/core/` | `policy.py` (rule engine), `audit.py` (hash-chained ledger), `budget.py` (cost caps), `runtime.py` (governed loop) |
-| `axon/security/` | `auth.py` (tokens, rate limit, replay), `injection.py` (prompt-injection scan), `canary.py` (exfiltration tripwires), `headers.py` (HTTP headers + `Posture`) |
+| `axon/security/` | `auth.py` (tokens, rate limit, replay), `oidc.py` (JWT/JWKS verification, key rotation), `tls.py` (in-process TLS, cert/key pair check), `injection.py` (prompt-injection scan), `canary.py` (exfiltration tripwires), `headers.py` (HTTP headers + `Posture`) |
 | `axon/providers/` | `base.py`, `transport.py` (retries + typed errors), `anthropic.py`, `openai.py`, `__init__.py` (registry) |
 | `axon/core/providers.py` | Compatibility shim — do not add logic here |
-| `axon/cli.py` | `run`, `models`, `audit`, `policy-check`, `export-otel`, `token`, `canary`, `posture`, `scan` |
+| `axon/cli.py` | `run`, `models`, `audit`, `policy-check`, `export-otel`, `token`, `canary`, `posture`, `scan`, `compliance`, `dashboard` |
 | `docs/SECURITY-LAYERS.md` | What each security layer stops, and what it does not |
 | `tests/` | Provider tests use a **real local HTTP server**, not mocks — keep it that way. Security tests attack a real server on an ephemeral port |
 | `pitch/` | Arabic RTL investor deck (`axon-deck.html` + generated `AXON-Deck.pdf`) |
@@ -25,8 +25,8 @@ Apache-2.0 core; Shield/Observe/Vault are the commercial layer.
 
 ```bash
 pip install -e ".[dev]"
-python -m pytest -q                     # 246 tests, ~26s
-python -m pytest tests/test_security_*.py -q   # 118 adversarial security tests
+python -m pytest -q                     # 332 tests, ~38s
+python -m pytest tests/test_security_*.py -q   # 197 adversarial security tests
 python -m ruff check .                  # lint gate, must be clean
 python -m axon.cli --version
 python -m axon.cli models               # provider + price table
@@ -41,7 +41,17 @@ python -m axon.cli scan --file untrusted.txt
 ## Security invariants (do not weaken these)
 
 - The dashboard **refuses** a non-loopback bind without an authenticator. Do
-  not turn that into a warning; a warning does not stop the breach.
+  not turn that into a warning; a warning does not stop the breach. An OIDC
+  verifier counts as an authenticator; that is deliberate, so federation is
+  not blocked by the check.
+- The OIDC verifier must never accept `alg: none`, must never let the token's
+  own header choose the verification key family (algorithm confusion), and
+  must never use a key marked `use: enc` for signature. Each of those has a
+  test that would fail loudly.
+- JWKS refetch is rate-limited (`_MIN_REFETCH_INTERVAL`). Removing the limit
+  turns unknown-`kid` tokens into a denial-of-service against the provider.
+- `verify_pair` must compare the certificate and key, and record the full
+  256-bit fingerprint. A truncated fingerprint is not an identity.
 - `/healthz` is the only unauthenticated route. Do not add another.
 - Tokens are stored as digests, never plaintext. Never write a token value to
   a file, a log, or the ledger.

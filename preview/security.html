@@ -1,0 +1,255 @@
+<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>طبقات الأمان — AXON</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;800&family=IBM+Plex+Sans+Arabic:wght@300;400;600&family=IBM+Plex+Mono&display=swap" rel="stylesheet">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%2305080d'/%3E%3Ctext x='16' y='23' font-family='monospace' font-size='19' font-weight='700' fill='%2300e5a0' text-anchor='middle'%3EA%3C/text%3E%3C/svg%3E">
+<style>
+:root{--bg:#05080d;--panel:#0c1219;--line:#1b2836;--fg:#dbe7f3;--muted:#8ba0b5;
+--acc:#00e5a0;--amber:#ffb454;--red:#ff5c6c}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);direction:rtl;
+font-family:"IBM Plex Sans Arabic","Segoe UI",system-ui,sans-serif;line-height:1.85}
+.wrap{max-width:940px;margin:0 auto;padding:48px 28px 96px}
+h1,h2,h3{font-family:Cairo,"Segoe UI",sans-serif;line-height:1.3;letter-spacing:-.01em}
+h1{font-size:2.3rem;margin:.2em 0 .4em}
+h2{font-size:1.5rem;margin:2.2em 0 .6em;padding-bottom:.3em;border-bottom:1px solid var(--line)}
+h3{font-size:1.15rem;margin:1.6em 0 .4em;color:var(--acc)}
+a{color:var(--acc);text-decoration:none}
+a:hover{text-decoration:underline}
+code{font-family:"IBM Plex Mono",monospace;background:#111a24;padding:2px 6px;
+border-radius:5px;font-size:.88em;direction:ltr;display:inline-block}
+pre{background:#0a1119;border:1px solid var(--line);border-radius:12px;padding:18px;
+overflow-x:auto;direction:ltr;text-align:left}
+pre code{background:none;padding:0}
+table{width:100%;border-collapse:collapse;margin:1.2em 0;font-size:.93em;display:block;overflow-x:auto}
+th,td{border:1px solid var(--line);padding:10px 13px;text-align:right}
+th{background:#101a24;color:var(--acc);font-weight:600;white-space:nowrap}
+tr:nth-child(even) td{background:#0a1119}
+blockquote{border-right:3px solid var(--amber);margin:1.2em 0;padding:.6em 1.1em;
+background:#12181f;border-radius:0 10px 10px 0;color:var(--muted)}
+hr{border:0;border-top:1px solid var(--line);margin:2.5em 0}
+.nav{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:32px;padding-bottom:22px;
+border-bottom:1px solid var(--line)}
+.nav a{border:1px solid var(--line);border-radius:100px;padding:7px 16px;font-size:.86rem;color:var(--fg)}
+.nav a:hover{border-color:var(--acc);color:var(--acc);text-decoration:none}
+.nav a.on{background:var(--acc);color:#04120c;border-color:var(--acc);font-weight:600}
+.badge{display:inline-block;background:#0d2a1f;color:var(--acc);border:1px solid #1c4a37;
+border-radius:100px;padding:4px 13px;font-size:.78rem;margin:0 0 14px}
+img{max-width:100%}
+</style></head><body><div class="wrap"><div class="nav">
+<a href="index.html">نظرة عامة</a>
+<a href="report.html">بحث GitHub</a>
+<a href="deck.html">العرض التقديمي</a>
+<a href="readme.html">README</a>
+<a href="security.html" class="on">طبقات الأمان</a>
+<a href="plan.html">خطة العمل</a>
+<a href="financials.html">النموذج المالي</a>
+</div><h1 id="axon-security-layers">AXON security layers</h1>
+<p>This document describes the defence-in-depth layers that protect an AXON
+deployment, what each one actually stops, and — importantly — what it does
+not stop. Every claim here is backed by code and by a test that fails if the
+control stops working.</p>
+<h2 id="the-honest-premise">The honest premise</h2>
+<p>No system is unbreakable. Not this one, not any other. A security layer is
+worth building when it makes an attack <strong>harder</strong>, <strong>narrower</strong>, or
+<strong>visible</strong>. The goal is not immunity; it is that a successful intrusion
+should be expensive, limited in scope, and detectable.</p>
+<p>Anyone who tells you a system cannot be breached is either mistaken or
+selling something. This document will not do that.</p>
+<h2 id="the-nine-layers">The nine layers</h2>
+<p>Ordered by what an attacker reaches first.</p>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Layer</th>
+<th>Module</th>
+<th>Stops</th>
+<th>Does not stop</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Authentication</td>
+<td><code>security/auth.py</code></td>
+<td>Unauthenticated reads of the ledger; forged tokens</td>
+<td>A stolen valid token</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Federated identity</td>
+<td><code>security/oidc.py</code></td>
+<td>Locally-forged accounts; access that survives an offboarding</td>
+<td>A token revoked before its <code>exp</code> (no introspection call)</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Rate limiting</td>
+<td><code>security/auth.py</code></td>
+<td>Credential stuffing, scraping, request floods</td>
+<td>A slow, patient attacker</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Replay defence</td>
+<td><code>security/auth.py</code></td>
+<td>Re-use of a captured request</td>
+<td>A live attacker with the signing key</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Transport encryption</td>
+<td><code>security/tls.py</code></td>
+<td>Eavesdropping, path tampering, protocol downgrade</td>
+<td>An endpoint whose private key is stolen</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Security headers</td>
+<td><code>security/headers.py</code></td>
+<td>XSS execution, clickjacking, MIME sniffing</td>
+<td>A browser that ignores headers</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Injection detection</td>
+<td><code>security/injection.py</code></td>
+<td>Known prompt-injection shapes in tool output</td>
+<td>Novel phrasing; it is a detector, not a proof</td>
+</tr>
+<tr>
+<td>8</td>
+<td>Canary tokens</td>
+<td><code>security/canary.py</code></td>
+<td>Nothing — it <em>detects</em> that a specific secret left</td>
+<td>The leak itself; it reports it</td>
+</tr>
+<tr>
+<td>9</td>
+<td>Self-verification</td>
+<td><code>security/headers.py</code> (<code>Posture</code>)</td>
+<td>Silent failure: a control that is off but assumed on</td>
+<td>Nothing; it is a reporting layer</td>
+</tr>
+</tbody>
+</table>
+<h2 id="what-each-layer-is-worth">What each layer is worth</h2>
+<h3 id="1-authentication">1. Authentication</h3>
+<p>Tokens are issued by <code>axon token create</code>, which stores only a SHA-256
+digest. The plaintext is printed once and never written to disk. Comparison
+is constant-time and does not exit early, so response timing does not reveal
+which token matched.</p>
+<p>The failure path is deliberately uniform: every rejection returns the same
+message, because distinguishing "no such token" from "wrong token" tells an
+attacker which half of a guess was correct.</p>
+<h3 id="2-federated-identity">2. Federated identity</h3>
+<p>Holding a local credential store means every offboarding is a change here,
+and any missed one is access that outlives the person's employment. When an
+organisation already runs an identity provider, the dashboard can verify the
+provider's tokens instead, so deprovisioning happens where it is already
+happening.</p>
+<p>What the verifier refuses: <code>alg: none</code>; algorithm confusion (a token claiming
+an algorithm the key cannot support); keys marked <code>use: enc</code> used for
+signature; a signature that does not match the key the <code>kid</code> names; wrong
+issuer, wrong audience, expired or not-yet-valid tokens.</p>
+<p>Key rotation is handled by re-fetching the provider's JWKS when an unknown
+<code>kid</code> appears, rate-limited so a flood of unknown key ids cannot turn into a
+denial of service against the provider.</p>
+<p>What it does not do: call the provider's introspection endpoint. A token
+revoked before its stated expiry is accepted until it expires. Shorten <code>exp</code>
+in the provider's token policy if that window matters more than the extra
+round-trip.</p>
+<h3 id="3-rate-limiting">3. Rate limiting</h3>
+<p>A token bucket per principal, refilled continuously. A fixed window would
+let a caller spend its whole budget at the end of one window and the start
+of the next, doubling the burst; a bucket cannot, because the bucket is the
+ceiling.</p>
+<h3 id="4-replay-defence">4. Replay defence</h3>
+<p>A signed request carries a timestamp and a single-use nonce. The timestamp
+bounds how long a capture stays useful; the nonce stops a capture being used
+twice inside that window. Both halves are required. The signature covers the
+method, path, timestamp, nonce, and body digest, so a captured request cannot
+be re-pointed at a different endpoint or payload.</p>
+<h3 id="5-transport-encryption">5. Transport encryption</h3>
+<p>The dashboard terminates TLS itself when given a certificate and key, rather
+than requiring a proxy in front. A control that lives in the code is one that
+<code>axon posture</code> can see and report on; one that lives in a deployment guide is
+one that gets skipped.</p>
+<p>The pair is validated at startup — the certificate and key must match, and
+the fingerprint is recorded — so a mismatch fails before the first request
+rather than during the first handshake, which is when it would otherwise be
+found by a user. TLS 1.2 is the floor, NULL and export-grade ciphers are
+refused, and HSTS is sent.</p>
+<h3 id="6-security-headers">6. Security headers</h3>
+<p>The dashboard renders attacker-influenced text — an agent's action name, a
+target path, an actor. A strict <code>Content-Security-Policy</code> with
+<code>default-src 'none'</code> turns a markup-injection bug from a compromise into a
+blocked request. <code>frame-ancestors 'none'</code> and <code>X-Frame-Options: DENY</code> close
+clickjacking. These are applied to error responses too, because an injected
+error page is still a page.</p>
+<h3 id="7-injection-detection">7. Injection detection</h3>
+<p>An agent that reads a web page, an issue, or a file is consuming text an
+attacker can influence. The attacker does not need to break into the host;
+they need the agent to read one sentence.</p>
+<p>This layer is <strong>detection, not prevention</strong>. It matches named attack shapes:
+instruction override, role hijack, system-prompt leak, secret exfiltration,
+destructive tool use, privilege escalation, policy bypass, delimiter
+spoofing, authority claims, and hidden characters.</p>
+<p>Its accuracy is measured, not claimed. <code>tests/test_security_injection.py</code>
+asserts that every attack in its corpus is denied and that no benign
+document in its corpus is denied. A detector that denies everything is
+useless, so the false-positive test is as important as the attack test.</p>
+<p>Negation is handled explicitly: "we must not delete the database" is a
+policy statement, not an order, and is not flagged.</p>
+<h3 id="8-canary-tokens">8. Canary tokens</h3>
+<p>A canary is a random string placed where only a leak could expose it — an
+unused credential, a sentinel row, a tripwire file. It authenticates nothing,
+so any appearance of it outside its home is proof of exfiltration with no
+ambiguity, because the string never legitimately appears anywhere else.</p>
+<p>This is stronger evidence than anomaly detection. An anomaly score is a
+guess; a canary hit is a fact, and the timestamp says when.</p>
+<p>The canary's value is never written to the ledger. The ledger records a
+fingerprint and a redacted context, so the audit trail does not become a
+second copy of the secret.</p>
+<h3 id="9-self-verification">9. Self-verification</h3>
+<p><code>axon posture</code> inspects a live configuration and reports, per layer, whether
+it is actually enforcing. A control that exists in code but is switched off
+in the deployment is worse than no control, because it creates false
+confidence.</p>
+<p>The command exits non-zero when any layer is off, and its output says
+explicitly that 100/100 means "every control is switched on", not
+"unbreakable".</p>
+<h2 id="running-the-tests">Running the tests</h2>
+<pre><code class="language-bash">python -m pytest tests/test_security_*.py -q
+python -m axon.cli posture --tokens tokens.yaml --canaries canaries.txt --pubkey pub.hex
+python -m axon.cli compliance --run
+</code></pre>
+<h2 id="what-is-still-missing">What is still missing</h2>
+<p>Being explicit about gaps is part of the design:</p>
+<ul>
+<li><strong>Token introspection</strong> is not implemented. A token revoked at the
+  provider before its <code>exp</code> is accepted until it expires. Verification is
+  offline by design — an introspection call per request would add a network
+  dependency to the hot path — but deployments that need immediate revocation
+  should shorten <code>exp</code>.</li>
+<li><strong>External audit</strong> (SOC 2, ISO 27001 certification) is not obtained, and
+  cannot be obtained by writing code. A SOC 2 report is issued by a licensed
+  CPA firm after an engagement covering the whole organisation — governance,
+  personnel, vendors, facilities — not just the technical controls in a
+  repository. What the repository can do is be ready for that engagement:
+  <code>axon compliance</code> maps each control to its code and tests, and
+  <code>axon compliance --evidence</code> writes a pack with content digests and the
+  ledger's integrity state for an auditor to sample. Neither is a
+  certificate, and neither should be read as one.</li>
+<li><strong>Certificate rotation and revocation</strong> are manual. The dashboard reads a
+  certificate at startup; a deployment that rotates certificates on a
+  schedule needs a reload mechanism (a restart, or a supervisor that does
+  it).</li>
+<li><strong>The injection detector has a known corpus, not a guarantee.</strong> It catches
+  what it has patterns for. New phrasings will get through until a pattern is
+  added, which is why layer 6 exists: what gets past layer 5 should still be
+  visible.</li>
+</ul></div></body></html>

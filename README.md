@@ -8,7 +8,7 @@ Govern every agent. Audit every action. Cap every cost. Lock in no vendor.
 
 [![License: Apache-2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/)
-[![Tests](https://img.shields.io/badge/tests-246%20passing-brightgreen.svg)](tests/)
+[![Tests](https://img.shields.io/badge/tests-332%20passing-brightgreen.svg)](tests/)
 [![CI](https://github.com/msy898931-boop/Ram/actions/workflows/ci.yml/badge.svg)](https://github.com/msy898931-boop/Ram/actions/workflows/ci.yml)
 [![Providers](https://img.shields.io/badge/providers-anthropic%20%7C%20openai%20%7C%20ollama-8A2BE2.svg)](#real-model-providers)
 [![Deny by default](https://img.shields.io/badge/policy-deny--by--default-critical.svg)](#why-it-is-different)
@@ -118,7 +118,7 @@ backoff; auth and 4xx errors are never retried.
 | Hard cost caps | ✅ shared across sub-agents | ❌ surprise invoices |
 | Governed multi-agent delegation | ✅ | ❌ |
 | Secret brokering | ✅ leased, never logged | ❌ env vars |
-| Executable compliance mapping | ✅ 11 controls | ❌ a PDF |
+| Executable compliance mapping | ✅ 20 controls + evidence pack | ❌ a signed SOC 2 report |
 | Self-hosted / air-gapped | ✅ | ❌ cloud only |
 
 ## How the audit ledger works
@@ -158,7 +158,7 @@ axon/
 ├── observe.py           # cost, risk, and integrity analytics
 ├── vault.py             # policy-gated secret leases
 ├── dashboard.py         # read-only HTTP dashboard (authenticated)
-├── security/            # defence-in-depth: auth, headers, injection, canaries
+├── security/            # defence-in-depth: auth, OIDC, TLS, headers, injection
 ├── integrations.py      # guard_tool + LangChain/CrewAI/OpenHands adapters
 ├── compliance.py        # controls mapped to code and tests
 └── cli.py               # run / audit / shield / observe / compliance / dashboard
@@ -166,9 +166,10 @@ axon/
 
 ## Security
 
-AXON defends itself in depth. Seven layers, ordered by what an attacker
-reaches first: authentication, rate limiting, replay defence, security
-headers, injection detection, canary tokens, and self-verification.
+AXON defends itself in depth. Nine layers, ordered by what an attacker
+reaches first: authentication, federated identity, rate limiting, replay
+defence, transport encryption, security headers, injection detection,
+canary tokens, and self-verification.
 
 ```bash
 axon token create --name operator --role operator --out tokens.yaml
@@ -181,6 +182,23 @@ The dashboard **refuses to bind a non-loopback address without an
 authenticator**. Tokens are stored as SHA-256 digests and compared in
 constant time; the plaintext is shown once and never persisted.
 
+For an organisation that already has an identity provider, the dashboard can
+federate instead of holding its own credential store, so deprovisioning
+happens in the IdP:
+
+```bash
+axon dashboard --ledger axon-audit.jsonl \
+  --oidc-issuer https://idp.example.com --oidc-audience axon-dashboard
+```
+
+And it can terminate TLS itself, so the transport layer is a control in the
+code rather than a note in the deployment guide:
+
+```bash
+axon dashboard --ledger axon-audit.jsonl --tokens tokens.yaml \
+  --tls-cert /etc/axon/tls.crt --tls-key /etc/axon/tls.key
+```
+
 The honest premise, stated up front: no system is unbreakable. The goal is
 that a successful intrusion should be expensive, limited in scope, and
 detectable — not impossible. `axon posture` says so in its own output.
@@ -192,16 +210,22 @@ stops, what it does not stop, and the gaps that remain.
 
 **v0.2.0** — governed runtime for single and multi-agent systems, with
 signed audit, RBAC, policy packs, secret brokering, an authenticated
-dashboard, a seven-layer security stack, framework adapters, and an
-executable compliance mapping. 246 tests.
+dashboard, a nine-layer security stack, OIDC federation, in-process TLS,
+framework adapters, and an executable compliance mapping. 332 tests.
 
 Known limits, stated plainly: policy matching is glob-based rather than a
-full expression language; TLS termination and SSO/OIDC are the deployment's
-responsibility, not the dashboard's; the injection detector matches a known
-corpus of attack shapes and novel phrasings will get past it; `EnvResolver`
-is a local-development secret backend, not a production one; and the
-orchestrator executes delegations sequentially, so it is not yet a
-throughput play.
+full expression language; the OIDC verifier does not call the provider's
+introspection endpoint, so a token revoked before its expiry is accepted
+until it expires — shorten `exp` if that window matters; the injection
+detector matches a known corpus of attack shapes and novel phrasings will
+get past it; `EnvResolver` is a local-development secret backend, not a
+production one; and the orchestrator executes delegations sequentially, so
+it is not yet a throughput play.
+
+On compliance: `axon compliance` maps controls to code and tests, and
+`axon compliance --evidence` writes a pack an auditor can sample. Neither is
+a SOC 2 report. That is issued by a licensed CPA firm after an engagement
+covering the whole organisation, and it cannot be produced by a repository.
 
 See [CHANGELOG.md](CHANGELOG.md) for what shipped and what is next.
 

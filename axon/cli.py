@@ -165,6 +165,7 @@ def cmd_dashboard(args) -> int:
     from .dashboard import serve
     from .security.auth import Authenticator
     from .security.canary import CanarySet
+    from .security.tls import TLSConfig, verify_pair
 
     pub = None
     if getattr(args, "pubkey", None):
@@ -174,19 +175,65 @@ def cmd_dashboard(args) -> int:
     auth = None
     if getattr(args, "tokens", None):
         auth = Authenticator.from_yaml(args.tokens)
-    elif args.host not in {"127.0.0.1", "::1", "localhost"} and not args.allow_unauthenticated:
-        print(f"refusing to serve on {args.host} without --tokens")
-        print("  create one with: axon token create --name operator --out tokens.yaml")
+
+    oidc = None
+    if getattr(args, "oidc_issuer", None):
+        from .security.oidc import OIDCVerifier
+
+        try:
+            if getattr(args, "oidc_jwks", None):
+                from .security.oidc import JWKSet, fetch_json
+
+                oidc = OIDCVerifier(
+                    issuer=args.oidc_issuer,
+                    audience=getattr(args, "oidc_audience", None),
+                    jwks=JWKSet.from_dict(fetch_json(args.oidc_jwks)),
+                )
+            else:
+                oidc = OIDCVerifier.from_discovery(
+                    args.oidc_issuer, audience=getattr(args, "oidc_audience", None)
+                )
+        except Exception as exc:
+            print(f"OIDC configuration failed: {exc}")
+            return 2
+
+    if auth is None and oidc is None and args.host not in {"127.0.0.1", "::1", "localhost"} \
+            and not args.allow_unauthenticated:
+        print(f"refusing to serve on {args.host} without --tokens or --oidc-issuer")
+        print("  create a token with: axon token create --name operator --out tokens.yaml")
+        print("  or federate with:    --oidc-issuer https://idp.example.com")
         print("  or pass --allow-unauthenticated to override (not recommended)")
         return 2
+
+    tls = None
+    if getattr(args, "tls_cert", None) or getattr(args, "tls_key", None):
+        if not (args.tls_cert and args.tls_key):
+            print("TLS needs both --tls-cert and --tls-key")
+            return 2
+        try:
+            fingerprint = verify_pair(args.tls_cert, args.tls_key)
+        except Exception as exc:
+            print(f"TLS configuration failed: {exc}")
+            return 2
+        tls = TLSConfig(certfile=args.tls_cert, keyfile=args.tls_key)
 
     canaries = None
     if getattr(args, "canaries", None):
         canaries = CanarySet.from_file(args.canaries)
 
-    print(f"AXON dashboard on http://{args.host}:{args.port}")
+    scheme = "https" if tls else "http"
+    print(f"AXON dashboard on {scheme}://{args.host}:{args.port}")
     print(f"  ledger: {args.ledger}")
-    print(f"  authentication: {'ON' if auth and auth.enabled else 'off'}")
+    if tls:
+        print(f"  transport: TLS (sha256 fingerprint {fingerprint})")
+    else:
+        print("  transport: plain HTTP — use --tls-cert/--tls-key or a TLS proxy")
+    if auth and auth.enabled:
+        print(f"  authentication: ON ({len(auth.token_names())} local token(s))")
+    elif oidc:
+        print(f"  authentication: ON (federated via {oidc.issuer})")
+    else:
+        print("  authentication: off")
     if pub:
         print("  enforcing signatures against the supplied public key")
     if canaries:
@@ -194,7 +241,7 @@ def cmd_dashboard(args) -> int:
     try:
         serve(
             args.ledger, host=args.host, port=args.port, public_key=pub,
-            authenticator=auth, canaries=canaries,
+            authenticator=auth, canaries=canaries, oidc=oidc, tls=tls,
             allow_unauthenticated_public=getattr(args, "allow_unauthenticated", False),
         )
     except KeyboardInterrupt:
@@ -277,6 +324,7 @@ def cmd_posture(args) -> int:
     from .security.auth import Authenticator
     from .security.canary import CanarySet
     from .security.headers import LayerStatus, Posture
+    from .security.tls import is_loopback
 
     layers: list[LayerStatus] = []
 
@@ -285,18 +333,54 @@ def cmd_posture(args) -> int:
             auth = Authenticator.from_yaml(args.tokens)
             layers.append(LayerStatus(
                 "authentication", auth.enabled,
-                f"{len(auth.token_names())} token(s), enabled={auth.enabled}",
+                f"{len(auth.token_names())} local token(s), enabled={auth.enabled}",
             ))
         except Exception as exc:
             layers.append(LayerStatus("authentication", False, f"unreadable: {exc}"))
     else:
         layers.append(LayerStatus(
             "authentication", False,
-            "no token file supplied (--tokens); the ledger is open to anyone "
-            "who can reach the port",
+            "no token file supplied; the ledger is open to anyone who can "
+            "reach the port",
         ))
 
-    public = args.host not in {"127.0.0.1", "::1", "localhost"}
+    # Federated identity is reported separately from local authentication.
+    # They are different controls with different failure modes: a local token
+    # store survives an offboarding that was not applied here, whereas a
+    # federated one does not. Folding them into one line would hide which one
+    # is actually protecting the deployment.
+    if getattr(args, "oidc_issuer", None):
+        try:
+            from .security.oidc import OIDCVerifier
+
+            if getattr(args, "oidc_jwks", None):
+                from .security.oidc import JWKSet, fetch_json
+
+                verifier = OIDCVerifier(
+                    issuer=args.oidc_issuer,
+                    audience=getattr(args, "oidc_audience", None),
+                    jwks=JWKSet.from_dict(fetch_json(args.oidc_jwks)),
+                )
+            else:
+                verifier = OIDCVerifier.from_discovery(
+                    args.oidc_issuer, audience=getattr(args, "oidc_audience", None)
+                )
+            keys = len(verifier.jwks.keys) if verifier.jwks else "remote"
+            layers.append(LayerStatus(
+                "federated identity", True,
+                f"federated to {verifier.issuer} ({keys} key(s), audience="
+                f"{verifier.audience or 'not pinned'})",
+            ))
+        except Exception as exc:
+            layers.append(LayerStatus("federated identity", False, f"OIDC unreachable: {exc}"))
+    else:
+        layers.append(LayerStatus(
+            "federated identity", False,
+            "no --oidc-issuer: identity lives in a local token file, so "
+            "offboarding is a change here that can be missed",
+        ))
+
+    public = not is_loopback(args.host)
     layers.append(LayerStatus(
         "rate limiting", True, "token bucket, per principal (built in)",
     ))
@@ -306,10 +390,28 @@ def cmd_posture(args) -> int:
     layers.append(LayerStatus(
         "security headers", True, "CSP, X-Frame-Options, nosniff, no-referrer (built in)",
     ))
-    layers.append(LayerStatus(
-        "transport", not public, "loopback only" if not public else
-        f"bound to {args.host}: use TLS in front of this",
-    ))
+
+    tls_cert = getattr(args, "tls_cert", None)
+    tls_key = getattr(args, "tls_key", None)
+    if tls_cert and tls_key:
+        try:
+            from .security.tls import verify_pair
+
+            fingerprint = verify_pair(tls_cert, tls_key)
+            layers.append(LayerStatus(
+                "transport", True, f"TLS terminated in-process (sha256 {fingerprint})",
+            ))
+        except Exception as exc:
+            layers.append(LayerStatus("transport", False, f"TLS certificate unusable: {exc}"))
+    elif not public:
+        layers.append(LayerStatus("transport", True, "loopback only"))
+    else:
+        layers.append(LayerStatus(
+            "transport", False,
+            f"bound to {args.host} over plain HTTP: pass --tls-cert/--tls-key, "
+            "or terminate TLS in front of this",
+        ))
+
     layers.append(LayerStatus(
         "signature enforcement", bool(args.pubkey),
         "public key supplied" if args.pubkey else "no --pubkey: records are not signature-checked",
@@ -317,7 +419,14 @@ def cmd_posture(args) -> int:
 
     if args.canaries and Path(args.canaries).exists():
         canaries = CanarySet.from_file(args.canaries)
-        layers.append(LayerStatus("canaries", True, f"{len(canaries)} tripwire(s) loaded"))
+        # An empty file is not the same as no file: the operator believes
+        # canaries are deployed. Reporting ON for zero tripwires would be the
+        # exact silent failure this command exists to catch.
+        layers.append(LayerStatus(
+            "canaries", bool(len(canaries)),
+            f"{len(canaries)} tripwire(s) loaded" if len(canaries)
+            else "canary file is empty: nothing is armed to detect a leak",
+        ))
     else:
         layers.append(LayerStatus(
             "canaries", False, "no canary file supplied; leaks would go undetected",
@@ -335,6 +444,10 @@ def cmd_posture(args) -> int:
     print("makes compromise impossible; together they make it harder, narrower,")
     print("and detectable. Treat 100/100 as 'every control is switched on', not")
     print("as 'unbreakable'.")
+    print()
+    print("note: an auditor's SOC 2 or ISO 27001 report is issued by a human")
+    print("auditor after an engagement, not by this command. `axon posture`")
+    print("shows the technical controls such an audit would examine.")
     return 0 if posture.fully_hardened else 1
 
 
@@ -396,7 +509,18 @@ def cmd_observe(args) -> int:
 
 
 def cmd_compliance(args) -> int:
-    from .compliance import evaluate, report, run_tests
+    from .compliance import evaluate, evidence_package, report, run_tests
+
+    if getattr(args, "evidence", None):
+        package = evidence_package(getattr(args, "ledger", None))
+        output = Path(args.evidence)
+        output.parent.mkdir(parents=True, exist_ok=True)
+        output.write_text(json.dumps(package, indent=2), encoding="utf-8")
+        summary = package["summary"]
+        print(f"evidence pack written to {output}")
+        print(f"  {summary['passing']}/{summary['controls']} controls with code and tests present")
+        print("  this is not a SOC 2 report; see the 'limitations' field in the pack")
+        return 0
 
     results = evaluate()
     for r in results:
@@ -495,6 +619,16 @@ def build_parser() -> argparse.ArgumentParser:
                    help="canary file; enables leak detection on served records")
     d.add_argument("--allow-unauthenticated", action="store_true",
                    help="override the refusal to serve publicly without tokens")
+    d.add_argument("--tls-cert", default=None, metavar="FILE",
+                   help="PEM certificate; terminates TLS in-process")
+    d.add_argument("--tls-key", default=None, metavar="FILE",
+                   help="PEM private key for --tls-cert")
+    d.add_argument("--oidc-issuer", default=None, metavar="URL",
+                   help="OIDC issuer; accepts federated bearer tokens from it")
+    d.add_argument("--oidc-audience", default=None,
+                   help="required 'aud' claim on federated tokens")
+    d.add_argument("--oidc-jwks", default=None, metavar="FILE_OR_URL",
+                   help="JWKS to use instead of discovery (offline/testing)")
     d.set_defaults(func=cmd_dashboard)
 
     tok = sub.add_parser("token", help="issue a dashboard access token")
@@ -521,6 +655,11 @@ def build_parser() -> argparse.ArgumentParser:
     pos.add_argument("--canaries", default=None)
     pos.add_argument("--pubkey", default=None)
     pos.add_argument("--host", default="127.0.0.1")
+    pos.add_argument("--tls-cert", default=None, metavar="FILE")
+    pos.add_argument("--tls-key", default=None, metavar="FILE")
+    pos.add_argument("--oidc-issuer", default=None, metavar="URL")
+    pos.add_argument("--oidc-audience", default=None)
+    pos.add_argument("--oidc-jwks", default=None, metavar="FILE_OR_URL")
     pos.set_defaults(func=cmd_posture)
 
     sc = sub.add_parser("scan", help="scan untrusted text for prompt injection")
@@ -540,6 +679,10 @@ def build_parser() -> argparse.ArgumentParser:
     cp = sub.add_parser("compliance", help="map controls to the code and tests that implement them")
     cp.add_argument("--run", action="store_true", help="also execute each control's cited tests")
     cp.add_argument("--json", action="store_true", help="print the full mapping as JSON")
+    cp.add_argument("--evidence", default=None, metavar="FILE",
+                    help="write an auditor evidence pack (not a SOC 2 report)")
+    cp.add_argument("--ledger", default="./axon-audit.jsonl",
+                    help="ledger to include integrity state for in --evidence")
     cp.set_defaults(func=cmd_compliance)
 
     o = sub.add_parser("export-otel", help="export the ledger as OpenTelemetry spans")

@@ -15,19 +15,21 @@ should be expensive, limited in scope, and detectable.
 Anyone who tells you a system cannot be breached is either mistaken or
 selling something. This document will not do that.
 
-## The seven layers
+## The nine layers
 
 Ordered by what an attacker reaches first.
 
 | # | Layer | Module | Stops | Does not stop |
 |---|---|---|---|---|
 | 1 | Authentication | `security/auth.py` | Unauthenticated reads of the ledger; forged tokens | A stolen valid token |
-| 2 | Rate limiting | `security/auth.py` | Credential stuffing, scraping, request floods | A slow, patient attacker |
-| 3 | Replay defence | `security/auth.py` | Re-use of a captured request | A live attacker with the signing key |
-| 4 | Security headers | `security/headers.py` | XSS execution, clickjacking, MIME sniffing | A browser that ignores headers |
-| 5 | Injection detection | `security/injection.py` | Known prompt-injection shapes in tool output | Novel phrasing; it is a detector, not a proof |
-| 6 | Canary tokens | `security/canary.py` | Nothing — it *detects* that a specific secret left | The leak itself; it reports it |
-| 7 | Self-verification | `security/headers.py` (`Posture`) | Silent failure: a control that is off but assumed on | Nothing; it is a reporting layer |
+| 2 | Federated identity | `security/oidc.py` | Locally-forged accounts; access that survives an offboarding | A token revoked before its `exp` (no introspection call) |
+| 3 | Rate limiting | `security/auth.py` | Credential stuffing, scraping, request floods | A slow, patient attacker |
+| 4 | Replay defence | `security/auth.py` | Re-use of a captured request | A live attacker with the signing key |
+| 5 | Transport encryption | `security/tls.py` | Eavesdropping, path tampering, protocol downgrade | An endpoint whose private key is stolen |
+| 6 | Security headers | `security/headers.py` | XSS execution, clickjacking, MIME sniffing | A browser that ignores headers |
+| 7 | Injection detection | `security/injection.py` | Known prompt-injection shapes in tool output | Novel phrasing; it is a detector, not a proof |
+| 8 | Canary tokens | `security/canary.py` | Nothing — it *detects* that a specific secret left | The leak itself; it reports it |
+| 9 | Self-verification | `security/headers.py` (`Posture`) | Silent failure: a control that is off but assumed on | Nothing; it is a reporting layer |
 
 ## What each layer is worth
 
@@ -42,14 +44,36 @@ The failure path is deliberately uniform: every rejection returns the same
 message, because distinguishing "no such token" from "wrong token" tells an
 attacker which half of a guess was correct.
 
-### 2. Rate limiting
+### 2. Federated identity
+
+Holding a local credential store means every offboarding is a change here,
+and any missed one is access that outlives the person's employment. When an
+organisation already runs an identity provider, the dashboard can verify the
+provider's tokens instead, so deprovisioning happens where it is already
+happening.
+
+What the verifier refuses: `alg: none`; algorithm confusion (a token claiming
+an algorithm the key cannot support); keys marked `use: enc` used for
+signature; a signature that does not match the key the `kid` names; wrong
+issuer, wrong audience, expired or not-yet-valid tokens.
+
+Key rotation is handled by re-fetching the provider's JWKS when an unknown
+`kid` appears, rate-limited so a flood of unknown key ids cannot turn into a
+denial of service against the provider.
+
+What it does not do: call the provider's introspection endpoint. A token
+revoked before its stated expiry is accepted until it expires. Shorten `exp`
+in the provider's token policy if that window matters more than the extra
+round-trip.
+
+### 3. Rate limiting
 
 A token bucket per principal, refilled continuously. A fixed window would
 let a caller spend its whole budget at the end of one window and the start
 of the next, doubling the burst; a bucket cannot, because the bucket is the
 ceiling.
 
-### 3. Replay defence
+### 4. Replay defence
 
 A signed request carries a timestamp and a single-use nonce. The timestamp
 bounds how long a capture stays useful; the nonce stops a capture being used
@@ -57,7 +81,20 @@ twice inside that window. Both halves are required. The signature covers the
 method, path, timestamp, nonce, and body digest, so a captured request cannot
 be re-pointed at a different endpoint or payload.
 
-### 4. Security headers
+### 5. Transport encryption
+
+The dashboard terminates TLS itself when given a certificate and key, rather
+than requiring a proxy in front. A control that lives in the code is one that
+`axon posture` can see and report on; one that lives in a deployment guide is
+one that gets skipped.
+
+The pair is validated at startup — the certificate and key must match, and
+the fingerprint is recorded — so a mismatch fails before the first request
+rather than during the first handshake, which is when it would otherwise be
+found by a user. TLS 1.2 is the floor, NULL and export-grade ciphers are
+refused, and HSTS is sent.
+
+### 6. Security headers
 
 The dashboard renders attacker-influenced text — an agent's action name, a
 target path, an actor. A strict `Content-Security-Policy` with
@@ -66,7 +103,7 @@ blocked request. `frame-ancestors 'none'` and `X-Frame-Options: DENY` close
 clickjacking. These are applied to error responses too, because an injected
 error page is still a page.
 
-### 5. Injection detection
+### 7. Injection detection
 
 An agent that reads a web page, an issue, or a file is consuming text an
 attacker can influence. The attacker does not need to break into the host;
@@ -85,7 +122,7 @@ useless, so the false-positive test is as important as the attack test.
 Negation is handled explicitly: "we must not delete the database" is a
 policy statement, not an order, and is not flagged.
 
-### 6. Canary tokens
+### 8. Canary tokens
 
 A canary is a random string placed where only a leak could expose it — an
 unused credential, a sentinel row, a tripwire file. It authenticates nothing,
@@ -99,7 +136,7 @@ The canary's value is never written to the ledger. The ledger records a
 fingerprint and a redacted context, so the audit trail does not become a
 second copy of the secret.
 
-### 7. Self-verification
+### 9. Self-verification
 
 `axon posture` inspects a live configuration and reports, per layer, whether
 it is actually enforcing. A control that exists in code but is switched off
@@ -122,14 +159,24 @@ python -m axon.cli compliance --run
 
 Being explicit about gaps is part of the design:
 
-- **TLS termination** is the deployment's responsibility. `axon posture`
-  flags a non-loopback bind without it.
-- **SSO/OIDC** is not implemented. `Identity.from_oidc_claims()` maps
-  verified claims onto a principal, but token verification is left to a JWT
-  library the deployment supplies.
-- **External audit** (SOC 2, ISO 27001 certification) is not obtained. The
-  compliance mapping shows where the code and tests for each control live; it
-  is not a certificate, and it should not be read as one.
+- **Token introspection** is not implemented. A token revoked at the
+  provider before its `exp` is accepted until it expires. Verification is
+  offline by design — an introspection call per request would add a network
+  dependency to the hot path — but deployments that need immediate revocation
+  should shorten `exp`.
+- **External audit** (SOC 2, ISO 27001 certification) is not obtained, and
+  cannot be obtained by writing code. A SOC 2 report is issued by a licensed
+  CPA firm after an engagement covering the whole organisation — governance,
+  personnel, vendors, facilities — not just the technical controls in a
+  repository. What the repository can do is be ready for that engagement:
+  `axon compliance` maps each control to its code and tests, and
+  `axon compliance --evidence` writes a pack with content digests and the
+  ledger's integrity state for an auditor to sample. Neither is a
+  certificate, and neither should be read as one.
+- **Certificate rotation and revocation** are manual. The dashboard reads a
+  certificate at startup; a deployment that rotates certificates on a
+  schedule needs a reload mechanism (a restart, or a supervisor that does
+  it).
 - **The injection detector has a known corpus, not a guarantee.** It catches
   what it has patterns for. New phrasings will get through until a pattern is
   added, which is why layer 6 exists: what gets past layer 5 should still be

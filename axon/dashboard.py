@@ -38,6 +38,8 @@ from .security.auth import (
 )
 from .security.canary import CanarySet
 from .security.headers import headers_for
+from .security.oidc import OIDCError, OIDCVerifier
+from .security.tls import TLSConfig, is_loopback, wrap_server
 from .shield import Shield, available_packs, check_pack, load_pack
 
 STATIC_DIR = Path(__file__).resolve().parent / "static"
@@ -55,6 +57,8 @@ class DashboardState:
         rate_limiter: RateLimiter | None = None,
         replay_guard: ReplayGuard | None = None,
         canaries: CanarySet | None = None,
+        oidc: OIDCVerifier | None = None,
+        tls: TLSConfig | None = None,
     ):
         self.ledger_path = Path(ledger_path)
         self.public_key = public_key
@@ -62,13 +66,32 @@ class DashboardState:
         # 127.0.0.1. Any non-loopback bind requires a token set, enforced in
         # `serve()` rather than left to the operator's memory.
         self.authenticator = authenticator if authenticator is not None else Authenticator(enabled=False)
+        self.oidc = oidc
+        self.tls = tls
         self.rate_limiter = rate_limiter if rate_limiter is not None else RateLimiter(capacity=120, refill_per_sec=20.0)
         self.replay_guard = replay_guard if replay_guard is not None else ReplayGuard()
         self.canaries = canaries if canaries is not None else CanarySet()
 
     @property
     def auth_required(self) -> bool:
-        return self.authenticator.enabled
+        return self.authenticator.enabled or (self.oidc is not None and self.oidc.enabled)
+
+    def _authenticate(self, header: str | None) -> Principal:
+        """Layer 1, with federation in front of the local token store.
+
+        A local token is checked first: it is the cheaper path (no JWKS fetch)
+        and an operator who minted one expects it to work even when the IdP is
+        unreachable. OIDC is the fallback, and only if it is configured.
+        """
+        if self.authenticator.enabled:
+            try:
+                return self.authenticator.authenticate(header)
+            except AuthError:
+                if self.oidc is None or not self.oidc.enabled:
+                    raise
+        if self.oidc is not None and self.oidc.enabled:
+            return self.oidc.authenticate(header)
+        raise AuthError("no authenticator is enabled")
 
     def _observer(self) -> Observer:
         # Re-read on every request so the dashboard reflects a running agent
@@ -156,8 +179,8 @@ def make_handler(state: DashboardState):
             # the point of authenticating the ledger routes.
             if state_.auth_required and route != "/healthz":
                 try:
-                    principal = state_.authenticator.authenticate(self.headers.get("Authorization"))
-                except AuthError:
+                    principal = state_._authenticate(self.headers.get("Authorization"))
+                except (AuthError, OIDCError):
                     # A browser hitting `/` gets a page explaining what is
                     # required; an API client gets JSON. Both refuse.
                     if route == "/" and "text/html" in (self.headers.get("Accept") or ""):
@@ -182,8 +205,8 @@ def make_handler(state: DashboardState):
                     return None
             else:
                 try:
-                    principal = state_.authenticator.authenticate(self.headers.get("Authorization"))
-                except AuthError:
+                    principal = state_._authenticate(self.headers.get("Authorization"))
+                except (AuthError, OIDCError):
                     principal = Principal(name="anonymous", role="viewer", scopes=set())
 
             # Layer 2 — rate limiting, keyed on the authenticated principal so
@@ -271,6 +294,8 @@ def serve(
     canaries: CanarySet | None = None,
     allow_unauthenticated_public: bool = False,
     secure: bool = False,
+    oidc: OIDCVerifier | None = None,
+    tls: TLSConfig | None = None,
 ) -> ThreadingHTTPServer:
     """Start the dashboard. Returns the server so callers can stop it.
 
@@ -278,12 +303,19 @@ def serve(
     is a deliberate refusal rather than a warning: an operator who exposes the
     audit ledger to the network without a token has a data breach, not a
     misconfiguration, and a printed warning would not have stopped it.
+
+    `secure=True` claims the traffic is encrypted (it controls HSTS and the
+    cookie/transport posture). Passing a `TLSConfig` makes that true by
+    wrapping the socket here; passing `secure=True` with no `TLSConfig` is
+    only honest when TLS is terminated by something in front of us, so the
+    caller has to say which one it is.
     """
-    loopback = host in {"127.0.0.1", "::1", "localhost"}
-    if not loopback and authenticator is None and not allow_unauthenticated_public:
+    loopback = is_loopback(host)
+    if not loopback and authenticator is None and oidc is None and not allow_unauthenticated_public:
         raise AuthError(
             f"refusing to bind {host!r} without an authenticator; pass an "
-            "Authenticator or set allow_unauthenticated_public=True to override"
+            "Authenticator or an OIDCVerifier, or set "
+            "allow_unauthenticated_public=True to override"
         )
 
     state = DashboardState(
@@ -291,12 +323,18 @@ def serve(
         public_key=public_key,
         authenticator=authenticator,
         canaries=canaries,
+        oidc=oidc,
+        tls=tls,
     )
     httpd = ThreadingHTTPServer((host, port), make_handler(state))
     # The handler reads these off the server; there is one server per state, so
     # this keeps the handler closure-free and the state injectable for tests.
     httpd.state = state  # type: ignore[attr-defined]
-    httpd.secure = secure  # type: ignore[attr-defined]
+    # TLS must be in place before the first connection is accepted, so the
+    # wrap happens here rather than after serve_forever starts.
+    httpd.secure = bool(secure or tls)  # type: ignore[attr-defined]
+    if tls is not None:
+        wrap_server(httpd, tls)
     if block:
         httpd.serve_forever()
     else:

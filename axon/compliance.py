@@ -287,6 +287,47 @@ CONTROLS: tuple[Control, ...] = (
         ),
         tests=["test_security_injection.py", "test_security_runtime.py"],
     ),
+    Control(
+        id="A.8.24",
+        framework="ISO 27001",
+        title="Data in transit is encrypted with a modern protocol floor",
+        requirement=(
+            "Information transferred over a network is protected by "
+            "cryptographic controls appropriate to its sensitivity."
+        ),
+        implementation=["axon/security/tls.py", "axon/dashboard.py"],
+        evidence=(
+            "The dashboard terminates TLS itself when given a certificate, "
+            "refuses to negotiate below TLS 1.2, refuses NULL/export-grade "
+            "ciphers, and sends HSTS. The certificate/key pair is validated at "
+            "startup so a mismatch fails before the first request rather than "
+            "during the first handshake. `axon posture` reports the transport "
+            "layer as enforcing only when a usable pair is configured."
+        ),
+        tests=["test_security_tls.py"],
+    ),
+    Control(
+        id="CC6.5",
+        framework="SOC 2",
+        title="Access is removed through the authoritative identity provider",
+        requirement=(
+            "Logical access is revoked promptly when a person leaves or "
+            "changes role; the entity does not maintain a parallel "
+            "credential store that can drift from the source of truth."
+        ),
+        implementation=["axon/security/oidc.py", "axon/dashboard.py"],
+        evidence=(
+            "Bearer tokens issued by an OIDC provider are verified against the "
+            "provider's published keys, so deprovisioning happens in the IdP "
+            "and takes effect here. Signature verification is RS256/384/512 "
+            "over PKCS#1 v1.5 or HMAC, with `alg: none` and algorithm "
+            "confusion refused, and iss/aud/exp/nbf/iat all enforced. Key "
+            "rotation is handled with a rate-limited JWKS refetch so a "
+            "rotating provider keeps working and a flood of unknown key ids "
+            "cannot become a denial of service."
+        ),
+        tests=["test_security_oidc.py", "test_security_oidc_dashboard.py"],
+    ),
 )
 
 
@@ -343,3 +384,94 @@ def report() -> dict:
             for r in results
         ],
     }
+
+
+def _file_digest(path: Path) -> str:
+    """A stable digest for a file, or for every file under a directory.
+
+    Some controls cite a directory (`axon/policies/packs`) rather than a
+    single file, so a directory is digested as the sorted list of its
+    contents' digests. Reading a directory as a file raises, which is how
+    this was caught.
+    """
+    import hashlib
+
+    if path.is_dir():
+        hasher = hashlib.sha256()
+        for child in sorted(p for p in path.rglob("*") if p.is_file()):
+            hasher.update(str(child.relative_to(path)).encode("utf-8"))
+            hasher.update(child.read_bytes())
+        return hasher.hexdigest()
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def evidence_package(ledger_path: str | Path | None = None) -> dict:
+    """A point-in-time evidence pack for an auditor.
+
+    What this can honestly provide: the control matrix, the exact source files
+    that implement each control with their content digests, the tests that
+    prove them, and the audit ledger's own integrity state. That is the raw
+    material an auditor samples.
+
+    What it cannot provide, and does not claim: the auditor's opinion. A SOC 2
+    report is issued by a licensed CPA firm after an engagement covering the
+    whole organisation — governance, HR, vendor management, physical security
+    — and no amount of code inspection substitutes for it. The pack exists so
+    that the part which *can* be evidenced is ready when that engagement
+    starts, instead of being assembled from memory months later.
+    """
+    import time as _time
+
+    results = evaluate()
+    controls = []
+    for result in results:
+        files = []
+        for relative in result.control.implementation:
+            path = REPO_ROOT / relative
+            files.append({
+                "path": relative,
+                "present": path.exists(),
+                "sha256": _file_digest(path) if path.exists() else None,
+            })
+        controls.append({
+            "id": result.control.id,
+            "framework": result.control.framework,
+            "title": result.control.title,
+            "requirement": result.control.requirement,
+            "evidence": result.control.evidence,
+            "implementing_files": files,
+            "proving_tests": result.control.tests,
+            "code_present": result.code_ok,
+            "tests_present": result.tests_ok,
+        })
+
+    package: dict = {
+        "generated_at": _time.strftime("%Y-%m-%dT%H:%M:%SZ", _time.gmtime()),
+        "generator": "axon compliance --evidence",
+        "scope": "AXON technical controls only",
+        "controls": controls,
+        "summary": {
+            "controls": len(controls),
+            "passing": sum(1 for c in controls if c["code_present"] and c["tests_present"]),
+        },
+        "limitations": [
+            "This pack evidences technical controls in this repository. It is "
+            "not a SOC 2 report, an ISO 27001 certificate, or an audit opinion.",
+            "A SOC 2 report is issued by a licensed CPA firm after an engagement "
+            "that also covers governance, personnel, vendors, and facilities.",
+            "Nothing here has been examined by an independent third party.",
+        ],
+    }
+
+    if ledger_path is not None and Path(ledger_path).exists():
+        from .core.audit import AuditLedger
+
+        ledger = AuditLedger(ledger_path)
+        ok, message = ledger.verify()
+        package["audit_ledger"] = {
+            "path": str(ledger_path),
+            "records": len(ledger.records()),
+            "chain_ok": ok,
+            "detail": message,
+        }
+    return package

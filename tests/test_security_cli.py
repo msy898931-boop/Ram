@@ -197,3 +197,64 @@ def test_posture_without_a_token_file_reports_it_as_off(capsys):
 def test_posture_handles_a_missing_token_file(missing, capsys):
     rc = cmd_posture(ns(tokens=missing, canaries=None, pubkey=None, host="127.0.0.1"))
     assert rc == 1
+
+
+# --- posture: the layers added with OIDC and TLS ----------------------------
+
+
+def test_posture_reports_federated_identity_as_its_own_layer(tmp_path, capsys):
+    """Local auth and federation are different controls; both must be visible."""
+    out = tmp_path / "tokens.yaml"
+    cmd_token(ns(name="ops", role="operator", scope=None, out=str(out)))
+    cmd_posture(ns(tokens=str(out), canaries=None, pubkey=None, host="127.0.0.1",
+                   oidc_issuer=None))
+    output = capsys.readouterr().out
+    assert "federated identity" in output
+    # Not configured here, so it must be reported off, not omitted.
+    assert "[OFF] federated identity" in output
+
+
+def test_posture_does_not_fold_federation_into_local_auth(tmp_path, capsys):
+    out = tmp_path / "tokens.yaml"
+    cmd_token(ns(name="ops", role="operator", scope=None, out=str(out)))
+    cmd_posture(ns(tokens=str(out), canaries=None, pubkey=None, host="127.0.0.1",
+                   oidc_issuer=None))
+    output = capsys.readouterr().out
+    # One layer line (the "[ON ]"/"[OFF]" form), plus a separate gap line.
+    layer_lines = [ln for ln in output.splitlines()
+                   if ln.lstrip().startswith(("[ON", "[OFF")) and "federated identity" in ln]
+    assert len(layer_lines) == 1, "federated identity must be exactly one layer"
+    assert "authentication" in output
+
+
+def test_posture_counts_nine_layers(tmp_path, capsys):
+    out = tmp_path / "tokens.yaml"
+    cmd_token(ns(name="ops", role="operator", scope=None, out=str(out)))
+    cmd_posture(ns(tokens=str(out), canaries=None, pubkey=None, host="127.0.0.1",
+                   oidc_issuer=None))
+    output = capsys.readouterr().out
+    assert "/9 layers" in output
+
+
+def test_posture_treats_an_empty_canary_file_as_a_gap(tmp_path, capsys):
+    """An empty file means the operator believes tripwires are armed."""
+    out = tmp_path / "tokens.yaml"
+    cmd_token(ns(name="ops", role="operator", scope=None, out=str(out)))
+    can = tmp_path / "empty-canaries.txt"
+    can.write_text("")
+    rc = cmd_posture(ns(tokens=str(out), canaries=str(can), pubkey=None,
+                        host="127.0.0.1", oidc_issuer=None))
+    output = capsys.readouterr().out
+    assert rc == 1
+    assert "[OFF] canaries" in output
+    assert "empty" in output
+
+
+def test_posture_accepts_tls_without_a_public_bind(tmp_path, capsys):
+    """TLS given explicitly is reported, and is not required on loopback."""
+    out = tmp_path / "tokens.yaml"
+    cmd_token(ns(name="ops", role="operator", scope=None, out=str(out)))
+    cmd_posture(ns(tokens=str(out), canaries=None, pubkey=None, host="127.0.0.1",
+                   oidc_issuer=None, tls_cert=None, tls_key=None))
+    output = capsys.readouterr().out
+    assert "loopback only" in output

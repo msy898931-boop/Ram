@@ -7,26 +7,34 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 ## [Unreleased]
 
 ### Added
-- **Seven-layer security stack** (`axon/security/`). Defence in depth,
+- **Nine-layer security stack** (`axon/security/`). Defence in depth,
   ordered by what an attacker reaches first:
   1. **Authentication** — bearer tokens stored as SHA-256 digests, compared in
      constant time with no early exit, so response timing does not reveal
      which token matched.
-  2. **Rate limiting** — token bucket per principal. A bucket rather than a
+  2. **Federated identity** — OIDC/JWT verification against the provider's
+     JWKS, so offboarding happens in the IdP rather than in a local file that
+     can be forgotten. Refuses `alg: none`, algorithm confusion, and
+     encryption keys used for signature.
+  3. **Rate limiting** — token bucket per principal. A bucket rather than a
      fixed window, because a window lets a caller spend two budgets back to
      back at a window boundary.
-  3. **Replay defence** — single-use nonce inside a bounded timestamp window;
+  4. **Replay defence** — single-use nonce inside a bounded timestamp window;
      the HMAC covers method, path, timestamp, nonce, and body digest.
-  4. **Security headers** — `default-src 'none'` CSP, `frame-ancestors 'none'`,
+  5. **Transport encryption** — in-process TLS termination, so the transport
+     is a control `axon posture` can see. TLS 1.2 floor, NULL and
+     export-grade ciphers refused, HSTS sent, cert/key pair checked at startup.
+  6. **Security headers** — `default-src 'none'` CSP, `frame-ancestors 'none'`,
      nosniff, no-referrer, applied to error responses as well as successes.
-  5. **Injection detection** — 15 named attack shapes scanned against tool
+  7. **Injection detection** — 15 named attack shapes scanned against tool
      output before it reaches the agent, with explicit negation handling so a
      policy statement is not read as an order.
-  6. **Canary tokens** — random tripwire values that authenticate nothing, so
+  8. **Canary tokens** — random tripwire values that authenticate nothing, so
      any appearance is proof of exfiltration. The ledger records a
      fingerprint and redacted context, never the value.
-  7. **Self-verification** — `axon posture` reports per layer whether it is
+  9. **Self-verification** — `axon posture` reports per layer whether it is
      actually enforcing, names every gap, and exits non-zero when any is off.
+     An empty canary file counts as a gap, not as enforcement.
 - **Fail-closed dashboard.** The dashboard refuses to bind a non-loopback
   address without an authenticator, and `/healthz` is the only unauthenticated
   route. This closes a real exposure: the ledger was previously served
@@ -35,9 +43,29 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
   and (when `scan_tool_output=True`) injections, records a positive detection
   as a denial, and withholds the result.
 - **New CLI:** `axon token create`, `axon canary`, `axon posture`, `axon scan`.
-- **Seven compliance controls** covering authentication of the audit interface,
+- **Federated identity — OIDC/JWT verification** (`axon/security/oidc.py`).
+  The dashboard can verify bearer tokens issued by an identity provider
+  instead of holding a local credential store, so offboarding happens in the
+  IdP. Refuses `alg: none`, algorithm confusion, keys marked `use: enc` used
+  for signature, and wrong `iss`/`aud`/`exp`/`nbf`/`iat`. JWKS rotation is
+  handled by a rate-limited refetch, so a rotating provider keeps working and
+  a flood of unknown key ids cannot become a denial of service. New CLI:
+  `axon dashboard --oidc-issuer ... --oidc-audience ...`.
+- **In-process TLS termination** (`axon/security/tls.py`). The dashboard can
+  terminate TLS itself rather than requiring a proxy, so the transport layer
+  is a control `axon posture` can report on. TLS 1.2 is the floor, NULL and
+  export-grade ciphers are refused, HSTS is sent, and the certificate/key pair
+  is validated at startup so a mismatch fails before the first request. New
+  CLI: `axon dashboard --tls-cert ... --tls-key ...`.
+- **Auditor evidence pack.** `axon compliance --evidence FILE` writes the
+  control matrix with content digests for every implementing file, the tests
+  that prove each control, and the audit ledger's integrity state. The pack
+  states in its own `limitations` field that it is not a SOC 2 report.
+- **Two new compliance controls** — `A.8.24` (transport encryption) and
+  `CC6.5` (deprovisioning through the authoritative IdP). Total: 20 controls.
+- **Compliance controls** covering authentication of the audit interface,
   replay protection, security-event detection, secret disclosure, monitoring,
-  least privilege, and prompt-injection defence. Total: 18 controls.
+  least privilege, and prompt-injection defence.
 - **Lint gate.** Explicit `[tool.ruff.lint]` selection in `pyproject.toml` so
   `ruff check` is reproducible across ruff versions instead of silently
   widening or narrowing with each release.
@@ -74,10 +102,10 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - **Framework integrations** (`axon/integrations.py`): a dependency-free
   `guard_tool` decorator plus LangChain, CrewAI, and OpenHands adapters. All
   refusals raise the same `PolicyDenied` type.
-- **Compliance mapping** (`axon/compliance.py`): 11 controls across SOC 2,
+- **Compliance mapping** (`axon/compliance.py`): controls across SOC 2,
   ISO/IEC 27001, and ISO/IEC 42001, each citing the code that implements it,
   the ledger evidence it produces, and the tests that prove it. New CLI:
-  `axon compliance [--run]`.
+  `axon compliance [--run] [--json] [--evidence FILE]`.
 
 ### Fixed
 - Response headers set after `end_headers()` were silently dropped, so

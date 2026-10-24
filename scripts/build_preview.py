@@ -48,13 +48,14 @@ NAV = """<div class="nav">
 <a href="report.html"{r}>بحث GitHub</a>
 <a href="deck.html"{d}>العرض التقديمي</a>
 <a href="readme.html"{m}>README</a>
+<a href="security.html"{s}>طبقات الأمان</a>
 <a href="plan.html"{p}>خطة العمل</a>
 <a href="financials.html"{f}>النموذج المالي</a>
 </div>"""
 
 
 def page(title, body, on=""):
-    flags = dict.fromkeys("irdmpf", "")
+    flags = dict.fromkeys("irdmpfs", "")
     flags[on] = ' class="on"'
     return f"""<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -111,39 +112,48 @@ verify: FAILED — tampered record 2</code></pre>
 <h2>من شو مكوّن؟ (أرقام من الكود نفسه)</h2>
 <table>
 <tr><th>الطبقة</th><th>الملفات</th><th>الأسطر</th></tr>
-<tr><td>محرك السياسات + السجل + السقف + الـruntime + الهويات + التوقيع + المنسّق</td><td><code>axon/core/</code></td><td>1,012</td></tr>
-<tr><td>الحوكمة والتكامل والامتثال والداشبورد</td><td><code>axon/*.py</code></td><td>1,663</td></tr>
-<tr><td>طبقات الأمان (مصادقة، تحديد معدل، منع إعادة، رؤوس، كشف حقن، canaries، تحقّق ذاتي)</td><td><code>axon/security/</code></td><td>655</td></tr>
-<tr><td>موصّلات الموديلات (Anthropic/OpenAI/…)</td><td><code>axon/providers/</code></td><td>293</td></tr>
+<tr><td>محرك السياسات + السجل + السقف + الـruntime + الهويات + التوقيع + المنسّق</td><td><code>axon/core/</code></td><td>1,225</td></tr>
+<tr><td>الحوكمة والتكامل والامتثال والداشبورد</td><td><code>axon/*.py</code></td><td>2,261</td></tr>
+<tr><td>طبقات الأمان (مصادقة، OIDC، TLS، تحديد معدل، منع إعادة، رؤوس، كشف حقن، canaries، تحقّق ذاتي)</td><td><code>axon/security/</code></td><td>1,415</td></tr>
+<tr><td>موصّلات الموديلات (Anthropic/OpenAI/…)</td><td><code>axon/providers/</code></td><td>371</td></tr>
 <tr><td>حِزم السياسات (default + development/production/regulated)</td><td><code>axon/policies/</code></td><td>335</td></tr>
-<tr><td>الاختبارات</td><td><code>tests/</code></td><td>2,043</td></tr>
-<tr><td><b>الإجمالي (الكود + السياسات + الاختبارات)</b></td><td></td><td><b>5,744</b></td></tr>
+<tr><td>الاختبارات</td><td><code>tests/</code></td><td>3,930</td></tr>
+<tr><td><b>الإجمالي (الكود + السياسات + الاختبارات)</b></td><td></td><td><b>9,537</b></td></tr>
 </table>
 <p>الاعتماديات الخارجية: <code>pyyaml</code> فقط. صفر SDK لشركات الموديلات —
-بيشتغل حتى ببيئة معزولة (air-gapped). <b>246 اختبار ناجح</b>، منها <b>118 اختبار أمان عدائي</b>،
+بيشتغل حتى ببيئة معزولة (air-gapped). <b>332 اختبار ناجح</b>، منها <b>197 اختبار أمان عدائي</b>،
 موصّلات حقيقية على سيرفر HTTP محلي بلا mocks.</p>
 
-<h2>الأمان: 7 طبقات (مرتّبة حسب مين بيوصل للمعلومة أول)</h2>
+<h2>الأمان: 9 طبقات (مرتّبة حسب مين بيوصل للمعلومة أول)</h2>
 <p>الهدف مش "نظام ما بينهكّر" — هذا ما بيوجد. الهدف إنه الهجوم يصير
 <b>أغلى</b>، و<b>أضيق نطاقاً</b>، و<b>مكشوفاً بسرعة</b>.</p>
 <table>
 <tr><th>#</th><th>الطبقة</th><th>شو بتوقف</th><th>شو ما بتوقفه</th></tr>
 <tr><td>1</td><td>مصادقة (توكنات مخزّنة كـdigest، مقارنة ثابتة الزمن)</td><td>قراءة السجل بلا صلاحية، توكنات مزوّرة</td><td>توكن مسروق صالح</td></tr>
-<tr><td>2</td><td>تحديد معدل (token bucket لكل principal)</td><td>تخمين كلمات السر، الكشط، إغراق الطلبات</td><td>مهاجم بطيء وصبور</td></tr>
-<tr><td>3</td><td>منع إعادة الإرسال (nonce + نافذة زمنية)</td><td>إعادة استخدام طلب مُلتقط</td><td>مهاجم حيّ يملك مفتاح التوقيع</td></tr>
-<tr><td>4</td><td>رؤوس أمان (CSP <code>default-src 'none'</code>، منع التأطير)</td><td>تنفيذ XSS، clickjacking، MIME sniffing</td><td>متصفح يتجاهل الرؤوس</td></tr>
-<tr><td>5</td><td>كشف حقن الأوامر (15 نمط هجوم مُسمّى)</td><td>صيغ حقن معروفة بنتائج الأدوات</td><td>صياغات جديدة؛ هذا كاشف لا برهان</td></tr>
-<tr><td>6</td><td>Canary tokens</td><td>لا شيء — <b>يكشف</b> إن سرّاً معيّناً تسرّب</td><td>التسريب نفسه؛ يبلّغ عنه فقط</td></tr>
-<tr><td>7</td><td>تحقّق ذاتي (<code>axon posture</code>)</td><td>الفشل الصامت: طبقة مطفأة ويُفترض أنها شغّالة</td><td>لا شيء؛ طبقة تقارير</td></tr>
+<tr><td>2</td><td>هوية موحّدة (OIDC/JWT: تحقّق توقيع، iss/aud/exp، تدوير مفاتيح)</td><td>حسابات وهمية محليّة؛ إلغاء الوصول يصير من الـIdP فوراً</td><td>توكن ملغى قبل انتهائه (بلا introspection)</td></tr>
+<tr><td>3</td><td>تحديد معدل (token bucket لكل principal)</td><td>تخمين كلمات السر، الكشط، إغراق الطلبات</td><td>مهاجم بطيء وصبور</td></tr>
+<tr><td>4</td><td>منع إعادة الإرسال (nonce + نافذة زمنية)</td><td>إعادة استخدام طلب مُلتقط</td><td>مهاجم حيّ يملك مفتاح التوقيع</td></tr>
+<tr><td>5</td><td>تشفير النقل (TLS 1.2+ داخل العملية، HSTS)</td><td>التنصّت والتلاعب بالمسار، هبوط البروتوكول</td><td>طرف مُخترق يملك المفتاح الخاص</td></tr>
+<tr><td>6</td><td>رؤوس أمان (CSP <code>default-src 'none'</code>، منع التأطير)</td><td>تنفيذ XSS، clickjacking، MIME sniffing</td><td>متصفح يتجاهل الرؤوس</td></tr>
+<tr><td>7</td><td>كشف حقن الأوامر (15 نمط هجوم مُسمّى)</td><td>صيغ حقن معروفة بنتائج الأدوات</td><td>صياغات جديدة؛ هذا كاشف لا برهان</td></tr>
+<tr><td>8</td><td>Canary tokens</td><td>لا شيء — <b>يكشف</b> إن سرّاً معيّناً تسرّب</td><td>التسريب نفسه؛ يبلّغ عنه فقط</td></tr>
+<tr><td>9</td><td>تحقّق ذاتي (<code>axon posture</code>)</td><td>الفشل الصامت: طبقة مطفأة ويُفترض أنها شغّالة</td><td>لا شيء؛ طبقة تقارير</td></tr>
 </table>
 <p><b>دليل مُقاس، مو ادّعاء:</b> كاشف الحقن يرفض 16/16 هجوماً و0/15 مستنداً
 بريئاً (الإنذارات الخاطئة مختبرة مثل الهجمات). والداشبورد الحي يرفض النشر
 العام بلا مصادقة — ثغرة حقيقية كانت موجودة وأُغلقت.</p>
-<pre><code>$ axon posture --tokens tokens.yaml --canaries canaries.txt
-posture: 7/8 layers enforcing (87.5/100)
-  [ON ] authentication: 1 token(s), enabled=True
-  [ON ] rate limiting, replay defence, security headers
-  [OFF] transport: bound to 0.0.0.0: use TLS in front of this
+<pre><code>$ axon posture --tokens tokens.yaml --canaries canaries.txt --pubkey pub.hex \
+    --tls-cert tls.crt --tls-key tls.key --oidc-issuer https://idp.example.com
+posture: 9/9 layers enforcing (100.0/100)
+  [ON ] authentication: 1 local token(s), enabled=True
+  [ON ] federated identity: federated to https://idp.example.com (1 key(s))
+  [ON ] rate limiting: token bucket, per principal (built in)
+  [ON ] replay defence: nonce + timestamp window (built in)
+  [ON ] security headers: CSP, X-Frame-Options, nosniff, no-referrer (built in)
+  [ON ] transport: TLS terminated in-process (sha256 91:F0:42:...:E3:90)
+  [ON ] signature enforcement: public key supplied
+  [ON ] canaries: 1 tripwire(s) loaded
+  [ON ] injection detection: prompt-injection scanner available (axon scan)
 honest reading: this is defence in depth, not immunity.</code></pre>
 
 <h2>شو لسّا ناقص ليصير كامل؟</h2>
@@ -151,13 +161,13 @@ honest reading: this is defence in depth, not immunity.</code></pre>
 <tr><th>الناقص</th><th>الأهمية</th><th>الوقت التقديري</th></tr>
 <tr><td>واجهة ويب (Dashboard) لمراقبة الوكلاء</td><td>عالية</td><td>✅ منجز</td></tr>
 <tr><td>منسّق وكلاء متعددين (Multi-agent orchestrator)</td><td>عالية</td><td>✅ منجز</td></tr>
-<tr><td>RBAC + هويات</td><td>عالية للمؤسسات</td><td>✅ منجز (SSO/OIDC لسّا ناقص)</td></tr>
+<tr><td>RBAC + هويات</td><td>عالية للمؤسسات</td><td>✅ منجز (+ SSO/OIDC منجز)</td></tr>
 <tr><td>توقيع السجل (Ed25519)</td><td>متوسطة</td><td>✅ منجز</td></tr>
 <tr><td>تكامل LangChain/CrewAI/OpenHands</td><td>عالية للتبنّي</td><td>✅ منجز</td></tr>
-<tr><td>خريطة امتثال مربوطة بالكود والاختبارات</td><td>حرجة للمؤسسات</td><td>✅ منجز (18 ضابطاً)</td></tr>
+<tr><td>خريطة امتثال مربوطة بالكود والاختبارات</td><td>حرجة للمؤسسات</td><td>✅ منجز (20 ضابطاً + حزمة أدلة للمدقّق)</td></tr>
 <tr><td>شهادات SOC 2 / ISO 27001 موثّقة من مدقّق خارجي</td><td>حرجة للمؤسسات</td><td>3–6 أشهر</td></tr>
 <tr><td>حزمة Kubernetes + نشر air-gapped</td><td>متوسطة</td><td>2–3 أسابيع</td></tr>
-<tr><td>SSO/OIDC وربط مع مخزن أسرار مؤسسي (Vault/KMS)</td><td>عالية للمؤسسات</td><td>3–4 أسابيع</td></tr>
+<tr><td>ربط مع مخزن أسرار مؤسسي (Vault/KMS)</td><td>عالية للمؤسسات</td><td>2–3 أسابيع</td></tr>
 <tr><td>عملاء يدفعون + دعم + SLA</td><td>حرجة للبيع</td><td>مستمر</td></tr>
 </table>
 
@@ -165,8 +175,8 @@ honest reading: this is defence in depth, not immunity.</code></pre>
 <table>
 <tr><th>المعيار</th><th>الدرجة</th><th>التعليل</th></tr>
 <tr><td>جودة الكود</td><td>85/100</td><td>مسؤوليات مفصولة، أخطاء مصنّفة، صفر SDK، ruff نظيف، تعليقات تشرح الـ"ليش" لا الـ"شو"</td></tr>
-<tr><td>الاختبارات</td><td>89/100</td><td>246 اختباراً تشمل E2E للـCLI، موصّلات على سيرفر حقيقي، و118 اختبار أمان يهاجم سيرفراً حياً؛ ناقصها fuzzing وتغطية حدودية أوسع</td></tr>
-<tr><td>الأمان</td><td>90/100</td><td>7 طبقات: مصادقة + تحديد معدل + منع إعادة + رؤوس أمان + كشف حقن (16/16 هجوم مرفوض، 0/15 إنذار خاطئ) + canaries + <code>axon posture</code>؛ الداشبورد يرفض النشر العام بلا مصادقة. ناقصه SSO/OIDC وTLS وتدقيق خارجي</td></tr>
+<tr><td>الاختبارات</td><td>91/100</td><td>332 اختباراً تشمل E2E للـCLI، موصّلات على سيرفر حقيقي، و197 اختبار أمان يهاجم سيرفراً حياً (TLS بـشهادات حقيقية، OIDC بـJWT موقّع حقيقي)؛ ناقصها fuzzing وتغطية حدودية أوسع</td></tr>
+<tr><td>الأمان</td><td>93/100</td><td>9 طبقات: مصادقة + هوية موحّدة (OIDC/JWT مع تدوير مفاتيح) + تحديد معدل + منع إعادة + تشفير نقل (TLS 1.2+) + رؤوس أمان + كشف حقن (16/16 هجوم مرفوض، 0/15 إنذار خاطئ) + canaries + <code>axon posture</code>؛ الداشبورد يرفض النشر العام بلا مصادقة. ناقصه تدقيق خارجي وتفتيش التوكنات الملغاة (introspection)</td></tr>
 <tr><td>النضج التجاري</td><td>58/100</td><td>منتج قابل للتبنّي: Dashboard + تكاملات + خريطة امتثال؛ ناقصه عملاء يدفعون ودعم وSLA وشهادات موثّقة</td></tr>
 <tr><td>التميّز بالسوق</td><td>60/100</td><td>سوق مزدحم (Langfuse/Guardrails/Portkey)؛ الفرق: الحكم مفروض داخل مسار التنفيذ لا مراقبة من الخارج + امتثال مربوط بالكود</td></tr>
 <tr><td>الجاهزية للعرض</td><td>90/100</td><td>داشبورد حي، عرض 15 شريحة، خطة، موديل مالي، بحث موثّق</td></tr>
@@ -180,7 +190,7 @@ honest reading: this is defence in depth, not immunity.</code></pre>
 وهذا يرفع قيمته كـ"قاعدة جاهزة" بس ما بيحوّله لإيراد لحاله.</p>
 <table>
 <tr><th>سيناريو البيع</th><th>السعر المتوقع</th><th>شو لازم يكون موجود</th></tr>
-<tr><td>بيع الكود كـ"قاعدة" لمطوّر</td><td><b>$20K–$50K</b></td><td>مثل ما هو اليوم (5,744 سطراً + 246 اختباراً + 18 ضابط امتثال + 7 طبقات أمان)</td></tr>
+<tr><td>بيع الكود كـ"قاعدة" لمطوّر</td><td><b>$35K–$75K</b></td><td>مثل ما هو اليوم (9,537 سطراً + 332 اختباراً + 20 ضابط امتثال + 9 طبقات أمان + OIDC/TLS مدمجين)</td></tr>
 <tr><td>بيع كـ"starter kit" مع دعم وتخصيص</td><td><b>$50K–$120K</b></td><td>+ توثيق نشر + جلسات تخصيص</td></tr>
 <tr><td>شركة صغيرة: 10 عملاء مدفوعين</td><td><b>$400K–$1.2M</b></td><td>+ عملاء بعقود + مهندسين</td></tr>
 <tr><td>Seed-stage مع $500K ARR</td><td><b>$3M–$6M</b></td><td>+ 20 شريك تصميم + SOC 2 قيد التنفيذ</td></tr>
@@ -208,6 +218,9 @@ honest reading: this is defence in depth, not immunity.</code></pre>
 (OUT / "index.html").write_text(page("نظرة عامة", INDEX, "i"), encoding="utf-8")
 (OUT / "report.html").write_text(md("data/REPORT.md", "بحث GitHub", "r"), encoding="utf-8")
 (OUT / "readme.html").write_text(md("README.md", "README", "m"), encoding="utf-8")
+(OUT / "security.html").write_text(
+    md("docs/SECURITY-LAYERS.md", "طبقات الأمان", "s"), encoding="utf-8"
+)
 (OUT / "plan.html").write_text(md("AXON-PLAN.md", "خطة العمل", "p"), encoding="utf-8")
 (OUT / "financials.html").write_text(md("AXON-FINANCIALS.md", "النموذج المالي", "f"), encoding="utf-8")
 (OUT / "pitch.html").write_text(md("AXON-PITCH.md", "نص العرض", "d"), encoding="utf-8")
