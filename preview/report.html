@@ -1,0 +1,355 @@
+<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>بحث GitHub — AXON</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;800&family=IBM+Plex+Sans+Arabic:wght@300;400;600&family=IBM+Plex+Mono&display=swap" rel="stylesheet">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%2305080d'/%3E%3Ctext x='16' y='23' font-family='monospace' font-size='19' font-weight='700' fill='%2300e5a0' text-anchor='middle'%3EA%3C/text%3E%3C/svg%3E">
+<style>
+:root{--bg:#05080d;--panel:#0c1219;--line:#1b2836;--fg:#dbe7f3;--muted:#8ba0b5;
+--acc:#00e5a0;--amber:#ffb454;--red:#ff5c6c}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);direction:rtl;
+font-family:"IBM Plex Sans Arabic","Segoe UI",system-ui,sans-serif;line-height:1.85}
+.wrap{max-width:940px;margin:0 auto;padding:48px 28px 96px}
+h1,h2,h3{font-family:Cairo,"Segoe UI",sans-serif;line-height:1.3;letter-spacing:-.01em}
+h1{font-size:2.3rem;margin:.2em 0 .4em}
+h2{font-size:1.5rem;margin:2.2em 0 .6em;padding-bottom:.3em;border-bottom:1px solid var(--line)}
+h3{font-size:1.15rem;margin:1.6em 0 .4em;color:var(--acc)}
+a{color:var(--acc);text-decoration:none}
+a:hover{text-decoration:underline}
+code{font-family:"IBM Plex Mono",monospace;background:#111a24;padding:2px 6px;
+border-radius:5px;font-size:.88em;direction:ltr;display:inline-block}
+pre{background:#0a1119;border:1px solid var(--line);border-radius:12px;padding:18px;
+overflow-x:auto;direction:ltr;text-align:left}
+pre code{background:none;padding:0}
+table{width:100%;border-collapse:collapse;margin:1.2em 0;font-size:.93em;display:block;overflow-x:auto}
+th,td{border:1px solid var(--line);padding:10px 13px;text-align:right}
+th{background:#101a24;color:var(--acc);font-weight:600;white-space:nowrap}
+tr:nth-child(even) td{background:#0a1119}
+blockquote{border-right:3px solid var(--amber);margin:1.2em 0;padding:.6em 1.1em;
+background:#12181f;border-radius:0 10px 10px 0;color:var(--muted)}
+hr{border:0;border-top:1px solid var(--line);margin:2.5em 0}
+.nav{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:32px;padding-bottom:22px;
+border-bottom:1px solid var(--line)}
+.nav a{border:1px solid var(--line);border-radius:100px;padding:7px 16px;font-size:.86rem;color:var(--fg)}
+.nav a:hover{border-color:var(--acc);color:var(--acc);text-decoration:none}
+.nav a.on{background:var(--acc);color:#04120c;border-color:var(--acc);font-weight:600}
+.badge{display:inline-block;background:#0d2a1f;color:var(--acc);border:1px solid #1c4a37;
+border-radius:100px;padding:4px 13px;font-size:.78rem;margin:0 0 14px}
+img{max-width:100%}
+</style></head><body><div class="wrap"><div class="nav">
+<a href="index.html">نظرة عامة</a>
+<a href="report.html" class="on">بحث GitHub</a>
+<a href="deck.html">العرض التقديمي</a>
+<a href="readme.html">README</a>
+<a href="plan.html">خطة العمل</a>
+<a href="financials.html">النموذج المالي</a>
+</div><h1 id="github">GitHub — مشاريع مربحة وبتنباع بسرعة</h1>
+<p><strong>تاريخ التحقق: 2026-10-20</strong> · المصدر: GitHub REST API (تحقق مباشر من كل ريبو، ريبو ريبو) + صفحات المنتجات الرسمية.</p>
+<blockquote>
+<p>كل رقم بهالتقرير مسحوب من الـAPI اليوم، مو منسوخ من تقرير قديم.
+البيانات الخام: <a href="github-verified-2026-10-20.json"><code>data/github-verified-2026-10-20.json</code></a></p>
+</blockquote>
+<hr />
+<h2 id="_1">كيف حسبت "مربحة وبتنباع بسرعة"</h2>
+<p>GitHub ما بتنشر إيرادات. فبنيت مؤشرات قابلة للقياس والتحقق:</p>
+<table>
+<thead>
+<tr>
+<th>المؤشر</th>
+<th>المعنى</th>
+<th>كيف تحققت منه</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>نجوم/يوم</strong></td>
+<td>سرعة الطلب الفعلية</td>
+<td>نجوم الريبو ÷ عمره بالأيام</td>
+</tr>
+<tr>
+<td><strong>تحميلات الإصدارات</strong></td>
+<td>تبنّي حقيقي (ناس عم تستعمل)</td>
+<td>عدّاد releases</td>
+</tr>
+<tr>
+<td><strong>صفحة تسعير حيّة</strong></td>
+<td>في نموذج ربح واضح</td>
+<td>فتحت الصفحة، رجعت HTTP 200 وفيها أسعار</td>
+</tr>
+<tr>
+<td><strong>شركة/تمويل</strong></td>
+<td>في جهة عم تدرّ دخل</td>
+<td>الأورغ + الموقع الرسمي</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>الملاحظة الأهم:</strong> تقريباً كل المشاريع الرابحة هون <strong>open-core</strong> — الكود مجاني والربح من السحابة/الاستضافة/الخطط المدفوعة. هي أسرع طريق للإيراد اليوم، وبتتفادى بيع التراخيص المعقّد.</p>
+</blockquote>
+<hr />
+<h2 id="_2">🥇 الأسرع نمواً اليوم (نجوم/يوم — تحقق مباشر)</h2>
+<table>
+<thead>
+<tr>
+<th>المشروع</th>
+<th>المجال</th>
+<th>نجوم</th>
+<th>عمر</th>
+<th>★/يوم</th>
+<th>الترخيص</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Gathin23/cleanyourtv</strong></td>
+<td>تنضيف أجهزة Android/Google TV</td>
+<td>28,809</td>
+<td>3 ي</td>
+<td><strong>9,603</strong></td>
+<td>خاص</td>
+</tr>
+<tr>
+<td><strong>deepseek-ai/DeepInfer</strong></td>
+<td>إطار استدلال عالي الأداء</td>
+<td>21,367</td>
+<td>4 ي</td>
+<td><strong>5,342</strong></td>
+<td>Apache-2.0</td>
+</tr>
+<tr>
+<td><strong>deepseek-ai/deepseek-harness</strong></td>
+<td>هيكل وكلاء AI</td>
+<td>259,776</td>
+<td>68 ي</td>
+<td><strong>3,820</strong></td>
+<td>MIT</td>
+</tr>
+<tr>
+<td><strong>storytold/photocraft</strong></td>
+<td>محرر صور احترافي (Rust)</td>
+<td>72,060</td>
+<td>20 ي</td>
+<td><strong>3,603</strong></td>
+<td>Apache-2.0</td>
+</tr>
+<tr>
+<td><strong>google-research/harness2</strong></td>
+<td>هيكل وكلاء (Google)</td>
+<td>18,707</td>
+<td>14 ي</td>
+<td><strong>1,336</strong></td>
+<td>Apache-2.0</td>
+</tr>
+<tr>
+<td><strong>storytold/wordcraft</strong></td>
+<td>بديل Word (Rust)</td>
+<td>15,789</td>
+<td>13 ي</td>
+<td><strong>1,215</strong></td>
+<td>Apache-2.0</td>
+</tr>
+<tr>
+<td><strong>Niko1221/Strata</strong></td>
+<td>تشغيل موديلات ضخمة محلياً</td>
+<td>31,357</td>
+<td>26 ي</td>
+<td><strong>1,206</strong></td>
+<td>MIT</td>
+</tr>
+<tr>
+<td><strong>NandhaKishorM/laya</strong></td>
+<td>محرك قرارات System-1</td>
+<td>34,130</td>
+<td>32 ي</td>
+<td><strong>1,067</strong></td>
+<td>Apache-2.0</td>
+</tr>
+<tr>
+<td><strong>storytold/pdfcraft</strong></td>
+<td>قارئ/محرر PDF (Rust)</td>
+<td>17,485</td>
+<td>20 ي</td>
+<td><strong>874</strong></td>
+<td>Apache-2.0</td>
+</tr>
+<tr>
+<td><strong>storytold/filmcraft</strong></td>
+<td>محرر فيديو غير خطّي</td>
+<td>15,939</td>
+<td>20 ي</td>
+<td><strong>797</strong></td>
+<td>Apache-2.0</td>
+</tr>
+<tr>
+<td><strong>yetone/magpie</strong></td>
+<td>توجيه الموديلات بمكان واحد</td>
+<td>20,395</td>
+<td>27 ي</td>
+<td><strong>755</strong></td>
+<td>MIT</td>
+</tr>
+<tr>
+<td><strong>browser-use/jev-ultrafast</strong></td>
+<td>وكيل ويب أسرع/أرخص</td>
+<td>23,548</td>
+<td>34 ي</td>
+<td><strong>693</strong></td>
+<td>MIT</td>
+</tr>
+<tr>
+<td><strong>boykopovar/AnyPS5</strong></td>
+<td>نقل ألعاب PS5 لـLinux/Win</td>
+<td>47,499</td>
+<td>78 ي</td>
+<td><strong>609</strong></td>
+<td>GPL-2.0</td>
+</tr>
+<tr>
+<td><strong>knifelemon/Filee</strong></td>
+<td>محوّل ملفات 244+ صيغة</td>
+<td>11,230</td>
+<td>21 ي</td>
+<td><strong>535</strong></td>
+<td>MIT</td>
+</tr>
+<tr>
+<td><strong>robbietilton/Compositor</strong></td>
+<td>بديل Photoshop للماك</td>
+<td>17,804</td>
+<td>34 ي</td>
+<td><strong>524</strong></td>
+<td>MIT</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="_3">💰 إشارات الربح المؤكّدة (فحصت الصفحات بنفسي)</h2>
+<table>
+<thead>
+<tr>
+<th>المشروع</th>
+<th>إشارة الربح</th>
+<th>الدليل</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>ArtCraft (storytold/*)</strong></td>
+<td>اشتراكات اختيارية + أرصدة فيديو</td>
+<td><code>getartcraft.com/pricing</code> → HTTP 200: <em>"Free &amp; open source · Subscriptions optional"</em></td>
+</tr>
+<tr>
+<td><strong>browser-use/jev-ultrafast</strong></td>
+<td>تسعير بالاستخدام</td>
+<td><code>browser-use.com</code> → HTTP 200، خطة من <strong>$19</strong></td>
+</tr>
+<tr>
+<td><strong>knifelemon/Filee</strong></td>
+<td>سحابة مدفوعة</td>
+<td><code>filee.sh</code> → HTTP 200</td>
+</tr>
+<tr>
+<td><strong>HKUDS/nanobot</strong></td>
+<td>منتج + ويكي</td>
+<td><code>nanobot.wiki</code> → HTTP 200</td>
+</tr>
+<tr>
+<td><strong>codewhale-hq/Codewhale</strong></td>
+<td>شركة + منتج</td>
+<td><code>codewhale.net</code> → HTTP 200</td>
+</tr>
+<tr>
+<td><strong>sst/opencode</strong></td>
+<td>منتج تجاري + تمويل</td>
+<td><code>opencode.ai</code> → HTTP 200</td>
+</tr>
+<tr>
+<td><strong>deepseek-ai/*</strong></td>
+<td>شركة DeepSeek</td>
+<td><code>deepseek.com</code> → HTTP 200</td>
+</tr>
+<tr>
+<td><strong>n8n / dify / activepieces</strong></td>
+<td>استضافة سحابية مدفوعة</td>
+<td>صفحات تسعير معروفة</td>
+</tr>
+</tbody>
+</table>
+<p><strong>النمط الواضح:</strong> المنتج مجاني، والإيراد من (1) سحابة مُدارة، (2) اشتراك اختياري، (3) أرصدة استعمال، (4) دعم مؤسسي.</p>
+<hr />
+<h2 id="_4">🥈 مجالات "بتنباع بسرعة" بطبيعتها</h2>
+<p>المجالات اللي السوق يدفع فيها فوراً لأنه يحلّ وجع مالي مباشر:</p>
+<table>
+<thead>
+<tr>
+<th>المجال</th>
+<th>أمثلة</th>
+<th>ليش بيبيع بسرعة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>وكلاء AI / harnesses</strong></td>
+<td>deepseek-harness, harness2, qm, moli</td>
+<td>كل شركة عم تبني وكيل — ومحتاجة طبقة تحكّم</td>
+</tr>
+<tr>
+<td><strong>بدائل SaaS غالية</strong></td>
+<td>open-seo (بديل Semrush), Concat (بديل CapCut), Compositor</td>
+<td>توفير اشتراكات = قرار شراء سهل</td>
+</tr>
+<tr>
+<td><strong>تطبيقات مكتبية Rust</strong></td>
+<td>photocraft, wordcraft, pdfcraft, filmcraft</td>
+<td>أداء + خصوصية + بلا اشتراك إجباري</td>
+</tr>
+<tr>
+<td><strong>تشغيل الموديلات محلياً</strong></td>
+<td>Strata, ollama, vllm</td>
+<td>خصوصية + توفير تكلفة API</td>
+</tr>
+<tr>
+<td><strong>تجارة إلكترونية</strong></td>
+<td>medusa, saleor, vendure, bagisto</td>
+<td>كل متجر = عميل محتمل</td>
+</tr>
+<tr>
+<td><strong>أتمتة low-code</strong></td>
+<td>n8n (208K), dify (159K), activepieces</td>
+<td>استضافة + تسويق مدفوع</td>
+</tr>
+<tr>
+<td><strong>أدوات المطوّرين المؤسسية</strong></td>
+<td>googleworkspace/cli, claude-code, codex</td>
+<td>عقود مؤسسية مباشرة</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="_5">🎯 الخلاصة العملية (وين الربح فعلاً)</h2>
+<ol>
+<li>
+<p><strong>الربح مو بالكود — بالاستضافة والخدمة حوله.</strong> كل مشروع ناجح هون بيبيع نسخة سحابية أو دعم أو خطة مدفوعة فوق الكود المجاني.</p>
+</li>
+<li>
+<p><strong>أسرع 3 مجالات طلب اليوم:</strong> وكلاء AI/harnesses · بدائل SaaS الرخيصة · توليد/تحرير الوسائط محلياً.</p>
+</li>
+<li>
+<p><strong>أسرع نمو (★/يوم):</strong> cleanyourtv (9,603) · DeepInfer (5,342) · deepseek-harness (3,820) · photocraft (3,603) · harness2 (1,336).</p>
+</li>
+<li>
+<p><strong>أقوى نموذج قابل للنسخ:</strong> ArtCraft — نفس الشركة أطلقت 4 تطبيقات مكتبية (صور، Word، PDF، فيديو) كلها Apache-2.0 بنفس الصفحة التجارية. <strong>هذا بالضبط نموذج open-core اللي منمشي فيه مع AXON.</strong></p>
+</li>
+<li>
+<p><strong>لو بدك تدخل السوق:</strong> اختار مجال من الجدول أعلاه، ابنِ نسخة open-core (كود مجاني + استضافة/دعم مدفوع). هي أسرع طريق للإيراد بلا بيع تراخيص معقّد.</p>
+</li>
+</ol>
+<hr />
+<h2 id="axon">🔗 علاقته بـ AXON</h2>
+<p>نفس النمط (open-core) هو استراتيجية AXON: طبقة الحكم على الوكلاء مفتوحة المصدر، والـShield/Observe/Vault منتجات مؤسسية مدفوعة.
+الفرصة: كل مشروع "وكيل/harness" بالجدول فوق = عميل محتمل لطبقة تحكّم + تدقيق + سقف تكلفة.
+التفاصيل: <a href="../AXON-PLAN.md"><code>AXON-PLAN.md</code></a> · <a href="../AXON-FINANCIALS.md"><code>AXON-FINANCIALS.md</code></a></p>
+<hr />
+<p><em>تحقق مباشر من GitHub REST API بتاريخ 2026-10-20. البيانات الخام: <code>data/github-verified-2026-10-20.json</code>.</em></p></div></body></html>

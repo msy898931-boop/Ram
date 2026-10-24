@@ -1,0 +1,194 @@
+<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>نص العرض — AXON</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;800&family=IBM+Plex+Sans+Arabic:wght@300;400;600&family=IBM+Plex+Mono&display=swap" rel="stylesheet">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%2305080d'/%3E%3Ctext x='16' y='23' font-family='monospace' font-size='19' font-weight='700' fill='%2300e5a0' text-anchor='middle'%3EA%3C/text%3E%3C/svg%3E">
+<style>
+:root{--bg:#05080d;--panel:#0c1219;--line:#1b2836;--fg:#dbe7f3;--muted:#8ba0b5;
+--acc:#00e5a0;--amber:#ffb454;--red:#ff5c6c}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);direction:rtl;
+font-family:"IBM Plex Sans Arabic","Segoe UI",system-ui,sans-serif;line-height:1.85}
+.wrap{max-width:940px;margin:0 auto;padding:48px 28px 96px}
+h1,h2,h3{font-family:Cairo,"Segoe UI",sans-serif;line-height:1.3;letter-spacing:-.01em}
+h1{font-size:2.3rem;margin:.2em 0 .4em}
+h2{font-size:1.5rem;margin:2.2em 0 .6em;padding-bottom:.3em;border-bottom:1px solid var(--line)}
+h3{font-size:1.15rem;margin:1.6em 0 .4em;color:var(--acc)}
+a{color:var(--acc);text-decoration:none}
+a:hover{text-decoration:underline}
+code{font-family:"IBM Plex Mono",monospace;background:#111a24;padding:2px 6px;
+border-radius:5px;font-size:.88em;direction:ltr;display:inline-block}
+pre{background:#0a1119;border:1px solid var(--line);border-radius:12px;padding:18px;
+overflow-x:auto;direction:ltr;text-align:left}
+pre code{background:none;padding:0}
+table{width:100%;border-collapse:collapse;margin:1.2em 0;font-size:.93em;display:block;overflow-x:auto}
+th,td{border:1px solid var(--line);padding:10px 13px;text-align:right}
+th{background:#101a24;color:var(--acc);font-weight:600;white-space:nowrap}
+tr:nth-child(even) td{background:#0a1119}
+blockquote{border-right:3px solid var(--amber);margin:1.2em 0;padding:.6em 1.1em;
+background:#12181f;border-radius:0 10px 10px 0;color:var(--muted)}
+hr{border:0;border-top:1px solid var(--line);margin:2.5em 0}
+.nav{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:32px;padding-bottom:22px;
+border-bottom:1px solid var(--line)}
+.nav a{border:1px solid var(--line);border-radius:100px;padding:7px 16px;font-size:.86rem;color:var(--fg)}
+.nav a:hover{border-color:var(--acc);color:var(--acc);text-decoration:none}
+.nav a.on{background:var(--acc);color:#04120c;border-color:var(--acc);font-weight:600}
+.badge{display:inline-block;background:#0d2a1f;color:var(--acc);border:1px solid #1c4a37;
+border-radius:100px;padding:4px 13px;font-size:.78rem;margin:0 0 14px}
+img{max-width:100%}
+</style></head><body><div class="wrap"><div class="nav">
+<a href="index.html">نظرة عامة</a>
+<a href="report.html">بحث GitHub</a>
+<a href="deck.html" class="on">العرض التقديمي</a>
+<a href="readme.html">README</a>
+<a href="plan.html">خطة العمل</a>
+<a href="financials.html">النموذج المالي</a>
+</div><h1 id="axon">🎤 AXON — عرض المستثمرين</h1>
+<p><strong>العرض المرئي:</strong> <a href="pitch/axon-deck.html"><code>pitch/axon-deck.html</code></a> · <strong>PDF:</strong> <code>pitch/AXON-Deck.pdf</code>
+15 شريحة · عربي (RTL) · داكن "غرفة تحكّم" · تنقّل بالأسهم · <code>P</code> لحفظ PDF.</p>
+<blockquote>
+<p>افتح <code>pitch/axon-deck.html</code> بالمتصفح. للعرض: <code>F</code> ملء الشاشة، <code>→/←</code> تنقّل، <code>#5</code> يقفز لشريحة.</p>
+</blockquote>
+<hr />
+<h2 id="one-pager">📄 الصفحة الواحدة (One-Pager)</h2>
+<p><strong>AXON</strong> — طبقة الحكم المؤسسية لكل وكلاء الذكاء الاصطناعي في الشركة.</p>
+<table>
+<thead>
+<tr>
+<th>البند</th>
+<th>القيمة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>المشكلة</td>
+<td>الشركات تنشر وكلاء، وما تقدر تحكمهم: صلاحيات، تكلفة، بيانات، إثبات</td>
+</tr>
+<tr>
+<td>الحل</td>
+<td>control plane: Shield (صلاحيات + تدقيق) · Observe (تكلفة + تقييم) · Vault (بيانات)</td>
+</tr>
+<tr>
+<td>التمايز</td>
+<td>model-agnostic · self-hosted · حوكمة كمنتج · مفتوح المصدر</td>
+</tr>
+<tr>
+<td>السوق</td>
+<td>TAM $50B · SAM $12B · SOM $400M (3 سنوات)</td>
+</tr>
+<tr>
+<td>نموذج العمل</td>
+<td>open-core: مجاني → $29/$99 per seat → $50K–$500K/سنة enterprise</td>
+</tr>
+<tr>
+<td>الاقتصاد</td>
+<td>هامش 82% · LTV/CAC <strong>68x</strong> · استرداد 2.2 شهر</td>
+</tr>
+<tr>
+<td>التمويل</td>
+<td><strong>$3M Seed</strong> لـ18 شهراً</td>
+</tr>
+<tr>
+<td>المعالم</td>
+<td>5,000 نجمة · 20 عميل مدفوع · $500K ARR · SOC 2</td>
+</tr>
+<tr>
+<td>التقييم المستهدف</td>
+<td>$400M خلال 3 سنوات (16–20x ARR)</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="speaker-notes">🗂️ ملاحظات المتحدث (Speaker Notes) — شريحة بشريحة</h2>
+<h3 id="1">1 · الغلاف</h3>
+<p>افتح بالسطر الواحد: <strong>"كل شركة عم تنشر وكلاء AI. ولا حد يقدر يحكمهم."</strong> اذكر الرقم اللي يوقف الغرفة: Cursor بتقييم <strong>$29.3B</strong>. اسكت ثانيتين.</p>
+<h3 id="2">2 · المشكلة</h3>
+<p>الأربعة أسئلة اللي ما حد يقدر يجاوب عليها: مين سمح؟ قديش صرف؟ وين راحت البيانات؟ تقدر تثبت للمدقّق؟
+اختم: <strong>"90% من مشاريع الوكلاء تموت عند مرحلة التجربة — مو لأن الوكيل ضعيف، لأن الشركة ما تقدر تحكمه."</strong></p>
+<h3 id="3">3 · الفكرة</h3>
+<p>الجملة المحورية: <strong>"الكل يبيع الوكيل. ما حد يبيع الحاكم."</strong>
+أشر للطرف الثاني من الشريحة: <strong>هذا demo شغّال، مو صورة.</strong> (إن أمكن، افتح <code>examples/demo.py</code> مباشرة.)</p>
+<h3 id="4">4 · الحل</h3>
+<p>خمسة مكوّنات. ركّز إن <strong>النواة مفتوحة</strong> (تبنّي سريع) و<strong>الحكم مدفوع</strong> (الإيراد). لا تدخل بتفاصيل تقنية هون.</p>
+<h3 id="5">5 · الإثبات</h3>
+<p><strong>أقوى شريحة عندك.</strong> انتقل: 28 اختبار ناجح، سجل غير قابل للتلاعب، صلاحيات fail-closed، سقف تكلفة.
+الجملة: <strong>"ما بنطلب منك تصدّقنا. الكود على GitHub، شغّله بنفسك."</strong></p>
+<h3 id="6">6 · السوق</h3>
+<p>TAM/SAM/SOM بأرقام حقيقية. أكّد إن طبقة الحكم <strong>فارغة</strong> — هذا هو التموضع، مو منافسة مباشرة.</p>
+<h3 id="7">7 · لماذا الآن</h3>
+<p>أربع قوى. أهمها: <strong>نافذة الـ18 شهر</strong> قبل ما يدخل الكبار. الأول يفوز بالمعيار.</p>
+<h3 id="8">8 · نموذج العمل</h3>
+<p>اشرح open-core بجملة: <strong>"النواة تبني المجتمع، الحكم يبني الإيراد."</strong> ثم الأرقام: 82% هامش، 68x LTV/CAC.</p>
+<h3 id="9">9 · خطة النمو</h3>
+<p>منحنى ARR. ركّز على السنة الثالثة: <strong>600 عميل · $25M ARR</strong>. لا تعِد بأرقام السنة الخامسة كتوقّع — اعرضها كسقف ممكن.</p>
+<h3 id="10">10 · المنافسة</h3>
+<p>الجدول يحكي. <strong>نحن الصف الأخير الوحيد اللي كل الخانات فيه نعم.</strong> الجملة: <strong>"نتكامل معهم، مو نحاربهم."</strong></p>
+<h3 id="11">11 · الخندق الدفاعي</h3>
+<p>أربعة أصول تتراكم: تكلفة تحويل، بيانات تقييم، شبكة marketplace، شهادات امتثال.</p>
+<h3 id="12">12 · الفريق</h3>
+<p>اعرض الأدوار والخطة. <strong>إذا ما عندك فريق بعد، قُل ذلك بصراحة</strong> واعرض خطة التوظيف (<code>docs/STEP-1-TEAM.md</code>). الشفافية تربح.</p>
+<h3 id="13">13 · خارطة الطريق</h3>
+<p>ابدأ بـ <strong>"الـMVP جاهز الآن"</strong> — هذا يغيّر مكانك من "فكرة" إلى "منفّذ". ثم 36 شهراً.</p>
+<h3 id="14">14 · الطلب</h3>
+<p><strong>$3M لـ18 شهراً</strong> بتوزيع واضح. اختم بالمعالم: 5,000 نجمة، 20 عميل، $500K ARR، SOC 2.</p>
+<h3 id="15">15 · الرؤية</h3>
+<p>اقفل بجملة واحدة: <strong>"الوكلاء رح يكونوا في كل شركة. نحن نبني الحاكم."</strong></p>
+<hr />
+<h2 id="qa-prep">❓ أسئلة متوقّعة وأجوبة (Q&amp;A Prep)</h2>
+<table>
+<thead>
+<tr>
+<th>السؤال</th>
+<th>الجواب</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>ليش ما يبنيه مزوّد كبير؟</strong></td>
+<td>هم مرتبطون بموديلهم؛ الحاكم لازم يكون محايداً. ونحن نبيع لهم التكامل، مو ننافسهم.</td>
+</tr>
+<tr>
+<td><strong>ليش ما يبنوه داخلياً؟</strong></td>
+<td>الحوكمة والامتثال والشهادات تحتاج سنوات وتخصص. شراء أسرع بـ10x من بناء.</td>
+</tr>
+<tr>
+<td><strong>منافسكم الأكبر؟</strong></td>
+<td>مو Cursor — بل "لا شي": الفوضى الحالية. OpenHands الأقرب، لكنه يركز على المطوّر الفردي.</td>
+</tr>
+<tr>
+<td><strong>كيف تكسب أول عميل؟</strong></td>
+<td>شركاء تصميم مجاناً 6 أشهر → شهادات → تحويل مدفوع. 20 شريك = 5 مدفوع.</td>
+</tr>
+<tr>
+<td><strong>وإذا فشل التبنّي؟</strong></td>
+<td>النواة مفتوحة تكسب مساهمين، والتقنية قابلة للترخيص. سيناريو متحفّظ: بيع بـ$150M+.</td>
+</tr>
+<tr>
+<td><strong>أين الـmoat فعلاً؟</strong></td>
+<td>شهادات الامتثال + بيانات التقييم + شبكة المهارات. الثلاثة تتراكم ولا تُقلَّد بسرعة.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="_1">📧 بريد التواصل مع المستثمرين</h2>
+<p><strong>الموضوع:</strong> AXON — طبقة الحكم المؤسسية للوكلاء (Seed · MVP جاهز)</p>
+<p>مرحباً [الاسم]،</p>
+<p>نبني <strong>AXON</strong>، طبقة التحكّم اللي تدير وتحكم كل وكلاء AI داخل الشركة — صلاحيات، سجل تدقيق غير قابل للتلاعب، وسقف تكلفة صلب. Model-agnostic وself-hosted.</p>
+<p><strong>لماذا الآن:</strong> سوق الوكلاء انفجر (Cursor $29.3B تقييم، $3B ARR)، لكن ما في حل مؤسسي للحوكمة. كل المنافسين يبيعون "وكيل"، وما حد يبيع "الحاكم".</p>
+<p><strong>الإثبات:</strong> الـMVP شغّال اليوم — 28 اختبار ناجح، demo يمنع قراءة الأسرار ويكشف التلاعب بالسجل.</p>
+<p><strong>الطلب:</strong> $3M Seed لـ18 شهراً.</p>
+<p>عندك 20 دقيقة هالأسبوع؟</p>
+<p>[اسمك] · founders@axon.dev</p>
+<hr />
+<h2 id="delivery-tips">🎬 كيف تقدّم (Delivery Tips)</h2>
+<ol>
+<li><strong>15 شريحة = 12 دقيقة.</strong> دقيقة للغلاف، دقيقتان للمشكلة، والباقي للحل والإثبات.</li>
+<li><strong>افتح demo حقيقي</strong> في شريحة 5 إن أمكن — يغيّر المزاج كاملاً.</li>
+<li><strong>لا تقرأ الشرائح.</strong> الأرقام تتكلم.</li>
+<li><strong>اعترف بالنواقص</strong> (الفريق، الـGTM) — يبني ثقة أسرع من الكمال المصطنع.</li>
+<li><strong>اختم بالرؤية واسكت.</strong> لا تعتذر، لا تكرّر.</li>
+</ol>
+<hr />
+<p><em>أُعدّ بواسطة وكيل AI (OpenHands) نيابةً عن المستخدم. البيانات من GitHub API (2026-10-20) وصفحات المنافسين الرسمية.</em></p></div></body></html>

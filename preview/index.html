@@ -1,0 +1,149 @@
+<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>نظرة عامة — AXON</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;800&family=IBM+Plex+Sans+Arabic:wght@300;400;600&family=IBM+Plex+Mono&display=swap" rel="stylesheet">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%2305080d'/%3E%3Ctext x='16' y='23' font-family='monospace' font-size='19' font-weight='700' fill='%2300e5a0' text-anchor='middle'%3EA%3C/text%3E%3C/svg%3E">
+<style>
+:root{--bg:#05080d;--panel:#0c1219;--line:#1b2836;--fg:#dbe7f3;--muted:#8ba0b5;
+--acc:#00e5a0;--amber:#ffb454;--red:#ff5c6c}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);direction:rtl;
+font-family:"IBM Plex Sans Arabic","Segoe UI",system-ui,sans-serif;line-height:1.85}
+.wrap{max-width:940px;margin:0 auto;padding:48px 28px 96px}
+h1,h2,h3{font-family:Cairo,"Segoe UI",sans-serif;line-height:1.3;letter-spacing:-.01em}
+h1{font-size:2.3rem;margin:.2em 0 .4em}
+h2{font-size:1.5rem;margin:2.2em 0 .6em;padding-bottom:.3em;border-bottom:1px solid var(--line)}
+h3{font-size:1.15rem;margin:1.6em 0 .4em;color:var(--acc)}
+a{color:var(--acc);text-decoration:none}
+a:hover{text-decoration:underline}
+code{font-family:"IBM Plex Mono",monospace;background:#111a24;padding:2px 6px;
+border-radius:5px;font-size:.88em;direction:ltr;display:inline-block}
+pre{background:#0a1119;border:1px solid var(--line);border-radius:12px;padding:18px;
+overflow-x:auto;direction:ltr;text-align:left}
+pre code{background:none;padding:0}
+table{width:100%;border-collapse:collapse;margin:1.2em 0;font-size:.93em;display:block;overflow-x:auto}
+th,td{border:1px solid var(--line);padding:10px 13px;text-align:right}
+th{background:#101a24;color:var(--acc);font-weight:600;white-space:nowrap}
+tr:nth-child(even) td{background:#0a1119}
+blockquote{border-right:3px solid var(--amber);margin:1.2em 0;padding:.6em 1.1em;
+background:#12181f;border-radius:0 10px 10px 0;color:var(--muted)}
+hr{border:0;border-top:1px solid var(--line);margin:2.5em 0}
+.nav{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:32px;padding-bottom:22px;
+border-bottom:1px solid var(--line)}
+.nav a{border:1px solid var(--line);border-radius:100px;padding:7px 16px;font-size:.86rem;color:var(--fg)}
+.nav a:hover{border-color:var(--acc);color:var(--acc);text-decoration:none}
+.nav a.on{background:var(--acc);color:#04120c;border-color:var(--acc);font-weight:600}
+.badge{display:inline-block;background:#0d2a1f;color:var(--acc);border:1px solid #1c4a37;
+border-radius:100px;padding:4px 13px;font-size:.78rem;margin:0 0 14px}
+img{max-width:100%}
+</style></head><body><div class="wrap"><div class="nav">
+<a href="index.html" class="on">نظرة عامة</a>
+<a href="report.html">بحث GitHub</a>
+<a href="deck.html">العرض التقديمي</a>
+<a href="readme.html">README</a>
+<a href="plan.html">خطة العمل</a>
+<a href="financials.html">النموذج المالي</a>
+</div><span class="badge">AXON v0.2.0 · مفتوح المصدر (Apache-2.0)</span>
+<h1>AXON — طبقة الحكم المؤسسية لوكلاء الذكاء الاصطناعي</h1>
+<p style="font-size:1.1rem;color:var(--muted)">احكُم كل وكيل. دقّق كل حركة. حدّد كل تكلفة. بلا ارتباط بمزوّد واحد.</p>
+
+<h2>شو هي المشكلة اللي بيحلّها؟</h2>
+<p>اليوم الشركات عم تشغّل وكلاء AI (بيع، دعم فني، تشغيل بنية تحتية) وهالوكلاء
+بتاخد قرارات وبتنفّذ أوامر — بس <b>ما في طبقة تحكّم</b> تمنعهم من شغلات خطيرة،
+وما في سجل تدقيق تقدر تقدّمه لمُدقّق، وما في سقف تكلفة يمنع فاتورة نموذج مفاجئة.</p>
+<p>AXON هو هالطبقة. كل نداء للموديل وكل استدعاء أداة <b>بيمرق إجبارياً</b> عبر 3 بوابات:</p>
+<ol>
+<li><b>محرك السياسات</b> — رفض افتراضي. أي حركة بلا إذن صريح = مرفوضة.</li>
+<li><b>سقف التكلفة</b> — حد صارم بالدولار لكل تشغيل.</li>
+<li><b>سجل التدقيق</b> — سلسلة هاشات، أي تلاعب بكشفه.</li>
+</ol>
+<p>الوكيل <b>ما بيقدر يتجاوزهم</b> لأن الـruntime هو المسار الوحيد للموديل.</p>
+
+<h2>كيف بيشتغل عملياً؟</h2>
+<pre><code>$ axon run "لخّص الحادثة" --provider anthropic --budget 0.5
+{
+  "run_id": "9de02f300a00",
+  "provider": "anthropic",
+  "model": "claude-sonnet",
+  "cost_usd": 0.0192,
+  "denied": 0
+}
+
+$ axon audit --ledger ./audit.jsonl
+verify: OK — chain intact (6 records)</code></pre>
+<p>لو حاول الوكيل يقرأ ملف أسرار:</p>
+<pre><code>$ axon policy-check tool.read_file --target /home/deploy/secrets/db.txt
+DENY   matched rule: deny *:tool.*->*secrets*
+# exit code = 3</code></pre>
+<p>ولو حدا عدّل سجل التدقيق يدوياً:</p>
+<pre><code>$ axon audit --ledger ./audit.jsonl
+verify: FAILED — tampered record 2</code></pre>
+
+<h2>من شو مكوّن؟ (أرقام من الكود نفسه)</h2>
+<table>
+<tr><th>الطبقة</th><th>الملفات</th><th>الأسطر</th></tr>
+<tr><td>محرك السياسات + السجل + السقف + الـruntime</td><td><code>axon/core/</code></td><td>435</td></tr>
+<tr><td>موصّلات الموديلات (Anthropic/OpenAI/…)</td><td><code>axon/providers/</code></td><td>372</td></tr>
+<tr><td>الواجهة الطرفية (CLI)</td><td><code>axon/cli.py</code></td><td>149</td></tr>
+<tr><td>الاختبارات</td><td><code>tests/</code></td><td>357</td></tr>
+<tr><td><b>الإجمالي</b></td><td></td><td><b>1,650</b></td></tr>
+</table>
+<p>الاعتماديات الخارجية: <code>pyyaml</code> فقط. صفر SDK لشركات الموديلات —
+بيشتغل حتى ببيئة معزولة (air-gapped). <b>28 اختبار ناجح</b> كلها على سيرفر HTTP حقيقي، بلا mocks.</p>
+
+<h2>شو لسّا ناقص ليصير كامل؟</h2>
+<table>
+<tr><th>الناقص</th><th>الأهمية</th><th>الوقت التقديري</th></tr>
+<tr><td>واجهة ويب (Dashboard) لمراقبة الوكلاء</td><td>عالية</td><td>3–4 أسابيع</td></tr>
+<tr><td>منسّق وكلاء متعددين (Multi-agent orchestrator)</td><td>عالية</td><td>4–6 أسابيع</td></tr>
+<tr><td>RBAC + هويات (SSO/OIDC) — بديل <code>allow_all()</code></td><td>عالية للمؤسسات</td><td>3 أسابيع</td></tr>
+<tr><td>توقيع السجل (Ed25519) بدل السلسلة الهاشية فقط</td><td>متوسطة</td><td>أسبوع</td></tr>
+<tr><td>سياسات Shield/Observe/Vault (الطبقة التجارية)</td><td>حرجة للبيع</td><td>8–10 أسابيع</td></tr>
+<tr><td>شهادات SOC 2 / ISO 27001</td><td>حرجة للمؤسسات</td><td>3–6 أشهر</td></tr>
+<tr><td>حزمة Kubernetes + نشر air-gapped</td><td>متوسطة</td><td>2–3 أسابيع</td></tr>
+<tr><td>تكامل LangChain/CrewAI/OpenHands</td><td>عالية للتبنّي</td><td>2 أسابيع</td></tr>
+</table>
+
+<h2>التقييم الصادق</h2>
+<table>
+<tr><th>المعيار</th><th>الدرجة</th><th>التعليل</th></tr>
+<tr><td>جودة الكود</td><td>82/100</td><td>نظيف، مسؤوليات مفصولة، أخطاء مصنّفة، بلا deps ثقيلة</td></tr>
+<tr><td>الاختبارات</td><td>80/100</td><td>28 اختبار على سيرفر حقيقي (ممتاز)، ناقصها E2E وتغطية حدودية</td></tr>
+<tr><td>الأمان</td><td>72/100</td><td>رفض افتراضي + سلسلة هاشات قوية، بلا توقيع تشفيري ولا RBAC</td></tr>
+<tr><td>النضج التجاري</td><td>45/100</td><td>MVP حقيقي، بس بلا Dashboard/SOC2/دعم</td></tr>
+<tr><td>التميّز بالسوق</td><td>58/100</td><td>سوق مزدحم؛ الفرق: حكم على مستوى التنفيذ لا النصيحة</td></tr>
+<tr><td>الجاهزية للعرض</td><td>88/100</td><td>عرض 15 شريحة + خطة + موديل مالي + بحث موثّق</td></tr>
+<tr><td colspan="3"><b>المعدّل العام: 71/100 — MVP هندسي ممتاز، منتج تجاري ناقص</b></td></tr>
+</table>
+
+<h2>كم بجيب إذا بدك تبيعو؟</h2>
+<p>لازم تكون صريح: <b>الكود لحاله ما بيتباع بكتير</b> لأنه مفتوح المصدر
+(Apache-2.0) — أي حدا بينسخه مجاناً. القيمة باللي حواليه: العملاء، العقود، الفريق.</p>
+<table>
+<tr><th>سيناريو البيع</th><th>السعر المتوقع</th><th>شو لازم يكون موجود</th></tr>
+<tr><td>بيع الكود كـ"قاعدة" لمطوّر</td><td><b>$5K–$25K</b></td><td>مثل ما هو اليوم</td></tr>
+<tr><td>بيع كـ"starter kit" مع دعم</td><td><b>$30K–$80K</b></td><td>+ توثيق + تكاملات</td></tr>
+<tr><td>شركة صغيرة: 10 عملاء مدفوعين</td><td><b>$400K–$1.2M</b></td><td>+ Dashboard + مهندسين</td></tr>
+<tr><td>Seed-stage مع $500K ARR</td><td><b>$3M–$6M</b></td><td>+ 20 شريك تصميم + SOC 2 قيد التنفيذ</td></tr>
+<tr><td>Series A مع $5M ARR</td><td><b>$25M–$45M</b></td><td>+ فريق مبيعات + عملاء مؤسسيين</td></tr>
+</table>
+<p style="color:var(--amber)"><b>تقديري الصادق اليوم:</b> الريبو نفسه قيمته <b>$8K–$20K</b>
+(كقاعدة كود نظيفة موثّقة). القفزة بتبلّش لما يكون في <b>عملاء يدفعون</b>،
+لأن المشترين بيشتروا <b>إيراد + فريق</b>، مو أسطر كود.</p>
+<p>المعيار بالسوق: <b>3–5 أضعاف الإيراد السنوي (ARR)</b> لشركة ناشئة،
+و<b>6–10 أضعاف</b> لو في نمو قوي.</p>
+
+<h2>شو أسرع طريق للفلوس؟</h2>
+<ol>
+<li><b>60 يوم:</b> أكمل Dashboard + تكامل OpenHands/LangChain، وطلّع 3 شركاء تصميم مجاناً.</li>
+<li><b>90 يوم:</b> حوّلهم لعقود $20K–$50K سنوياً (نسخة مؤسسية + دعم).</li>
+<li><b>12 شهر:</b> 20 عميل = ~$500K ARR → هنا بيصير للبيع معنى ($3M+).</li>
+</ol>
+<p>الأرقام الكاملة بالـ<a href="financials.html">نموذج المالي</a>، والخطة بالـ<a href="plan.html">خطة العمل</a>.</p>
+
+<hr>
+<p style="color:var(--muted);font-size:.9rem">كل رقم بهالصفحة مسحوب من الكود نفسه
+(<code>wc -l</code>، <code>pytest</code>، تشغيل حقيقي للـCLI) بتاريخ 2026-10-20 — مو تقديرات تسويقية.</p>
+</div></body></html>

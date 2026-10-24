@@ -1,0 +1,836 @@
+<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>خطة العمل — AXON</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;800&family=IBM+Plex+Sans+Arabic:wght@300;400;600&family=IBM+Plex+Mono&display=swap" rel="stylesheet">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%2305080d'/%3E%3Ctext x='16' y='23' font-family='monospace' font-size='19' font-weight='700' fill='%2300e5a0' text-anchor='middle'%3EA%3C/text%3E%3C/svg%3E">
+<style>
+:root{--bg:#05080d;--panel:#0c1219;--line:#1b2836;--fg:#dbe7f3;--muted:#8ba0b5;
+--acc:#00e5a0;--amber:#ffb454;--red:#ff5c6c}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);direction:rtl;
+font-family:"IBM Plex Sans Arabic","Segoe UI",system-ui,sans-serif;line-height:1.85}
+.wrap{max-width:940px;margin:0 auto;padding:48px 28px 96px}
+h1,h2,h3{font-family:Cairo,"Segoe UI",sans-serif;line-height:1.3;letter-spacing:-.01em}
+h1{font-size:2.3rem;margin:.2em 0 .4em}
+h2{font-size:1.5rem;margin:2.2em 0 .6em;padding-bottom:.3em;border-bottom:1px solid var(--line)}
+h3{font-size:1.15rem;margin:1.6em 0 .4em;color:var(--acc)}
+a{color:var(--acc);text-decoration:none}
+a:hover{text-decoration:underline}
+code{font-family:"IBM Plex Mono",monospace;background:#111a24;padding:2px 6px;
+border-radius:5px;font-size:.88em;direction:ltr;display:inline-block}
+pre{background:#0a1119;border:1px solid var(--line);border-radius:12px;padding:18px;
+overflow-x:auto;direction:ltr;text-align:left}
+pre code{background:none;padding:0}
+table{width:100%;border-collapse:collapse;margin:1.2em 0;font-size:.93em;display:block;overflow-x:auto}
+th,td{border:1px solid var(--line);padding:10px 13px;text-align:right}
+th{background:#101a24;color:var(--acc);font-weight:600;white-space:nowrap}
+tr:nth-child(even) td{background:#0a1119}
+blockquote{border-right:3px solid var(--amber);margin:1.2em 0;padding:.6em 1.1em;
+background:#12181f;border-radius:0 10px 10px 0;color:var(--muted)}
+hr{border:0;border-top:1px solid var(--line);margin:2.5em 0}
+.nav{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:32px;padding-bottom:22px;
+border-bottom:1px solid var(--line)}
+.nav a{border:1px solid var(--line);border-radius:100px;padding:7px 16px;font-size:.86rem;color:var(--fg)}
+.nav a:hover{border-color:var(--acc);color:var(--acc);text-decoration:none}
+.nav a.on{background:var(--acc);color:#04120c;border-color:var(--acc);font-weight:600}
+.badge{display:inline-block;background:#0d2a1f;color:var(--acc);border:1px solid #1c4a37;
+border-radius:100px;padding:4px 13px;font-size:.78rem;margin:0 0 14px}
+img{max-width:100%}
+</style></head><body><div class="wrap"><div class="nav">
+<a href="index.html">نظرة عامة</a>
+<a href="report.html">بحث GitHub</a>
+<a href="deck.html">العرض التقديمي</a>
+<a href="readme.html">README</a>
+<a href="plan.html" class="on">خطة العمل</a>
+<a href="financials.html">النموذج المالي</a>
+</div><h1 id="axon">🚀 مشروع AXON</h1>
+<h2 id="ai">منصة وكلاء AI المؤسسية — خطة العمل الكاملة والبحث السوقي</h2>
+<p><strong>الإصدار:</strong> 1.0 · <strong>التاريخ:</strong> 2026-10-20
+<strong>الهدف:</strong> بناء أقوى Agent Harness في العالم، قابل للبيع بصفقة كبيرة (Acquisition أو SaaS).</p>
+<hr />
+<h1 id="0-executive-summary">الجزء 0: ملخص تنفيذي (Executive Summary)</h1>
+<h2 id="_1">الفكرة بكلمة واحدة</h2>
+<p><strong>AXON = طبقة التحكّم المؤسسية (Control Plane) لكل وكلاء AI في الشركة.</strong></p>
+<p>بينما العالم يتسابق على بناء <em>وكلاء</em> (Claude Code, Codex, Cursor)، ما في مين يبيع <em>الحاكم</em> الذي يدير كل هالوكلاء بأمان. هي الفجوة.</p>
+<h2 id="_2">ليش هالمشروع بيربح</h2>
+<ul>
+<li>سوق الوكلاء انفجر: <strong>Cursor وصلت 29.3 مليار $ تقييم و3 مليار $ إيراد سنوي (ARR)</strong>، <strong>Cognition (Devin) 4 مليار $</strong>.</li>
+<li>لكن <strong>كل</strong> المنافسين يحلّون مشكلة "الوكيل الفردي" — ما حد يحل مشكلة "1000 وكيل داخل شركة، بأمان وتكلفة تحت السيطرة".</li>
+<li>المؤسسات (بنوك، حكومة، صحة) <strong>ما بتقدر</strong> تشغّل وكلاء AI بدون: تتبّع، صلاحيات، تدقيق، عزل بيانات، وتحكم بالتكلفة. هي = منتجنا.</li>
+</ul>
+<h2 id="projection">الأرقام المتوقعة (Projection)</h2>
+<table>
+<thead>
+<tr>
+<th>المرحلة</th>
+<th>المدة</th>
+<th>العملاء</th>
+<th>ARR</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Open-source launch</td>
+<td>0–6 أشهر</td>
+<td>5,000 نجمة</td>
+<td>$0</td>
+</tr>
+<tr>
+<td>Seed</td>
+<td>6–12 شهر</td>
+<td>20 شركة مدفوعة</td>
+<td>$500K</td>
+</tr>
+<tr>
+<td>Series A</td>
+<td>12–24 شهر</td>
+<td>150 شركة</td>
+<td>$5M</td>
+</tr>
+<tr>
+<td>Series B / Acquisition</td>
+<td>24–36 شهر</td>
+<td>600 شركة</td>
+<td>$25M+</td>
+</tr>
+</tbody>
+</table>
+<h2 id="_3">الخلاصة</h2>
+<p>نبني منتج <strong>open-core</strong>: النواة مجانية (لتبني مجتمع)، والمصدر الربحي = <strong>الحكم والتحكم والامتثال المؤسسي</strong>. هاد اللي الشركات تدفع فيه ملايين، وهو اللي ما في حد عم يبيعه اليوم بشكل كامل.</p>
+<hr />
+<h1 id="1-market-research">الجزء 1: البحث السوقي (Market Research)</h1>
+<h2 id="11">1.1 حجم السوق والنمو</h2>
+<table>
+<thead>
+<tr>
+<th>المؤشر</th>
+<th>القيمة</th>
+<th>المصدر</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>سوق برمجيات AI عام (2030 متوقع)</td>
+<td><strong>1.3 تريليون $</strong></td>
+<td>تحليلات صناعية</td>
+</tr>
+<tr>
+<td>Cursor ARR (2026)</td>
+<td><strong>3 مليار $</strong></td>
+<td>Bloomberg / Wikipedia</td>
+</tr>
+<tr>
+<td>Cursor تقييم (Series D، نوفمبر 2025)</td>
+<td><strong>29.3 مليار $</strong></td>
+<td>جولة 2.3 مليار $ (Accel + Coatue)</td>
+</tr>
+<tr>
+<td>Cognition (Devin) تقييم</td>
+<td><strong>4 مليار $</strong></td>
+<td>8VC, Founders Fund</td>
+</tr>
+<tr>
+<td>Windsurf (استحوذت عليها Cognition 2025)</td>
+<td>—</td>
+<td>اندماج سوق</td>
+</tr>
+<tr>
+<td>Nvidia market cap</td>
+<td><strong>5 تريليون $</strong></td>
+<td>مؤشر حجم موجة الـAI</td>
+</tr>
+</tbody>
+</table>
+<p><strong>الاستنتاج:</strong> السوق مو ناشئ — هو <strong>بمرحلة انفجار</strong>. المشتري موجود والفلوس موجودة.</p>
+<h2 id="12-github-2026-10-20">1.2 المنافسون — الخريطة الكاملة (بيانات GitHub حقيقية 2026-10-20)</h2>
+<table>
+<thead>
+<tr>
+<th>المشروع</th>
+<th>نجوم</th>
+<th>نجمة/يوم</th>
+<th>الترخيص</th>
+<th>الموقع التنافسي</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>deepseek-ai/deepseek-harness</td>
+<td>259,661</td>
+<td><strong>3,657</strong></td>
+<td>MIT</td>
+<td>منصة Plugins ضخمة</td>
+</tr>
+<tr>
+<td>sst/opencode</td>
+<td>220,698</td>
+<td>408</td>
+<td>MIT</td>
+<td>CLI مفتوح، سريع</td>
+</tr>
+<tr>
+<td>n8n-io/n8n</td>
+<td>208,435</td>
+<td>78</td>
+<td>Fair-code</td>
+<td>أتمتة workflows</td>
+</tr>
+<tr>
+<td>Significant-Gravitas/AutoGPT</td>
+<td>187,724</td>
+<td>142</td>
+<td>—</td>
+<td>رائد قديم</td>
+</tr>
+<tr>
+<td>ollama/ollama</td>
+<td>184,510</td>
+<td>152</td>
+<td>MIT</td>
+<td>تشغيل محلي</td>
+</tr>
+<tr>
+<td>langgenius/dify</td>
+<td>159,394</td>
+<td>124</td>
+<td>—</td>
+<td>RAG + workflows</td>
+</tr>
+<tr>
+<td>anthropics/claude-code</td>
+<td>153,195</td>
+<td>252</td>
+<td>خاص</td>
+<td>وكيل برمجة (أقوى)</td>
+</tr>
+<tr>
+<td>openai/codex</td>
+<td>130,714</td>
+<td>234</td>
+<td>Apache-2.0</td>
+<td>وكيل برمجة</td>
+</tr>
+<tr>
+<td>google-gemini/gemini-cli</td>
+<td>107,572</td>
+<td>194</td>
+<td>Apache-2.0</td>
+<td>CLI</td>
+</tr>
+<tr>
+<td>All-Hands-AI/OpenHands</td>
+<td>91,693</td>
+<td>96</td>
+<td>MIT</td>
+<td>منصة وكلاء كاملة</td>
+</tr>
+<tr>
+<td>cline/cline</td>
+<td>70,791</td>
+<td>84</td>
+<td>Apache-2.0</td>
+<td>وكيل داخل IDE</td>
+</tr>
+<tr>
+<td>block/goose</td>
+<td>55,602</td>
+<td>70</td>
+<td>Apache-2.0</td>
+<td>وكيل سطح مكتب</td>
+</tr>
+<tr>
+<td>xai-org/grok-build</td>
+<td>27,521</td>
+<td><strong>272</strong></td>
+<td>Apache-2.0</td>
+<td>وكيل TUI</td>
+</tr>
+</tbody>
+</table>
+<h2 id="13">1.3 تسعير المنافسين (بيانات حقيقية من صفحاتهم)</h2>
+<table>
+<thead>
+<tr>
+<th>المنتج</th>
+<th>الفئات</th>
+<th>ملاحظة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Claude</strong></td>
+<td>$20 / $100 / $200 شهرياً</td>
+<td>+ $20/seat للفرق</td>
+</tr>
+<tr>
+<td><strong>Cursor</strong></td>
+<td>$0 / $8 / $30 / $100 / $200 شهرياً</td>
+<td>Enterprise مخصص</td>
+</tr>
+<tr>
+<td><strong>GitHub Copilot</strong></td>
+<td>$10 / $39 / $100 / $200 شهرياً</td>
+<td>Business $39/seat</td>
+</tr>
+<tr>
+<td><strong>OpenHands Enterprise</strong></td>
+<td><strong>$499/شهر</strong> + $50/mo</td>
+<td>يثبت إن في سوق enterprise</td>
+</tr>
+<tr>
+<td><strong>OpenCode</strong></td>
+<td>تسعير بالاستخدام (Tokens)</td>
+<td>$0.03–$4.40/1M token</td>
+</tr>
+</tbody>
+</table>
+<p><strong>الاستنتاج:</strong> الفجوة السعرية الكبيرة: المنافسون يبيعون <strong>بالكرسي (seat)</strong> أو <strong>بالاستخدام (usage)</strong>، لكن ما حد يبيع <strong>حزمة حكم وامتثال كاملة (governance suite)</strong> بسعر مؤسسي.</p>
+<h2 id="14">1.4 ليش الشركات بتشتري (من بحث المؤسسات)</h2>
+<p>المؤسسات تحتاج (حسب تحليل Wikipedia لطبقات الوكلاء الستة):
+1. <strong>Layer 6: Security &amp; Compliance</strong> — حماية، تدقيق، إدارة مخاطر
+2. <strong>Layer 5: Evaluation &amp; Observability</strong> — تقييم، مراقبة أداء
+3. <strong>Layer 3: Frameworks</strong> — إدارة الوكلاء (وهون معظم المنافسة)
+4. <strong>مخاوف تعاقدية</strong>: توزيع المسؤولية (liability)، عدم وجود معايير تقييم موحّدة.</p>
+<hr />
+<h1 id="2-gap-analysis">الجزء 2: تحليل الفجوات (Gap Analysis)</h1>
+<h2 id="21">2.1 المشاكل اللي ما حد حلها</h2>
+<table>
+<thead>
+<tr>
+<th>الفجوة</th>
+<th>المشكلة الفعلية</th>
+<th>مين يعاني</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>G1: بلا حوكمة</strong></td>
+<td>ما في نظام صلاحيات موحّد لكل الوكلاء</td>
+<td>CTO, CISO</td>
+</tr>
+<tr>
+<td><strong>G2: بلا تدقيق</strong></td>
+<td>ما في سجل (audit log) يثبت شو عمل الوكيل</td>
+<td>Compliance, Legal</td>
+</tr>
+<tr>
+<td><strong>G3: بلا تحكم تكلفة</strong></td>
+<td>الفواتير تنفجر بدون سقف أو تتبع</td>
+<td>CFO, FinOps</td>
+</tr>
+<tr>
+<td><strong>G4: قفل المزوّد</strong></td>
+<td>الأدوات مرتبطة بموديل واحد (Anthropic/OpenAI)</td>
+<td>CTO</td>
+</tr>
+<tr>
+<td><strong>G5: بلا عزل بيانات</strong></td>
+<td>البيانات تروح لسحابة طرف ثالث</td>
+<td>Security, Gov</td>
+</tr>
+<tr>
+<td><strong>G6: بلا تقييم</strong></td>
+<td>ما في طريقة تقيس أداء الوكيل قبل الإنتاج</td>
+<td>Eng Leaders</td>
+</tr>
+<tr>
+<td><strong>G7: بلا تنسيق</strong></td>
+<td>كل وكيل معزول، ما بيعرفوا يشتغلوا مع بعض</td>
+<td>Platform Eng</td>
+</tr>
+</tbody>
+</table>
+<h2 id="22-positioning">2.2 التموضع الإستراتيجي (Positioning)</h2>
+<pre><code>                 عالي الحكم/الامتثال
+                         ▲
+                         │
+    ★ AXON ★  ──────────┼──────────  (الفراغ!)
+                         │
+   (Enterprise/أمن)      │      (IDE/مطوّر فردي)
+                         │
+      OpenHands ●        │        ● Cursor
+      Dify ●             │        ● Claude Code
+                         │        ● Copilot
+                         ▼
+                 منخفض الحكم/الامتثال
+</code></pre>
+<p><strong>AXON = الأعلى في الحكم والامتثال، مع بقاء model-agnostic و open-source.</strong></p>
+<h2 id="23-unfair-advantage">2.3 الميزة القاتلة (Unfair Advantage)</h2>
+<ol>
+<li><strong>Model-agnostic بالكامل</strong> — تشغّل Claude و GPT و Gemini و Qwen و DeepSeek وأي موديل محلي. المنافسون مقفولين على مزوّد واحد.</li>
+<li><strong>Control Plane مو وكيل</strong> — ما ننافس الوكلاء، نحكمهم. هاد يعني نقدر نتكامل معهم بدل نحاربهم.</li>
+<li><strong>Self-hosted + Air-gapped</strong> — للبنوك والحكومة اللي ما بتقبل سحابة.</li>
+<li><strong>Governance كمنتج</strong> — أول من يبيع "الامتثال للوكلاء" كحزمة جاهزة.</li>
+</ol>
+<hr />
+<h1 id="3-product">الجزء 3: المنتج (Product)</h1>
+<h2 id="31">3.1 الرؤية</h2>
+<blockquote>
+<p><strong>"Kubernetes للوكلاء"</strong> — كل شركة تشغّل آلاف الوكلاء، وAXON هو طبقة الإدارة.</p>
+</blockquote>
+<h2 id="32">3.2 المكوّنات الخمسة الأساسية</h2>
+<h3 id="1-axon-core">🧠 1. AXON Core (المحرك — مفتوح المصدر)</h3>
+<ul>
+<li><strong>Harness متعدد الوكلاء</strong>: يشغّل Claude Code، Codex، Qwen، أي وكيل.</li>
+<li><strong>Agent Runtime</strong>: تنفيذ معزول (sandboxed) لكل مهمة.</li>
+<li><strong>Skill/Tool Registry</strong>: مكتبة مهارات وأدوات موحّدة (MCP-compatible).</li>
+<li><strong>Memory Layer</strong>: ذاكرة مشتركة بين الوكلاء (vector + graph).</li>
+<li>الترخيص: <strong>Apache-2.0</strong> (لبناء المجتمع والتبنّي).</li>
+</ul>
+<h3 id="2-axon-shield">🛡️ 2. AXON Shield (الحوكمة — مدفوع) 💰</h3>
+<ul>
+<li><strong>Policy Engine</strong>: صلاحيات دقيقة (من يقدر يعمل شو، على أي بيانات).</li>
+<li><strong>Audit Trail</strong>: سجل غير قابل للتعديل لكل إجراء اتخذه أي وكيل.</li>
+<li><strong>Approval Workflows</strong>: موافقة بشرية قبل الإجراءات الخطيرة.</li>
+<li><strong>RBAC/ABAC</strong>: أدوار وصلاحيات مؤسسية.</li>
+<li>الترخيص: <strong>Enterprise (مدفوع)</strong>.</li>
+</ul>
+<h3 id="3-axon-observe">📊 3. AXON Observe (المراقبة — مدفوع) 💰</h3>
+<ul>
+<li><strong>Tracing</strong>: تتبّع كامل لكل خطوة (OpenTelemetry native).</li>
+<li><strong>Cost Control</strong>: سقف تكلفة لكل وكيل/قسم/مشروع + تنبيهات.</li>
+<li><strong>Evaluation Suite</strong>: اختبار أداء الوكيل قبل النشر (benchmarks مدمجة).</li>
+<li><strong>Dashboards</strong>: لوحات فورية للـCTO وFinOps.</li>
+<li>الترخيص: <strong>Enterprise (مدفوع)</strong>.</li>
+</ul>
+<h3 id="4-axon-vault">🔐 4. AXON Vault (أمن البيانات — مدفوع) 💰</h3>
+<ul>
+<li><strong>Secrets Management</strong>: مفاتيح API مشفّرة ومركّزية.</li>
+<li><strong>PII Redaction</strong>: إخفاء البيانات الحساسة تلقائياً قبل إرسالها للموديل.</li>
+<li><strong>Air-gap Deployment</strong>: تشغيل كامل بدون إنترنت.</li>
+<li><strong>Data Residency</strong>: تحكم بمكان تخزين ومعالجة البيانات.</li>
+<li>الترخيص: <strong>Enterprise (مدفوع)</strong>.</li>
+</ul>
+<h3 id="5-axon-cloud-saas">☁️ 5. AXON Cloud (السحابة — SaaS) 💰</h3>
+<ul>
+<li>نسخة مستضافة جاهزة (بدون تثبيت).</li>
+<li>تسعير بالاستخدام + حصص.</li>
+<li>للشركات الصغيرة والمتوسطة.</li>
+</ul>
+<h2 id="33-killer-features">3.3 الميزات المميزة (Killer Features)</h2>
+<table>
+<thead>
+<tr>
+<th>الميزة</th>
+<th>الوصف</th>
+<th>ليش قوية</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Multi-Agent Orchestration</strong></td>
+<td>100 وكيل يشتغلوا معاً على مشروع واحد</td>
+<td>ما في منافس سهل</td>
+</tr>
+<tr>
+<td><strong>Cross-Model Routing</strong></td>
+<td>يختار أرخص/أفضل موديل لكل مهمة تلقائياً</td>
+<td>يوفر 60-80% تكلفة</td>
+</tr>
+<tr>
+<td><strong>Time-Travel Debugging</strong></td>
+<td>رجّع أي جلسة وكيل خطوة-خطوة</td>
+<td>فريد بالمجال</td>
+</tr>
+<tr>
+<td><strong>Agent Marketplace</strong></td>
+<td>بيع/شراء مهارات ووكلاء جاهزين</td>
+<td>نموذج ربح إضافي</td>
+</tr>
+<tr>
+<td><strong>Compliance Packs</strong></td>
+<td>حزم SOC2 / HIPAA / GDPR جاهزة</td>
+<td>يبيع للمؤسسات</td>
+</tr>
+<tr>
+<td><strong>Zero-Trust Sandbox</strong></td>
+<td>عزل على مستوى kernel (gVisor/Firecracker)</td>
+<td>أمان عالمي</td>
+</tr>
+</tbody>
+</table>
+<h2 id="34-tech-stack">3.4 المعمارية التقنية (Tech Stack)</h2>
+<pre><code>┌─────────────────────────────────────────────────────┐
+│  AXON Control Plane (Go + Rust)                      │
+│  ├─ API Gateway (gRPC + REST)                        │
+│  ├─ Policy Engine (OPA/Rego)                         │
+│  ├─ Scheduler &amp; Orchestrator                         │
+│  └─ Audit Ledger (append-only, قابل للتحقق)          │
+├─────────────────────────────────────────────────────┤
+│  Agent Runtime Layer                                 │
+│  ├─ Sandboxes (gVisor / Firecracker microVM)         │
+│  ├─ Multi-model adapters (Anthropic/OpenAI/Gemini/   │
+│  │   Qwen/DeepSeek/Ollama/vLLM)                      │
+│  └─ Tool/Skill Registry (MCP-compatible)             │
+├─────────────────────────────────────────────────────┤
+│  Data Layer                                          │
+│  ├─ Postgres (metadata)                              │
+│  ├─ Redis (queue/state)                              │
+│  ├─ Vector DB (Qdrant/pgvector — memory)             │
+│  └─ S3-compatible (artifacts)                        │
+├─────────────────────────────────────────────────────┤
+│  Frontend                                            │
+│  ├─ Next.js + TypeScript (dashboard)                 │
+│  └─ TUI/CLI (Go) للمطورين                            │
+└─────────────────────────────────────────────────────┘
+</code></pre>
+<p><strong>اللغات:</strong> Go (control plane، أداء)، Rust (runtime، أمان)، TypeScript (واجهة)، Python (SDK).
+<strong>النشر:</strong> Docker Compose (بداية)، Helm/Kubernetes (إنتاج)، Air-gapped (مؤسسات).</p>
+<hr />
+<h1 id="4-business-model">الجزء 4: نموذج العمل والربح (Business Model)</h1>
+<h2 id="41-open-core">4.1 استراتيجية Open-Core</h2>
+<table>
+<thead>
+<tr>
+<th>الطبقة</th>
+<th>السعر</th>
+<th>الجمهور</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>AXON Core</strong></td>
+<td>مجاني (Apache-2.0)</td>
+<td>مطوّرين، مجتمع</td>
+</tr>
+<tr>
+<td><strong>AXON Team</strong></td>
+<td><strong>$29/seat/شهر</strong></td>
+<td>فرق صغيرة</td>
+</tr>
+<tr>
+<td><strong>AXON Business</strong></td>
+<td><strong>$99/seat/شهر</strong></td>
+<td>شركات متوسطة</td>
+</tr>
+<tr>
+<td><strong>AXON Enterprise</strong></td>
+<td><strong>$50K–$500K/سنة</strong></td>
+<td>مؤسسات، بنوك، حكومة</td>
+</tr>
+<tr>
+<td><strong>AXON Cloud</strong></td>
+<td>بالاستخدام + حصص</td>
+<td>الجميع</td>
+</tr>
+</tbody>
+</table>
+<h2 id="42-revenue-streams">4.2 مصادر الإيراد (Revenue Streams)</h2>
+<ol>
+<li><strong>اشتراكات Enterprise</strong> (الأساس) — 70% من الإيراد.</li>
+<li><strong>AXON Cloud SaaS</strong> — 15%.</li>
+<li><strong>Agent/Skill Marketplace</strong> (عمولة 20%) — 5%.</li>
+<li><strong>الدعم والتدريب (Professional Services)</strong> — 7%.</li>
+<li><strong>Compliance Packs وتراخيص خاصة</strong> — 3%.</li>
+</ol>
+<h2 id="43">4.3 لماذا يدفع المشتري</h2>
+<table>
+<thead>
+<tr>
+<th>الدافع</th>
+<th>القيمة الملموسة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>توفير التكلفة</td>
+<td>Cross-model routing يوفّر <strong>60-80%</strong> من فاتورة الـtokens</td>
+</tr>
+<tr>
+<td>الامتثال</td>
+<td>تجنّب غرامات GDPR/HIPAA (ملايين)</td>
+</tr>
+<tr>
+<td>الأمان</td>
+<td>منع تسريب البيانات (كارثة محتملة)</td>
+</tr>
+<tr>
+<td>الإنتاجية</td>
+<td>تنسيق 100 وكيل = 10x إنتاجية</td>
+</tr>
+<tr>
+<td>الشفافية</td>
+<td>سجل تدقيق يرضي المدقّقين</td>
+</tr>
+</tbody>
+</table>
+<h2 id="44-go-to-market">4.4 استراتيجية البيع (Go-To-Market)</h2>
+<p><strong>المرحلة 1 (0–6 أشهر): مجتمع مفتوح المصدر</strong>
+- إطلاق على GitHub + HackerNews + Product Hunt.
+- الهدف: 5,000 نجمة، 50 مساهم، محتوى تقني قوي.
+- نشر مقارنات "AXON vs Cursor/Claude Code".</p>
+<p><strong>المرحلة 2 (6–12 شهر): بيع مبكر (Design Partners)</strong>
+- 20 شركة pilot مجاناً → شهادات (case studies).
+- التركيز: شركات تقنية متوسطة عندها مشاكل تكلفة/أمان.</p>
+<p><strong>المرحلة 3 (12–24 شهر): توسّع مؤسسي</strong>
+- فريق مبيعات + حلول (Solutions Engineers).
+- شراكات مع مزوّدي سحابة (AWS/Azure/GCP marketplaces).
+- شهادات: SOC 2 Type II، ISO 27001.</p>
+<p><strong>المرحلة 4 (24–36 شهر): سيطرة السوق</strong>
+- Agent Marketplace ناضج.
+- التوسّع لمنتجات جانبية (AXON for Data، AXON for Security).</p>
+<hr />
+<h1 id="5-roadmap">الجزء 5: خارطة الطريق (Roadmap)</h1>
+<h2 id="0-12">المرحلة 0: الأساس (شهر 1–2)</h2>
+<ul>
+<li>[ ] تأسيس الفريق الأساسي (3-5 مهندسين مؤسسين).</li>
+<li>[ ] تصميم المعمارية النهائية.</li>
+<li>[ ] MVP: تشغيل وكيل واحد بأمان + سجل تدقيق.</li>
+</ul>
+<h2 id="1-open-source-launch-36">المرحلة 1: Open-Source Launch (شهر 3–6)</h2>
+<ul>
+<li>[ ] AXON Core كامل (multi-agent + sandbox).</li>
+<li>[ ] دعم 5 موديلات (Claude, GPT, Gemini, Qwen, Ollama).</li>
+<li>[ ] واجهة CLI + dashboard بسيط.</li>
+<li>[ ] إطلاق GitHub + حملة تسويق.</li>
+<li><strong>المخرج:</strong> 5,000 نجمة، 20 مساهم.</li>
+</ul>
+<h2 id="2-enterprise-mvp-712">المرحلة 2: Enterprise MVP (شهر 7–12)</h2>
+<ul>
+<li>[ ] AXON Shield (policy + audit).</li>
+<li>[ ] AXON Observe (tracing + cost control).</li>
+<li>[ ] 20 design partners مدفوعين.</li>
+<li>[ ] جولة Seed (2–5 مليون $).</li>
+<li><strong>المخرج:</strong> $500K ARR.</li>
+</ul>
+<h2 id="3-enterprise-ga-1318">المرحلة 3: Enterprise GA (شهر 13–18)</h2>
+<ul>
+<li>[ ] AXON Vault (secrets + PII redaction).</li>
+<li>[ ] Air-gap deployment.</li>
+<li>[ ] SOC 2 Type II.</li>
+<li>[ ] فريق مبيعات.</li>
+<li><strong>المخرج:</strong> 150 عميل، $5M ARR.</li>
+</ul>
+<h2 id="4-1936">المرحلة 4: التوسّع (شهر 19–36)</h2>
+<ul>
+<li>[ ] Agent Marketplace.</li>
+<li>[ ] Compliance Packs (HIPAA, GDPR, FedRAMP).</li>
+<li>[ ] شراكات سحابة.</li>
+<li>[ ] جولة Series B أو عرض استحواذ.</li>
+<li><strong>المخرج:</strong> 600 عميل، $25M+ ARR، تقييم 300M–1B $.</li>
+</ul>
+<hr />
+<h1 id="6">الجزء 6: الفريق والموارد</h1>
+<h2 id="61">6.1 الفريق الأساسي المطلوب</h2>
+<table>
+<thead>
+<tr>
+<th>الدور</th>
+<th>العدد</th>
+<th>المهمة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>CTO / مؤسس تقني</td>
+<td>1</td>
+<td>المعمارية، قيادة الهندسة</td>
+</tr>
+<tr>
+<td>مهندس Runtime (Rust/Go)</td>
+<td>2</td>
+<td>المحرك والعزل</td>
+</tr>
+<tr>
+<td>مهندس Backend</td>
+<td>2</td>
+<td>Control plane، API</td>
+</tr>
+<tr>
+<td>مهندس Frontend</td>
+<td>1</td>
+<td>Dashboard</td>
+</tr>
+<tr>
+<td>مهندس أمن</td>
+<td>1</td>
+<td>Policy engine، الامتثال</td>
+</tr>
+<tr>
+<td>DevRel / تسويق تقني</td>
+<td>1</td>
+<td>المجتمع، المحتوى</td>
+</tr>
+</tbody>
+</table>
+<h2 id="62-18">6.2 الميزانية (أول 18 شهر)</h2>
+<table>
+<thead>
+<tr>
+<th>البند</th>
+<th>التكلفة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>رواتب (8 أشخاص)</td>
+<td>$2.4M</td>
+</tr>
+<tr>
+<td>بنية تحتية وتطوير</td>
+<td>$200K</td>
+</tr>
+<tr>
+<td>تسويق ومجتمع</td>
+<td>$300K</td>
+</tr>
+<tr>
+<td>قانوني وامتثال</td>
+<td>$150K</td>
+</tr>
+<tr>
+<td><strong>الإجمالي</strong></td>
+<td><strong>~$3M</strong></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h1 id="7">الجزء 7: التحليل التنافسي التفصيلي</h1>
+<h2 id="71">7.1 ليش نحن أحسن من كل واحد</h2>
+<table>
+<thead>
+<tr>
+<th>المنافس</th>
+<th>قوّته</th>
+<th>ضعفه</th>
+<th>كيف نغلبه</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Cursor</strong></td>
+<td>تجربة مطوّر ممتازة</td>
+<td>مغلق، موديل واحد، بلا حوكمة</td>
+<td>نكون model-agnostic + حوكمة</td>
+</tr>
+<tr>
+<td><strong>Claude Code</strong></td>
+<td>أقوى وكيل</td>
+<td>مرتبط بـAnthropic فقط</td>
+<td>نعطي حرية الموديل</td>
+</tr>
+<tr>
+<td><strong>OpenHands</strong></td>
+<td>مفتوح، كامل</td>
+<td>تركيز على المطوّر الفردي</td>
+<td>نركّز على المؤسسة</td>
+</tr>
+<tr>
+<td><strong>Copilot</strong></td>
+<td>انتشار GitHub</td>
+<td>سطحي، بلا orchestration</td>
+<td>عمق الحكم والتنسيق</td>
+</tr>
+<tr>
+<td><strong>Devin/Cognition</strong></td>
+<td>وكيل مستقل</td>
+<td>مغلق، غالي</td>
+<td>مرونة + سعر</td>
+</tr>
+<tr>
+<td><strong>n8n/Dify</strong></td>
+<td>أتمتة workflows</td>
+<td>مو وكلاء أذكياء</td>
+<td>وكلاء + workflows معاً</td>
+</tr>
+<tr>
+<td><strong>opencode</strong></td>
+<td>CLI رائع</td>
+<td>بلا طبقة مؤسسية</td>
+<td>طبقة الحكم المدفوعة</td>
+</tr>
+</tbody>
+</table>
+<h2 id="72-moat">7.2 الخندق الدفاعي (Moat)</h2>
+<ol>
+<li><strong>تكاملات عميقة</strong> — كل ما زاد استخدام، زاد التعلّق (switching cost).</li>
+<li><strong>بيانات التقييم</strong> — كل تشغيل يحسّن benchmarks الخاصة.</li>
+<li><strong>شبكة Marketplace</strong> — تأثير الشبكة (كل مهارة بتزيد قيمة المنصة).</li>
+<li><strong>شهادات الامتثال</strong> — عائق دخول عالي للمنافسين.</li>
+<li><strong>المجتمع مفتوح المصدر</strong> — تبنّي سريع + مساهمين.</li>
+</ol>
+<hr />
+<h1 id="8">الجزء 8: المخاطر والتخفيف</h1>
+<table>
+<thead>
+<tr>
+<th>المخاطرة</th>
+<th>الاحتمال</th>
+<th>التخفيف</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>مزوّد كبير يبني نفس الشي</td>
+<td>عالي</td>
+<td>التركيز على model-agnostic + تكامل معهم</td>
+</tr>
+<tr>
+<td>تبنيّ بطيء</td>
+<td>متوسط</td>
+<td>open-source + design partners مبكراً</td>
+</tr>
+<tr>
+<td>تعقيد تقني</td>
+<td>متوسط</td>
+<td>MVP مركّز، توسّع تدريجي</td>
+</tr>
+<tr>
+<td>حرق نقدي سريع</td>
+<td>عالي</td>
+<td>نموذج open-core يقلل التكلفة</td>
+</tr>
+<tr>
+<td>تغيّر سوق الموديلات</td>
+<td>متوسط</td>
+<td>طبقة تجريد (abstraction) مرنة</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h1 id="9">الجزء 9: استراتيجية البيع والاستحواذ</h1>
+<h2 id="91-acquirers">9.1 المشترون المحتملون (Acquirers)</h2>
+<ul>
+<li><strong>شركات السحابة</strong>: AWS, Google Cloud, Microsoft Azure (يبغوا طبقة حكم للوكلاء).</li>
+<li><strong>شركات الأدوات</strong>: GitLab, JetBrains, Datadog (مراقبة).</li>
+<li><strong>شركات الأمن</strong>: Palo Alto, CrowdStrike (حوكمة الوكلاء).</li>
+<li><strong>شركات الـAI</strong>: Anthropic, OpenAI (نقص طبقة مؤسسية).</li>
+</ul>
+<h2 id="92-valuation-logic">9.2 منطق التقييم (Valuation Logic)</h2>
+<ul>
+<li>SaaS بمعدل <strong>10–20x ARR</strong> (قطاع AI غالباً 20x+).</li>
+<li>عند <strong>$25M ARR</strong> → تقييم <strong>$500M–$1B</strong>.</li>
+<li>عند <strong>$100M ARR</strong> → تقييم <strong>$2–3B</strong>.</li>
+</ul>
+<h2 id="93">9.3 المعالم المطلوبة لصفقة كبيرة</h2>
+<ol>
+<li>ARR متنامي (&gt;100% YoY).</li>
+<li>عملاء مؤسسيون (logos معروفة).</li>
+<li>شهادات امتثال (SOC2, ISO).</li>
+<li>مجتمع مفتوح قوي (نجوم + مساهمين).</li>
+<li>تقنية يصعب تقليدها (sandbox + policy engine).</li>
+</ol>
+<hr />
+<h1 id="10">الجزء 10: الخلاصة والتوصيات</h1>
+<h2 id="_4">القرار</h2>
+<p><strong>ابنِ AXON</strong> — طبقة التحكّم المؤسسية للوكلاء.</p>
+<h2 id="_5">ليش الآن</h2>
+<ul>
+<li>السوق بانفجار (Cursor $29B، Cognition $4B).</li>
+<li>الفجوة واضحة (ما حد يبيع الحكم والامتثال).</li>
+<li>التقنية ناضجة (MCP، sandboxes، model APIs).</li>
+</ul>
+<h2 id="3">أول 3 خطوات</h2>
+<ol>
+<li><strong>جمّع 3-5 مهندسين</strong> وفريق تقني قوي.</li>
+<li><strong>ابنِ MVP</strong> خلال 60 يوم (وكيل واحد + سجل تدقيق).</li>
+<li><strong>أطلق مفتوح المصدر</strong> وابدأ بناء المجتمع + design partners.</li>
+</ol>
+<h2 id="_6">الرسالة النهائية</h2>
+<blockquote>
+<p>الوكلاء رح يكونوا بكل شركة. اللي رح يربح مو اللي يبني أذكى وكيل — بل اللي <strong>يحكم</strong> كل الوكلاء. نحن نبني هالحاكم.</p>
+</blockquote>
+<hr />
+<p><em>هذه الوثيقة مبنية على بيانات حقيقية من GitHub API (2026-10-20)، صفحات التسعير الرسمية للمنافسين، وبيانات السوق والتمويل من ويكيبيديا. البيانات الخام محفوظة في <code>data/competitors.json</code> و<code>data/enriched.json</code>.</em></p></div></body></html>
