@@ -181,3 +181,29 @@ chromium --headless --disable-gpu --no-sandbox --no-pdf-header-footer \
   launch, or it creates the repo and dies on the first push.
 - The app token cannot set description, topics, or enable Pages. Do those by
   hand in the UI.
+
+## The signed-ledger differentiator, and how it was verified
+
+The one claim AXON can make that a competitor cannot copy cheaply is that its
+audit ledger is *signed*, not merely hash-chained. Before marketing that, the
+claim was checked against the nearest competitor rather than assumed:
+
+- **microsoft/agent-governance-toolkit** (~6.5k stars, MIT, closest match to
+  AXON's positioning) implements its audit chain as
+  `sha256(json.dumps(body, sort_keys=True))` with `previous_hash` linking —
+  an **unkeyed** chain (`agent-mesh/src/agentmesh/governance/audit.py`,
+  `compute_hash` / `verify_hash`). `hmac.compare_digest` appears there, but
+  that is a timing-safe comparison, not a key: it adds no secret, so anyone
+  with write access can edit a record and recompute every hash.
+- Their Ed25519 code (`marketplace/signing.py`) signs **plugin manifests**,
+  not audit records.
+- Their external-anchoring Commitment Engine is documented as
+  *"Not implemented in this release."*
+
+So the gap is real. Keep it honest anyway: the README does not name or
+disparage the competitor. It tells the reader to run
+`examples/signed_ledger_proof.py` against any vendor's ledger, which is a
+test they can apply to AXON too. Do not turn this into a hit piece — the
+credibility comes from the demo being runnable and the comparison being
+fair (the script's own tests assert the unkeyed chain really does accept the
+forgery, so it is not a straw man).
