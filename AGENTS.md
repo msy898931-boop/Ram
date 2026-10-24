@@ -66,6 +66,15 @@ chromium --headless --disable-gpu --no-sandbox --no-pdf-header-footer \
 - `pip install` of `pytest` / `pyyaml` may be needed after a sandbox reset.
 - Live provider calls need `AXON_ANTHROPIC_API_KEY` or `AXON_API_KEY`;
   `mock` and `ollama` work offline.
-- `GITHUB_TOKEN` here is a GitHub **App** token: it can push to existing repos
-  but **cannot create repositories**. Use `scripts/launch.sh` with a token that
-  has `administration: write` (or a classic PAT with `repo`).
+- **This project is published at https://github.com/msy898931-boop/Ram** (public,
+  branch `main`). CI is green there across Python 3.10-3.13.
+- Publish with `./scripts/push-to-ram.sh`. It scans for secrets, probes write
+  access, pushes, then sets description/topics.
+- `GITHUB_TOKEN` here is a GitHub **App** token for the `openhands-ai` app,
+  installed with `repository_selection: selected`. It can push only to the
+  repos ticked in that installation - `Ram` is now included, but `smc-*`,
+  `gold-smc-bot` and others are not.
+- The app token can push (`contents: write`) but **cannot** create repos or
+  edit metadata (`administration: write` is missing), so the description and
+  topics calls in the publish script return 403. Set them by hand in the UI,
+  or use a classic PAT with `repo` scope.
