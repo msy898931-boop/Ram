@@ -300,17 +300,18 @@ tr.us td.em{color:var(--signal)}
         <div class="term" style="margin-bottom:14px">
           <div class="bar"><i></i><i></i><i></i><span>pytest -q</span></div>
           <pre><span class="w">$ pytest -q</span>
-<span class="g">............</span>                                    [100%]
-<span class="g">12 passed</span> in 0.16s</pre>
+<span class="g">............................</span>                      [100%]
+<span class="g">28 passed</span> in 7.20s</pre>
         </div>
         <div class="term">
-          <div class="bar"><i></i><i></i><i></i><span>axon policy-check</span></div>
-          <pre><span class="w">$ axon policy-check tool.write_file --target /prod/db</span>
-<span class="r">DENY</span>   no matching rule (deny by default)
+          <div class="bar"><i></i><i></i><i></i><span>axon run --provider anthropic</span></div>
+          <pre><span class="w">$ axon run "summarise the incident" \</span>
+<span class="w">      --provider anthropic --model claude-sonnet --budget 0.5</span>
+{ <span class="g">"provider"</span>: <span class="g">"anthropic"</span>, <span class="g">"model"</span>: <span class="g">"claude-sonnet"</span>,
+  <span class="g">"cost_usd"</span>: 0.0192, <span class="g">"denied"</span>: 0 }
 
-<span class="w">$ axon policy-check tool.write_file --target /prod/db \</span>
-<span class="w">      --tag approved</span>
-<span class="g">ALLOW</span>  matched rule: allow *:tool.write_file-&gt;/prod/*</pre>
+<span class="w">$ axon audit --ledger ./audit.jsonl</span>
+<span class="g">verify: OK — chain intact (6 records)</span></pre>
         </div>
       </div>
     </div>
@@ -503,7 +504,7 @@ tr.us td.em{color:var(--signal)}
   </div>
   <div class="body">
     <div class="rows">
-      <div class="row"><div class="num">الآن</div><div><div class="t"><span class="hl">✅ MVP مبني وشغّال</span> — 12 اختبار ناجح</div><div class="d">سجل تدقيق، محرك صلاحيات، سقف تكلفة، طبقة model-agnostic، CLI، عرض توضيحي.</div></div></div>
+      <div class="row"><div class="num">الآن</div><div><div class="t"><span class="hl">✅ MVP مبني وشغّال</span> — 28 اختبار ناجح + موصّلات Anthropic/OpenAI حقيقية</div><div class="d">سجل تدقيق، محرك صلاحيات، سقف تكلفة، موصّلات نماذج حقيقية عبر HTTP، CLI، عرض توضيحي.</div></div></div>
       <div class="row"><div class="num">شهر 3-6</div><div><div class="t">إطلاق مفتوح المصدر</div><div class="d">5,000 نجمة · 50 مساهم · نشر على PyPI + Docker.</div></div></div>
       <div class="row"><div class="num">شهر 7-12</div><div><div class="t">Enterprise MVP + Seed</div><div class="d">Shield + Observe · 20 شريك تصميم · $500K ARR.</div></div></div>
       <div class="row"><div class="num">شهر 13-18</div><div><div class="t">Enterprise GA</div><div class="d">Vault · air-gap · SOC 2 Type II · 150 عميل · $5M ARR.</div></div></div>

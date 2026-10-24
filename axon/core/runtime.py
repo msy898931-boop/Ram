@@ -16,7 +16,7 @@ from typing import Any, Callable
 from .audit import AuditLedger
 from .budget import Budget, BudgetExceeded
 from .policy import PolicyEngine
-from .providers import Completion, Provider, default_provider
+from axon.providers import Completion, default_provider, get_provider
 
 
 class PolicyDenied(Exception):
@@ -49,7 +49,7 @@ class AgentRuntime:
         ledger: AuditLedger,
         policy: PolicyEngine,
         budget: Budget,
-        provider: Provider | None = None,
+        provider: Any | None = None,
     ):
         self.agent_id = agent_id
         self.ledger = ledger

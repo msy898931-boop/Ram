@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "axon-agents"
-version = "0.1.0"
+version = "0.2.0"
 description = "AXON — enterprise control plane for AI agents: policy, audit, cost control, model-agnostic runtime."
 readme = "README.md"
 requires-python = ">=3.10"

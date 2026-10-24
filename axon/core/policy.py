@@ -62,6 +62,15 @@ class PolicyEngine:
         rules = [Rule(**r) for r in data.get("rules", [])]
         return cls(rules)
 
+    @classmethod
+    def allow_all(cls) -> "PolicyEngine":
+        """Explicit opt-out of governance. For local dev and tests only.
+
+        Never use in production: it disables the fail-closed guarantee that
+        is AXON's entire point.
+        """
+        return cls([Rule(action="*", actor="*", target="*", effect="allow")])
+
     def evaluate(
         self, actor: str, action: str, target: str = "", tags: set[str] | None = None
     ) -> Decision:

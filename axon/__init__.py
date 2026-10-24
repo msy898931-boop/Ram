@@ -4,4 +4,4 @@ Open-core governance layer: policy enforcement, tamper-evident audit,
 model-agnostic execution, and cost control for AI agents.
 """
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"
