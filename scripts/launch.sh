@@ -26,10 +26,12 @@ else
   gh repo create "$SLUG" --public --description "$DESC"
 fi
 
-echo "==> pushing master"
+BRANCH="${BRANCH:-main}"
+
+echo "==> pushing $BRANCH"
 git remote remove origin 2>/dev/null || true
 git remote add origin "https://github.com/$SLUG.git"
-git push -u origin master
+git push -u origin "$BRANCH"
 
 echo "==> setting topics"
 for t in "${TOPICS[@]}"; do gh api --method PUT "repos/$SLUG/topics" -f "names[]=$t" >/dev/null; done
