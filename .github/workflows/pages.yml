@@ -4,10 +4,15 @@ name: Pages
 # from the repository itself (`scripts/build_preview.py` reads `wc -l`,
 # `pytest`, and a real CLI run), so every number on the page is reproducible
 # rather than typed in by hand.
+#
+# Manual dispatch only, and deliberately so. Enabling Pages needs a token
+# with the `pages: write` permission; the automation token used to publish
+# this repository has `contents: write` but not that scope, so a push trigger
+# would show a red run on every commit for a reason that is not the code.
+# Once Pages is switched on in Settings -> Pages with "GitHub Actions" as the
+# source, either run this workflow by hand or add the push trigger back.
 
 on:
-  push:
-    branches: [main, master]
   workflow_dispatch:
 
 permissions:
