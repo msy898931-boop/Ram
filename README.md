@@ -8,7 +8,7 @@ Govern every agent. Audit every action. Cap every cost. Lock in no vendor.
 
 [![License: Apache-2.0 + BUSL-1.1](https://img.shields.io/badge/License-Apache--2.0_%2B_BUSL--1.1-blue.svg)](NOTICE)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/)
-[![Tests](https://img.shields.io/badge/tests-363%20passing-brightgreen.svg)](tests/)
+[![Tests](https://img.shields.io/badge/tests-374%20passing-brightgreen.svg)](tests/)
 [![CI](https://github.com/msy898931-boop/Ram/actions/workflows/ci.yml/badge.svg)](https://github.com/msy898931-boop/Ram/actions/workflows/ci.yml)
 [![Providers](https://img.shields.io/badge/providers-anthropic%20%7C%20openai%20%7C%20ollama-8A2BE2.svg)](#real-model-providers)
 [![Deny by default](https://img.shields.io/badge/policy-deny--by--default-critical.svg)](#why-it-is-different)
@@ -45,11 +45,13 @@ Qwen, a local model, anything — and enforces three things no matter what:
 ```bash
 pip install -e ".[dev]"
 
-# Run a governed task (offline mock by default)
-axon run "read the changelog" --tool read_file=/sandbox/CHANGELOG.md --ledger ./audit.jsonl
+# Run a governed task (offline mock by default).
+# --key signs the ledger and writes the public half next to it.
+axon run "read the changelog" --tool read_file=/sandbox/CHANGELOG.md \
+  --ledger ./audit.jsonl --key ./sign.key
 
-# Verify the audit trail (supply the public key for strict verification)
-axon keygen --key ./sign.key
+# Verify the audit trail. Supplying the public key turns on strict mode:
+# every record must carry a valid signature from it.
 axon audit --ledger ./audit.jsonl --pubkey ./sign.key.pub
 
 # Check that each policy pack actually refuses what it claims to
@@ -237,7 +239,7 @@ stops, what it does not stop, and the gaps that remain.
 **v0.2.0** — governed runtime for single and multi-agent systems, with
 signed audit, RBAC, policy packs, secret brokering, an authenticated
 dashboard, a nine-layer security stack, OIDC federation, in-process TLS,
-framework adapters, and an executable compliance mapping. 363 tests.
+framework adapters, and an executable compliance mapping. 374 tests.
 
 Known limits, stated plainly: policy matching is glob-based rather than a
 full expression language; the OIDC verifier does not call the provider's

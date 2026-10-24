@@ -17,7 +17,12 @@ from .core.budget import Budget, BudgetExceeded
 from .core.identity import IdentityError, IdentityRegistry
 from .core.policy import PolicyEngine
 from .core.runtime import AgentRuntime, PolicyDenied
-from .core.signing import SignatureError, Signer, signer_from_file
+from .core.signing import (
+    SignatureError,
+    Signer,
+    signer_from_file,
+    write_public_key,
+)
 from .providers import ProviderError, available_providers, default_provider, get_provider
 
 DEFAULT_POLICY = Path(__file__).resolve().parent / "policies" / "default.yaml"
@@ -57,7 +62,11 @@ def _signer(args, *, create: bool) -> Signer | None:
     path = Path(key_path)
     if not path.exists() and not create:
         raise SignatureError(f"signing key {path} not found")
-    return signer_from_file(path)
+    signer = signer_from_file(path)
+    # Keep the public half on disk whenever the private half is, so the
+    # documented `audit --pubkey <key>.pub` works after a `run --key`.
+    write_public_key(signer, path)
+    return signer
 
 
 def _ledger(args, *, create: bool = False) -> AuditLedger:
@@ -130,7 +139,16 @@ def cmd_audit(args) -> int:
     ledger = _ledger(args)
     pub = None
     if getattr(args, "pubkey", None):
-        pub = Path(args.pubkey).read_bytes()
+        pub_path = Path(args.pubkey)
+        if not pub_path.exists():
+            print(f"error: public key not found: {pub_path}", file=sys.stderr)
+            print(
+                "       sign a run with `--key <path>` (which writes <path>.pub), "
+                "or run `axon keygen`",
+                file=sys.stderr,
+            )
+            return 4
+        pub = pub_path.read_bytes()
         pub = bytes.fromhex(pub.decode().strip()) if len(pub.strip()) == 64 else pub
     ok, msg = ledger.verify(public_key=pub)
     print(f"verify: {'OK' if ok else 'FAILED'} — {msg}")
@@ -146,8 +164,10 @@ def cmd_keygen(args) -> int:
         print(f"error: {path} already exists (use --force to overwrite)", file=sys.stderr)
         return 5
     signer = signer_from_file(path)
-    pub_path = Path(args.pubkey or str(path) + ".pub")
-    pub_path.write_text(signer.public_key.hex() + "\n", encoding="utf-8")
+    pub_path = Path(args.pubkey) if args.pubkey else write_public_key(signer, path)
+    if args.pubkey:
+        pub_path.parent.mkdir(parents=True, exist_ok=True)
+        pub_path.write_text(signer.public_key.hex() + "\n", encoding="utf-8")
     print(f"private key : {path}  (keep secret, 0600)")
     print(f"public key  : {pub_path}")
     print(f"fingerprint : {signer.fingerprint}")

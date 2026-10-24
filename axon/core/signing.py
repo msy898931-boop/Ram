@@ -20,6 +20,7 @@ import contextlib
 import hashlib
 import os
 from dataclasses import dataclass
+from pathlib import Path
 
 _P = 2**255 - 19
 _Q = 2**252 + 27742317777372353535851937790883648493  # order of the base point
@@ -191,3 +192,23 @@ def signer_from_file(path) -> Signer:
     if len(seed) != 32:
         raise SignatureError(f"{p}: seed must be 32 bytes, got {len(seed)}")
     return Signer(seed)
+
+
+def public_key_path(key_path) -> Path:
+    """Where the public half of `key_path` belongs: `<key>.pub`."""
+    return Path(str(key_path) + ".pub")
+
+
+def write_public_key(signer: Signer, path) -> Path:
+    """Write the public half next to the private key.
+
+    `--key` is documented as "created if missing", so a user who signs a run
+    with `--key ./sign.key` then follows the docs with
+    `audit --pubkey ./sign.key.pub` must find that file. Writing it only in
+    `keygen` meant the documented path crashed with a bare FileNotFoundError,
+    which reads as a broken product rather than a missing file.
+    """
+    p = public_key_path(path)
+    p.parent.mkdir(parents=True, exist_ok=True)
+    p.write_text(signer.public_key.hex() + "\n", encoding="utf-8")
+    return p

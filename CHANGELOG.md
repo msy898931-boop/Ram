@@ -18,6 +18,19 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
   and one asserts the script reports both.
 
 ### Fixed
+- **The documented first run no longer tells a new user their ledger was
+  tampered with.** The README ran `axon run` without `--key`, then `keygen`
+  with a fresh key, then `audit --pubkey`. The run was unsigned, so strict
+  verification rejected it with *"signature stripped or chain rewritten"* —
+  a first-time visitor following the docs step by step was told the product
+  had detected an attack on their own empty ledger. The README now signs at
+  run time, and `run --key` writes the public half next to the private key so
+  the documented `audit --pubkey <key>.pub` exists.
+- **A missing public key no longer crashes with a traceback.**
+  `audit --pubkey missing.pub` raised a bare `FileNotFoundError` with a stack
+  trace. It now prints what is wrong and how to fix it, and exits 4.
+- `public_key_path` called `Path` without importing it at module scope, which
+  made the public key silently not written.
 - **The ledger is no longer lost inside a container.** `docker-compose.yml`
   set `AXON_LEDGER` but nothing read it, so `docker compose up` wrote the
   audit trail to the container's own filesystem and discarded it on exit —

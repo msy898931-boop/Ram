@@ -1,0 +1,55 @@
+name: Publish
+
+# Publishes the wheel and sdist to PyPI so `pip install axon-agents` works.
+# Until this runs once, every visitor has to clone the repository, which is
+# where most of them leave.
+#
+# One-time setup, done by hand in the PyPI UI (the automation token cannot do
+# it): https://pypi.org/manage/account/publishing/ -> add a pending publisher
+# for project `axon-agents`, owner `msy898931-boop`, repository `Ram`,
+# workflow `publish.yml`, environment `pypi`. After that, tagging a release
+# publishes with no token stored anywhere.
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Build wheel and sdist
+        run: |
+          python -m pip install --upgrade build
+          python -m build
+      - name: Check the metadata renders
+        run: |
+          python -m pip install --upgrade twine
+          python -m twine check dist/*
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/
+
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: pypi
+      url: https://pypi.org/p/axon-agents
+    permissions:
+      id-token: write # trusted publishing; no API token is stored
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist/
+      - uses: pypa/gh-action-pypi-publish@release/v1

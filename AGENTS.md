@@ -30,7 +30,7 @@ The core must stay runnable with the commercial files deleted, and
 
 ```bash
 pip install -e ".[dev]"
-python -m pytest -q                     # 363 tests, ~40s
+python -m pytest -q                     # 374 tests, ~45s
 python scripts/check_skips.py           # fails on any silently skipped test
 python -m pytest tests/test_security_*.py -q   # 197 adversarial security tests
 python -m ruff check .                  # lint gate, must be clean
@@ -181,6 +181,30 @@ chromium --headless --disable-gpu --no-sandbox --no-pdf-header-footer \
   launch, or it creates the repo and dies on the first push.
 - The app token cannot set description, topics, or enable Pages. Do those by
   hand in the UI.
+
+## The first run is the funnel — test it as a subprocess
+
+The most damaging bug found in this repository was not in the security code.
+It was that the README quickstart, run literally, ended with
+`verify: FAILED — signature stripped or chain rewritten`. A visitor following
+the docs step by step was told the product had caught an attack on their own
+empty ledger, and left.
+
+Three lessons, all now covered by `tests/test_first_run.py`:
+
+1. **Run the documented commands as a subprocess, in order, as a user would.**
+   Importing functions in a test hides the bugs that live in argument
+   plumbing, entry points, and file paths. Every README command is now a test.
+2. **A flag that creates a file must create the file the docs tell the user to
+   read next.** `run --key` created the private key but not `<key>.pub`, so
+   `audit --pubkey <key>.pub` crashed. If one half of a key pair is written,
+   the other is too.
+3. **A missing input file is not a crash, it is a message.** A bare
+   `FileNotFoundError` with a stack trace reads as a broken product. Check,
+   print what is wrong and how to fix it, exit with a distinct code.
+
+When adding a command, add its documented invocation to `test_first_run.py`
+in the same commit. The suite is green either way; the funnel is not.
 
 ## The signed-ledger differentiator, and how it was verified
 
