@@ -24,12 +24,27 @@ Apache-2.0 core; Shield/Observe/Vault are the commercial layer.
 ```bash
 pip install -e ".[dev]"
 python -m pytest -q                     # 128 tests, ~13s
+python -m ruff check .                  # lint gate, must be clean
 python -m axon.cli --version
 python -m axon.cli models               # provider + price table
 python -m axon.cli run "task" --provider mock --budget 0.5
 python -m axon.cli policy-check tool.read_file --target /home/x/secrets/k
 python -m axon.cli audit --ledger ./audit.jsonl
 ```
+
+## Notes for future sessions
+
+- The preview site is generated: edit `scripts/build_preview.py`, then run
+  `python scripts/build_preview.py`. Never hand-edit `preview/*.html`.
+- Metrics quoted in docs (`preview/index.html`, README) are measured, not
+  estimated. When LOC or the test count changes, re-measure and update them;
+  do not let the published numbers drift from the tree.
+- `ruff check` is only reproducible because `[tool.ruff.lint] select` is
+  explicit in `pyproject.toml`. Do not remove it — a bare config makes the
+  enabled rules depend on the installed ruff version.
+- The honest evaluation lives in `preview/index.html` (generated from
+  `scripts/build_preview.py`). Keep it honest: the repo has real engineering
+  strength and no paying customers, and the document must say both.
 
 ## CLI exit codes (contract — tests and CI depend on these)
 
