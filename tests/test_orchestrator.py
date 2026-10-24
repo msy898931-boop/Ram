@@ -65,6 +65,25 @@ def test_unknown_child_is_refused():
         assert "unknown identity" in res.delegations[0].error
 
 
+def test_unknown_child_writes_no_allow_record():
+    """The ledger must not show an allow for a delegation it then refused.
+
+    An allow followed by a deny reads like a successful authorization to an
+    auditor, so identity is validated before the policy question is asked.
+    """
+    with tempfile.TemporaryDirectory() as tmp:
+        root = make_root(tmp)
+        Orchestrator(root=root).sequential([Delegation("ghost", "hi")])
+
+        records = [
+            r for r in root.ledger.records()
+            if r.action == "agent.delegate" and r.target == "ghost"
+        ]
+        assert records, "the refusal should be recorded"
+        assert all(r.decision == "deny" for r in records), [r.decision for r in records]
+        assert not any(r.action == "agent.delegate.accepted" for r in root.ledger.records())
+
+
 def test_child_shares_parent_budget_instead_of_resetting_it():
     """The decisive property: a child cannot escape the cost cap."""
     with tempfile.TemporaryDirectory() as tmp:

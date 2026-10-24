@@ -131,20 +131,23 @@ class Orchestrator:
                 f"max children per orchestration ({self.max_children}) reached",
             )
 
+        # A child must be a known principal; an unregistered agent has no
+        # role and therefore no authority. This is checked before the policy
+        # question so a refusal for an unknown identity writes one deny
+        # record rather than an allow followed by a deny, which would read
+        # like a successful authorization to anyone auditing the ledger.
+        if parent.registry is not None:
+            try:
+                parent.registry.get(delegation.agent_id)
+            except Exception as exc:
+                return self._refuse(parent, delegation, depth, str(exc))
+
         # The delegation itself is a governed action: deny-by-default policy
         # decides whether this parent may hand work to this child.
         try:
             parent._authorize("agent.delegate", target=delegation.agent_id)
         except PolicyDenied as exc:
             return self._refuse(parent, delegation, depth, str(exc))
-
-        # A child must be a known principal; an unregistered agent has no
-        # role and therefore no authority.
-        if parent.registry is not None:
-            try:
-                parent.registry.get(delegation.agent_id)
-            except Exception as exc:
-                return self._refuse(parent, delegation, depth, str(exc))
 
         self._spawned += 1
         child = self._child_runtime(parent, delegation.agent_id)
