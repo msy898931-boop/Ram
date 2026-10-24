@@ -21,11 +21,12 @@ import hashlib
 import json
 import time
 import uuid
-from dataclasses import dataclass, field, asdict
+from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import Any
 
-from .signing import Signer, verify as verify_signature
+from .signing import Signer
+from .signing import verify as verify_signature
 
 GENESIS = "0" * 64
 

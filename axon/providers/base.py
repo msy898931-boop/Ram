@@ -11,7 +11,7 @@ class Usage:
     output_tokens: int = 0
     cost_usd: float = 0.0
 
-    def __add__(self, other: "Usage") -> "Usage":
+    def __add__(self, other: Usage) -> Usage:
         return Usage(
             self.input_tokens + other.input_tokens,
             self.output_tokens + other.output_tokens,

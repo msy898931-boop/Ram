@@ -27,16 +27,17 @@ refusal no matter which framework produced the call.
 from __future__ import annotations
 
 import functools
-from typing import Any, Callable
+from collections.abc import Callable
+from typing import Any
 
 from .core.runtime import AgentRuntime, PolicyDenied
 
 __all__ = [
-    "guard_tool",
-    "LangChainAdapter",
     "CrewAIAdapter",
+    "LangChainAdapter",
     "OpenHandsAdapter",
     "PolicyDenied",
+    "guard_tool",
 ]
 
 

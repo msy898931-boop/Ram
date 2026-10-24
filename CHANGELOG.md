@@ -7,6 +7,9 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 ## [Unreleased]
 
 ### Added
+- **Lint gate.** Explicit `[tool.ruff.lint]` selection in `pyproject.toml` so
+  `ruff check` is reproducible across ruff versions instead of silently
+  widening or narrowing with each release.
 - **Signed audit ledger.** Optional Ed25519 signatures over each record hash,
   implemented in pure Python (RFC 8032) and verified against the RFC test
   vectors plus cross-checks against `cryptography`. `AuditLedger.verify()`

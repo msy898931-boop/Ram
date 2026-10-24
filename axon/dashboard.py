@@ -27,7 +27,7 @@ from urllib.parse import parse_qs, urlparse
 
 from .core.audit import AuditLedger
 from .observe import Observer
-from .shield import available_packs, check_pack, load_pack, Shield
+from .shield import Shield, available_packs, check_pack, load_pack
 
 STATIC_DIR = Path(__file__).resolve().parent / "static"
 INDEX = STATIC_DIR / "dashboard.html"

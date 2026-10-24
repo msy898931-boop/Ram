@@ -57,13 +57,13 @@ class PolicyEngine:
         self.rules: list[Rule] = rules or []
 
     @classmethod
-    def from_yaml(cls, path: str | Path) -> "PolicyEngine":
+    def from_yaml(cls, path: str | Path) -> PolicyEngine:
         data: dict[str, Any] = yaml.safe_load(Path(path).read_text(encoding="utf-8")) or {}
         rules = [Rule(**r) for r in data.get("rules", [])]
         return cls(rules)
 
     @classmethod
-    def permissive(cls) -> "PolicyEngine":
+    def permissive(cls) -> PolicyEngine:
         """Explicit opt-out of governance. For local dev and tests only.
 
         Never use in production: it disables the fail-closed guarantee that
@@ -73,7 +73,7 @@ class PolicyEngine:
         return cls([Rule(action="*", actor="*", target="*", effect="allow")])
 
     @classmethod
-    def bootstrap(cls) -> "PolicyEngine":
+    def bootstrap(cls) -> PolicyEngine:
         """A safe starting policy: model calls allowed, nothing else.
 
         This is what `axon run` uses when the caller passes no policy file.

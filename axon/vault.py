@@ -24,8 +24,9 @@ from __future__ import annotations
 import os
 import time
 import uuid
+from collections.abc import Callable
 from dataclasses import dataclass, field
-from typing import Callable, Protocol
+from typing import Protocol
 
 from .core.audit import AuditLedger
 
@@ -184,4 +185,4 @@ class SecretVault:
         return text
 
     def active_leases(self) -> list[Lease]:
-        return [l for l in self._leases.values() if not l.expired]
+        return [lease for lease in self._leases.values() if not lease.expired]

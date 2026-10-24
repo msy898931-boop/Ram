@@ -13,7 +13,13 @@ from axon.core.providers import MockProvider
 from axon.core.runtime import AgentRuntime, PolicyDenied
 from axon.observe import Observer
 from axon.shield import (
-    BASELINE_PROBES, Probe, Shield, available_packs, check_pack, load_pack, validate_file,
+    BASELINE_PROBES,
+    Probe,
+    Shield,
+    available_packs,
+    check_pack,
+    load_pack,
+    validate_file,
 )
 from axon.vault import LeaseError, MappingResolver, SecretNotFound, SecretVault
 

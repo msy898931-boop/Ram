@@ -23,7 +23,7 @@ Apache-2.0 core; Shield/Observe/Vault are the commercial layer.
 
 ```bash
 pip install -e ".[dev]"
-python -m pytest -q                     # 28 tests, ~7s
+python -m pytest -q                     # 128 tests, ~13s
 python -m axon.cli --version
 python -m axon.cli models               # provider + price table
 python -m axon.cli run "task" --provider mock --budget 0.5

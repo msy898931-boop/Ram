@@ -24,7 +24,7 @@
 | `axon/core/providers.py` | طبقة model-agnostic (Claude/GPT/Gemini/Qwen/Ollama) |
 | `axon/core/runtime.py` | حلقة التنفيذ المحكومة |
 | `axon/cli.py` | CLI: run / audit / policy-check / export-otel |
-| `tests/` | 28 اختبار (كلها ناجحة) |
+| `tests/` | 128 اختبار (كلها ناجحة) |
 | `examples/demo.py` | عرض توضيحي end-to-end |
 
 ### 📊 البيانات الخام
@@ -45,7 +45,7 @@
 
 ```bash
 pip install -e ".[dev]"      # تثبيت
-pytest -q                    # 28 اختبار
+pytest -q                    # 128 اختبار
 python3 examples/demo.py     # عرض الحكم الكامل
 axon run "read changelog" --tool read_file=/sandbox/a.txt
 axon audit --ledger ./axon-audit.jsonl
@@ -53,5 +53,5 @@ axon audit --ledger ./axon-audit.jsonl
 
 ## ✅ حالة الخطوات الثلاث
 1. **الفريق** — خطة توظيف كاملة جاهزة (`docs/STEP-1-TEAM.md`).
-2. **MVP** — ✅ **مبني وشغّال** (28 اختبار ناجح + demo).
+2. **MVP** — ✅ **مبني وشغّال** (128 اختبار ناجح + demo).
 3. **الإطلاق** — خطة إطلاق + 20 شريك تصميم جاهزة (`docs/STEP-3-LAUNCH.md`).

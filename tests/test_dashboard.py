@@ -5,8 +5,10 @@ real requests, so routing, serialisation, and the read-only guarantee are
 all covered by what runs in production.
 """
 
+import contextlib
 import json
 import tempfile
+import urllib.error
 import urllib.request
 from pathlib import Path
 
@@ -33,10 +35,8 @@ def server():
             budget=Budget(5.0), provider=MockProvider(), vault=vault,
         )
         rt.run("summarise the release", model="claude-sonnet")
-        try:
+        with contextlib.suppress(PolicyDenied):
             rt.call_tool("read_file", "/x/secrets.txt", lambda: "x")
-        except PolicyDenied:
-            pass
         rt.read_secret("sandbox/api-key")
 
         httpd = serve(ledger.path, host="127.0.0.1", port=0, block=False)
@@ -98,12 +98,10 @@ def test_explain_endpoint_names_the_decision(server):
 
 
 def test_unknown_route_returns_404_json(server):
-    try:
+    with pytest.raises(urllib.error.HTTPError) as excinfo:
         get(server, "/nope")
-        assert False, "expected HTTP 404"
-    except urllib.error.HTTPError as exc:
-        assert exc.code == 404
-        assert json.loads(exc.read().decode())["error"] == "not found"
+    assert excinfo.value.code == 404
+    assert json.loads(excinfo.value.read().decode())["error"] == "not found"
 
 
 def test_secret_value_never_appears_in_any_endpoint(server):

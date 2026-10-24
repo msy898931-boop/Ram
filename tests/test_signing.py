@@ -15,7 +15,7 @@ import pytest
 
 from axon.core import signing
 from axon.core.audit import GENESIS, AuditLedger, canonical
-from axon.core.signing import Signer, SignatureError, generate_seed
+from axon.core.signing import SignatureError, Signer, generate_seed
 
 # RFC 8032 section 7.1: (seed, public key, message, signature)
 RFC8032 = [

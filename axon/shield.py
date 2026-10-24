@@ -14,9 +14,9 @@ run, not a paragraph of documentation.
 
 from __future__ import annotations
 
+from collections.abc import Iterable, Sequence
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Iterable, Sequence
 
 import yaml
 
@@ -112,7 +112,7 @@ class Shield:
         self.engine = engine
 
     @classmethod
-    def from_pack(cls, name: str) -> "Shield":
+    def from_pack(cls, name: str) -> Shield:
         return cls(load_pack(name))
 
     def check(self, probes: Sequence[Probe] = BASELINE_PROBES) -> CheckReport:

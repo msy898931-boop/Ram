@@ -10,14 +10,16 @@ An agent cannot bypass these; the runtime is the only path to a model.
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from dataclasses import dataclass, field
-from typing import Any, Callable
+from typing import Any
+
+from axon.providers import Completion, default_provider
 
 from .audit import AuditLedger
 from .budget import Budget
 from .identity import IdentityRegistry
 from .policy import PolicyEngine
-from axon.providers import Completion, default_provider
 
 
 class PolicyDenied(Exception):

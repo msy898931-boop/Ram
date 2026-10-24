@@ -13,7 +13,7 @@ from axon.core.audit import AuditLedger
 from axon.core.budget import Budget, BudgetExceeded
 from axon.core.policy import PolicyEngine
 from axon.core.providers import MockProvider
-from axon.core.runtime import AgentRuntime, PolicyDenied
+from axon.core.runtime import AgentRuntime
 
 POLICY = Path(__file__).resolve().parent.parent / "axon" / "policies" / "default.yaml"
 

@@ -5,7 +5,7 @@ Kept so existing `from axon.core.providers import ...` keeps working.
 
 from __future__ import annotations
 
-from axon.providers import (  # noqa: F401
+from axon.providers import (
     PRICES,
     AnthropicProvider,
     AuthError,

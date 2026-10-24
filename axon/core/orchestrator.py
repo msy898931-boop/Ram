@@ -31,8 +31,8 @@ governance regardless of what the planner proposes.
 
 from __future__ import annotations
 
+from collections.abc import Callable, Iterable, Sequence
 from dataclasses import dataclass, field
-from typing import Callable, Iterable, Sequence
 
 from .budget import BudgetExceeded
 from .runtime import AgentRuntime, PolicyDenied, RunResult

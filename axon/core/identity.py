@@ -22,9 +22,10 @@ JWT library); AXON deliberately does not take on that dependency.
 
 from __future__ import annotations
 
+from collections.abc import Iterable
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Iterable
+from typing import Any
 
 import yaml
 
@@ -50,7 +51,7 @@ class Identity:
         return all(t in self.tags for t in tags)
 
     @classmethod
-    def from_oidc_claims(cls, claims: dict[str, Any]) -> "Identity":
+    def from_oidc_claims(cls, claims: dict[str, Any]) -> Identity:
         """Map verified OIDC claims onto a principal.
 
         Reads `sub` for the name, `role`/`roles` for the role, and `groups`
@@ -60,7 +61,7 @@ class Identity:
         roles = claims.get("role") or claims.get("roles") or "agent"
         if isinstance(roles, (list, tuple)):
             role = str(roles[0]) if roles else "agent"
-            tags = set(str(r) for r in roles)
+            tags = {str(r) for r in roles}
         else:
             role = str(roles)
             tags = {role}
@@ -86,7 +87,7 @@ class IdentityRegistry:
         self._roles: dict[str, set[str]] = roles or {}
 
     @classmethod
-    def from_yaml(cls, path: str | Path) -> "IdentityRegistry":
+    def from_yaml(cls, path: str | Path) -> IdentityRegistry:
         data: dict[str, Any] = yaml.safe_load(Path(path).read_text(encoding="utf-8")) or {}
         roles = {name: set(spec.get("tags", [])) for name, spec in (data.get("roles") or {}).items()}
         identities: dict[str, Identity] = {}

@@ -28,11 +28,11 @@ from .openai import OpenAICompatibleProvider
 
 __all__ = [
     "PRICES",
+    "AnthropicProvider",
     "AuthError",
     "Completion",
     "MockProvider",
     "OpenAICompatibleProvider",
-    "AnthropicProvider",
     "ProviderError",
     "RateLimitError",
     "TransientError",

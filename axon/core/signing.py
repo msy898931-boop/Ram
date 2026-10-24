@@ -13,6 +13,7 @@ which the tests assert.
 
 from __future__ import annotations
 
+import contextlib
 import hashlib
 import os
 from dataclasses import dataclass
@@ -178,10 +179,8 @@ def signer_from_file(path) -> Signer:
         raw = generate_seed().hex()
         p.parent.mkdir(parents=True, exist_ok=True)
         p.write_text(raw + "\n", encoding="utf-8")
-        try:
+        with contextlib.suppress(OSError):  # pragma: no cover - platform dependent
             p.chmod(0o600)
-        except OSError:  # pragma: no cover - platform dependent
-            pass
     try:
         seed = bytes.fromhex(raw)
     except ValueError as exc:

@@ -6,6 +6,7 @@ air-gapped environments where pulling a large HTTP stack is unacceptable.
 
 from __future__ import annotations
 
+import contextlib
 import json
 import random
 import time
@@ -59,10 +60,8 @@ def post_json(
         sleep = backoff * (2**attempt) + random.uniform(0, backoff)
         retry_after = getattr(getattr(last, "__cause__", None), "headers", None)
         if retry_after is not None:
-            try:
+            with contextlib.suppress(TypeError, ValueError):
                 sleep = max(sleep, float(retry_after.get("Retry-After", 0)))
-            except (TypeError, ValueError):
-                pass
         time.sleep(min(sleep, 30.0))
 
     raise last or ProviderError("request failed")

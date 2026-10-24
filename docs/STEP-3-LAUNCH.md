@@ -8,7 +8,7 @@
 
 ### تقنياً
 - [x] نواة شغّالة (runtime + policy + audit + budget).
-- [x] 28 اختبار ناجح (`pytest -q`).
+- [x] 128 اختبار ناجح (`pytest -q`).
 - [x] CLI (`axon run / audit / policy-check / export-otel`).
 - [x] عرض توضيحي (`examples/demo.py`).
 - [x] ترخيص Apache-2.0.
