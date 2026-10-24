@@ -1,0 +1,48 @@
+# AXON default policy — deny-by-default.
+# First matching rule wins. Order matters: put explicit denies before broad allows.
+rules:
+  # 1. Hard block: never let any agent touch secrets or prod credentials.
+  - action: "tool.*"
+    actor: "*"
+    target: "*secrets*"
+    effect: deny
+  - action: "tool.*"
+    actor: "*"
+    target: "*/.env"
+    effect: deny
+
+  # 2. Sensitive writes require the caller to hold the `approved` tag
+  #    (granted after a human approval workflow completes).
+  - action: "tool.write_file"
+    actor: "*"
+    target: "/prod/*"
+    effect: allow
+    requires: ["approved"]
+
+  # 3. Agents may read files inside their sandbox.
+  - action: "tool.read_file"
+    actor: "*"
+    target: "/sandbox/*"
+    effect: allow
+
+  # 4. Model calls are allowed only for approved model families.
+  - action: "model.complete"
+    actor: "*"
+    target: "claude-*"
+    effect: allow
+  - action: "model.complete"
+    actor: "*"
+    target: "gpt-*"
+    effect: allow
+  - action: "model.complete"
+    actor: "*"
+    target: "gemini-*"
+    effect: allow
+  - action: "model.complete"
+    actor: "*"
+    target: "qwen*"
+    effect: allow
+  - action: "model.complete"
+    actor: "*"
+    target: "mock"
+    effect: allow

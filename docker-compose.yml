@@ -1,0 +1,12 @@
+services:
+  axon:
+    build: .
+    image: axon-agents:0.1.0
+    volumes:
+      - ./audit:/var/axon/audit
+    environment:
+      # Leave unset to use the offline mock provider.
+      # AXON_BASE_URL: https://api.openai.com/v1
+      # AXON_API_KEY: sk-...
+      AXON_LEDGER: /var/axon/audit/ledger.jsonl
+    command: ["run", "read the changelog", "--tool", "read_file=/sandbox/CHANGELOG.md"]
