@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 msy898931-boop
+# Part of the AXON open core. See NOTICE for the license map.
 """Cost control — hard budget caps per agent/run.
 
 AXON Observe's enforcement primitive. When a run exceeds its cap the

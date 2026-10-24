@@ -1,3 +1,7 @@
+# SPDX-License-Identifier: BUSL-1.1
+# Copyright 2026 msy898931-boop
+# AXON commercial module. See LICENSE-COMMERCIAL. Converts to
+# Apache-2.0 four years after publication.
 """AXON Observe — cost, risk, and activity analytics over the audit ledger.
 
 The ledger already holds every decision. Observe turns it into the three

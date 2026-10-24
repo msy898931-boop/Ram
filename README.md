@@ -6,7 +6,7 @@
 
 Govern every agent. Audit every action. Cap every cost. Lock in no vendor.
 
-[![License: Apache-2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
+[![License: Apache-2.0 + BUSL-1.1](https://img.shields.io/badge/License-Apache--2.0_%2B_BUSL--1.1-blue.svg)](NOTICE)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/)
 [![Tests](https://img.shields.io/badge/tests-348%20passing-brightgreen.svg)](tests/)
 [![CI](https://github.com/msy898931-boop/Ram/actions/workflows/ci.yml/badge.svg)](https://github.com/msy898931-boop/Ram/actions/workflows/ci.yml)
@@ -245,6 +245,20 @@ We welcome contributions. See [CONTRIBUTING.md](CONTRIBUTING.md) and
 
 ## License
 
-Apache-2.0. Everything in this repository — including Shield, Observe, and
-Vault — is covered by that license, with no separate enterprise edition.
-Commercial support and deployment assistance are available on request.
+Dual-licensed, split by file. [NOTICE](NOTICE) is the authoritative map.
+
+| Part | Files | License | What it means for you |
+|---|---|---|---|
+| **Open core** | `axon/core/`, `axon/security/`, `axon/providers/`, `axon/cli.py` | **Apache-2.0** | Use, modify, redistribute, and sell it. No payment, no permission needed. |
+| **Commercial modules** | `axon/shield.py`, `observe.py`, `vault.py`, `compliance.py`, `dashboard.py`, `integrations.py` | **BUSL-1.1** | Free for internal production use, evaluation, and deployment services. Paid if you offer them to third parties as a hosted service competing with ours. Each version becomes Apache-2.0 four years after publication. |
+
+The open core is a complete governance layer on its own — policy enforcement,
+a tamper-evident audit ledger, per-run cost caps, and a model-agnostic
+runtime — and its CLI commands work without the commercial modules installed.
+The commercial modules are the ones a business buys rather than builds: policy
+packs and their self-check, cost and integrity analytics, secret leases, the
+SOC 2 / ISO 27001 control mapping, the dashboard, and the framework adapters.
+
+For a commercial license, or to ask about an arrangement that does not fit
+the Additional Use Grant, open an issue:
+https://github.com/msy898931-boop/Ram/issues

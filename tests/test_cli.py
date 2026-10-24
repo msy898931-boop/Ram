@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 msy898931-boop
+# Part of the AXON open core. See NOTICE for the license map.
 """CLI-level tests.
 
 The `run` command builds a stub tool closure per `--tool` flag. A closure

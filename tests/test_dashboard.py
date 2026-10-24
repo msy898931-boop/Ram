@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 msy898931-boop
+# Part of the AXON open core. See NOTICE for the license map.
 """Dashboard tests — the API is exercised over a real HTTP server.
 
 No mocks: each test starts the actual server on an ephemeral port and makes

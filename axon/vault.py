@@ -1,3 +1,7 @@
+# SPDX-License-Identifier: BUSL-1.1
+# Copyright 2026 msy898931-boop
+# AXON commercial module. See LICENSE-COMMERCIAL. Converts to
+# Apache-2.0 four years after publication.
 """AXON Vault — policy-gated secret brokering with audit.
 
 The problem this solves: agents need credentials, and the usual answer is to

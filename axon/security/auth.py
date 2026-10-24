@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 msy898931-boop
+# Part of the AXON open core. See NOTICE for the license map.
 """Layer 1: authentication. Layer 3: rate limiting. Layer 4: replay defence.
 
 Why these live together: all three answer the question *"should this request

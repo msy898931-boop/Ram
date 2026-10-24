@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 msy898931-boop
+# Part of the AXON open core. See NOTICE for the license map.
 """Layer 6: transport security — TLS termination inside the dashboard.
 
 Why this is a layer and not a deployment note: the previous posture check

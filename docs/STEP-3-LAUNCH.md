@@ -11,7 +11,7 @@
 - [x] 128 اختبار ناجح (`pytest -q`).
 - [x] CLI (`axon run / audit / policy-check / export-otel`).
 - [x] عرض توضيحي (`examples/demo.py`).
-- [x] ترخيص Apache-2.0.
+- [x] ترخيص مزدوج: Apache-2.0 للمحرك + BUSL-1.1 للطبقة التجارية (`NOTICE`).
 - [ ] صورة/شعار + GIF توضيحي للـREADME.
 - [ ] موقع بسيط (axon.dev) بصفحة هبوط + docs.
 - [ ] `docker compose up` يعمل بأمر واحد.

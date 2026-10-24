@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 msy898931-boop
+# Part of the AXON open core. See NOTICE for the license map.
 """Ed25519 signatures (RFC 8032) in pure Python.
 
 Why hand-rolled instead of `cryptography`: AXON's pitch is that it runs in

@@ -50,4 +50,30 @@ Do not open public issues for vulnerabilities — see [SECURITY.md](SECURITY.md)
 
 ## License
 
-By contributing you agree your work is licensed under Apache-2.0.
+This repository is dual-licensed. Which license applies to your contribution
+depends on the file you are changing — see [NOTICE](NOTICE) for the map:
+
+- Files in the **open core** are Apache-2.0. Contributions to them are
+  accepted under Apache-2.0.
+- Files in the **commercial modules** (`axon/shield.py`, `observe.py`,
+  `vault.py`, `compliance.py`, `dashboard.py`, `integrations.py`) are
+  BUSL-1.1. Contributions to them are accepted under BUSL-1.1, plus the
+  inbound grant below.
+
+### Inbound license grant (required for commercial-module changes)
+
+By submitting a contribution to any file covered by BUSL-1.1, you grant the
+Licensor a perpetual, worldwide, non-exclusive, royalty-free, irrevocable
+license to reproduce, prepare derivative works of, publicly display, publicly
+perform, sublicense, and distribute your contribution and such derivative
+works, and to license the contribution under any license terms the Licensor
+chooses, including a paid commercial license.
+
+This grant is what makes dual licensing possible. Without it the Licensor
+cannot sell a commercial license covering a file that contains your code, and
+the file would have to be reverted instead. It does not take away your own
+rights to use your contribution.
+
+If you are contributing on behalf of an employer, confirm you have permission
+to make the grant. If you cannot, contribute to the open core instead — that
+half needs no such grant.

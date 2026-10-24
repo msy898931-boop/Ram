@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 msy898931-boop
+# Part of the AXON open core. See NOTICE for the license map.
 """Layers 1-6: authentication, federated identity, rate limiting, replay
 defence, security headers, and transport encryption.
 

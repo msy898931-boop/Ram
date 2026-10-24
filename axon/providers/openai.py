@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 msy898931-boop
+# Part of the AXON open core. See NOTICE for the license map.
 """OpenAI-compatible adapter — OpenAI, Azure, Ollama, vLLM, Together, Groq..."""
 
 from __future__ import annotations

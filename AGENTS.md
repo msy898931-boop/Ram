@@ -4,7 +4,12 @@
 
 **AXON** — an open-core control plane for AI agents: deny-by-default policy,
 tamper-evident audit ledger, hard per-run cost caps, model-agnostic runtime.
-Apache-2.0 core; Shield/Observe/Vault are the commercial layer.
+Dual-licensed, split by file: Apache-2.0 core (`axon/core/`, `axon/security/`,
+`axon/providers/`, `axon/cli.py`); BUSL-1.1 commercial modules (`shield.py`,
+`observe.py`, `vault.py`, `compliance.py`, `dashboard.py`, `integrations.py`).
+`NOTICE` is the authoritative map — read it before touching a license claim.
+The core must stay runnable with the commercial files deleted, and
+`tests/test_licensing.py` enforces that.
 
 ## Layout
 
@@ -107,6 +112,9 @@ python -m axon.cli scan --file untrusted.txt
 | 3 | policy denied via `policy-check` |
 | 4 | provider error |
 | 5 | bad input (unknown provider/model) |
+| 6 | signing error |
+| 7 | identity error |
+| 8 | command exists but its BUSL-1.1 commercial module is not installed |
 
 ## Conventions
 

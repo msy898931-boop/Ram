@@ -1,3 +1,7 @@
+# SPDX-License-Identifier: BUSL-1.1
+# Copyright 2026 msy898931-boop
+# AXON commercial module. See LICENSE-COMMERCIAL. Converts to
+# Apache-2.0 four years after publication.
 """Framework integrations — put AXON underneath an agent you already have.
 
 The pitch is only credible if adopting AXON does not mean rewriting an

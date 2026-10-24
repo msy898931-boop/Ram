@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 msy898931-boop
+# Part of the AXON open core. See NOTICE for the license map.
 """Layer 9: detection of prompt injection and agent-goal hijacking.
 
 Why this layer matters more than the network ones: an agent that reads a

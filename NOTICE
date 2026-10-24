@@ -1,0 +1,74 @@
+AXON
+Copyright 2026 msy898931-boop
+
+This repository is licensed under two licenses. Which one applies to you
+depends on the file, not on how you obtained it. The split is deliberate:
+the open core is what earns adoption, the commercial modules are what a
+competitor would otherwise be free to resell.
+
+Read this file, not the README, when the answer has to be exact.
+
+
+1. Open core — Apache License, Version 2.0
+   Full text: LICENSE
+
+   axon/__init__.py
+   axon/cli.py
+   axon/core/**            policy, audit ledger, budget caps, runtime,
+                           orchestrator, identity, signing, providers shim
+   axon/security/**        auth, oidc, tls, injection, canary, headers
+   axon/providers/**       base, transport, anthropic, openai
+   docs/**
+   tests/**
+   scripts/**
+   data/**
+   pitch/**
+   preview/**
+   every other file not listed in section 2
+
+   You may use, modify, redistribute, and sell these files, including as part
+   of a commercial product, with no payment and no permission required. That
+   is the point of this half: it is the version people can adopt without a
+   procurement conversation.
+
+
+2. Commercial modules — Business Source License 1.1
+   Full text: LICENSE-COMMERCIAL
+
+   axon/shield.py
+   axon/observe.py
+   axon/vault.py
+   axon/compliance.py
+   axon/dashboard.py
+   axon/integrations.py
+
+   Free for internal production use, for evaluation, and for professional
+   services that help someone else deploy AXON. Not free if you offer these
+   files to third parties as a hosted or managed service that competes with
+   the Licensor's paid offering. Each version converts to Apache-2.0 four
+   years after it is published.
+
+
+3. Contributions
+
+   Contributions are accepted under the terms in CONTRIBUTING.md. A
+   contribution to a file in section 2 is made under the inbound terms that
+   let the Licensor keep dual-licensing it; without that, the Licensor cannot
+   offer a commercial license to the file at all.
+
+
+4. Why the split is where it is
+
+   The open core is a complete, useful governance layer on its own: policy
+   enforcement, a tamper-evident audit ledger, per-run cost caps, and a
+   model-agnostic runtime. Anyone can run it, and the CLI's core commands work
+   without the commercial modules installed.
+
+   The commercial modules are the ones a business buys rather than builds:
+   the policy packs and their self-check, cost and integrity analytics,
+   policy-gated secret leases, the SOC 2 / ISO 27001 control mapping, the
+   dashboard, and the framework adapters.
+
+   Both halves are in one repository because a buyer evaluating AXON needs to
+   read all of it. The license boundary, not the repository boundary, is what
+   makes the difference.

@@ -6,7 +6,28 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [Unreleased]
 
+### Changed
+- **Dual licensing, split by file.** The core (`axon/core/`, `axon/security/`,
+  `axon/providers/`, `axon/cli.py`) stays Apache-2.0. The commercial modules
+  (`shield.py`, `observe.py`, `vault.py`, `compliance.py`, `dashboard.py`,
+  `integrations.py`) move to BUSL-1.1: free for internal production use,
+  evaluation, and deployment services, paid only for a hosted offering that
+  competes with the Licensor's. Each version converts to Apache-2.0 four years
+  after publication. `NOTICE` is the authoritative per-file map.
+  Previously the README said everything was Apache-2.0 while `AXON-PLAN.md`
+  sold Shield/Observe/Vault as a paid enterprise tier — two documents making
+  incompatible claims about the same code.
+- `axon compliance|shield|observe|dashboard` now exit 8 with an explanatory
+  message when their module is not installed, instead of raising a bare
+  `ModuleNotFoundError` that names an internal path.
+
 ### Added
+- `LICENSE-COMMERCIAL` (BUSL-1.1) and `NOTICE`.
+- SPDX headers on all 53 source files.
+- `tests/test_licensing.py` — asserts every file declares a license, the
+  commercial list matches `NOTICE` both ways, the two license files are
+  substantive rather than placeholders, and the open core still enforces
+  policy and verifies its ledger with the commercial files deleted.
 - **Nine-layer security stack** (`axon/security/`). Defence in depth, listed
   in the order `axon posture` reports them, because a layer the command
   cannot see is a layer nobody notices going off:

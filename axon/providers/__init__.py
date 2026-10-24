@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 msy898931-boop
+# Part of the AXON open core. See NOTICE for the license map.
 """Model-agnostic provider layer.
 
 AXON never locks you to a vendor. Every provider implements the same

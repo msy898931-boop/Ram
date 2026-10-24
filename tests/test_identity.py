@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 msy898931-boop
+# Part of the AXON open core. See NOTICE for the license map.
 """RBAC tests — roles must gate actions without ever widening policy denials.
 
 The key property under test: a role confers *tags*, and tags only satisfy

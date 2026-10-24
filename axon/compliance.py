@@ -1,3 +1,7 @@
+# SPDX-License-Identifier: BUSL-1.1
+# Copyright 2026 msy898931-boop
+# AXON commercial module. See LICENSE-COMMERCIAL. Converts to
+# Apache-2.0 four years after publication.
 """Compliance readiness — turn control statements into machine-checked claims.
 
 A control matrix in a document ages the moment the code moves. This module

@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 msy898931-boop
+# Part of the AXON open core. See NOTICE for the license map.
 """AXON CLI — govern, run, and audit agents from the terminal."""
 
 from __future__ import annotations
@@ -19,6 +22,11 @@ from .providers import ProviderError, available_providers, default_provider, get
 DEFAULT_POLICY = Path(__file__).resolve().parent / "policies" / "default.yaml"
 DEFAULT_IDENTITIES = Path(__file__).resolve().parent / "policies" / "identities.yaml"
 DEFAULT_KEY = Path("./axon-signing.key")
+
+# Exit codes 0-7 are already spoken for (see AGENTS.md). This one means the
+# command exists but its BUSL-1.1 module is not installed, which is a
+# different situation from bad input and should be scriptable separately.
+EXIT_MISSING_COMMERCIAL = 8
 
 
 def _registry(args) -> IdentityRegistry | None:
@@ -161,7 +169,32 @@ def cmd_identities(args) -> int:
     return 0
 
 
+def _commercial(name: str):
+    """Import a BUSL-1.1 module, or explain how to get it.
+
+    The open core is installable without these files, so `axon compliance` on
+    an open-core-only install would otherwise die with a bare ModuleNotFoundError
+    that names an internal path. A paid command that is not installed should
+    say so, and say what to do about it.
+    """
+    import importlib
+
+    try:
+        return importlib.import_module(f".{name}", __package__)
+    except ModuleNotFoundError as exc:
+        if exc.name and exc.name.endswith(f"axon.{name}"):
+            print(
+                f"`axon {name}` is a commercial module and is not installed.\n"
+                "It ships in the full repository, licensed BUSL-1.1 — free for\n"
+                "internal use, see LICENSE-COMMERCIAL and NOTICE.",
+                file=sys.stderr,
+            )
+            raise SystemExit(EXIT_MISSING_COMMERCIAL) from None
+        raise
+
+
 def cmd_dashboard(args) -> int:
+    _commercial("dashboard")
     from .dashboard import serve
     from .security.auth import Authenticator
     from .security.canary import CanarySet
@@ -475,6 +508,7 @@ def cmd_scan(args) -> int:
 
 
 def cmd_shield(args) -> int:
+    _commercial("shield")
     from .shield import available_packs, check_pack
 
     if args.pack:
@@ -498,6 +532,7 @@ def cmd_shield(args) -> int:
 
 
 def cmd_observe(args) -> int:
+    _commercial("observe")
     from .observe import Observer
 
     pub = None
@@ -509,6 +544,7 @@ def cmd_observe(args) -> int:
 
 
 def cmd_compliance(args) -> int:
+    _commercial("compliance")
     from .compliance import evaluate, evidence_package, report, run_tests
 
     if getattr(args, "evidence", None):

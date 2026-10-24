@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 msy898931-boop
+# Part of the AXON open core. See NOTICE for the license map.
 """Ed25519 signing tests — RFC 8032 vectors plus real forgery attempts.
 
 The forgery tests are the point of this file. A hash chain alone can be

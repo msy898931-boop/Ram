@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 msy898931-boop
+# Part of the AXON open core. See NOTICE for the license map.
 """Tests for the auditor evidence pack.
 
 The pack's value is that it is honest: it evidences technical controls and

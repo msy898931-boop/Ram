@@ -1,3 +1,7 @@
+# SPDX-License-Identifier: BUSL-1.1
+# Copyright 2026 msy898931-boop
+# AXON commercial module. See LICENSE-COMMERCIAL. Converts to
+# Apache-2.0 four years after publication.
 """AXON dashboard — a live view of the governance layer.
 
 Runs on the standard library alone, like everything else here. It serves a

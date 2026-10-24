@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 msy898931-boop
+# Part of the AXON open core. See NOTICE for the license map.
 """HTTP transport with bounded retries, timeouts, and typed error mapping.
 
 Kept dependency-free (stdlib urllib) so AXON installs anywhere, including

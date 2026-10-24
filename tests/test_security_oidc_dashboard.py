@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 msy898931-boop
+# Part of the AXON open core. See NOTICE for the license map.
 """End-to-end tests: the dashboard accepting federated (OIDC) tokens.
 
 The unit tests prove the verifier is correct in isolation. These prove the

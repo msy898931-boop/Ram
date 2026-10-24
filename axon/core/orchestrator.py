@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 msy898931-boop
+# Part of the AXON open core. See NOTICE for the license map.
 """Multi-agent orchestration with governance preserved across delegation.
 
 The hard part of multi-agent systems is not spawning sub-agents, it is

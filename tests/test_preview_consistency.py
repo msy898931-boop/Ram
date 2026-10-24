@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 msy898931-boop
+# Part of the AXON open core. See NOTICE for the license map.
 """Guards against the numbers on the site drifting away from the code.
 
 The preview site is generated, but until now the numbers in it were typed by

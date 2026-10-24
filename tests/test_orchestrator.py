@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 msy898931-boop
+# Part of the AXON open core. See NOTICE for the license map.
 """Orchestrator tests — delegation must not become an escape hatch.
 
 Each test here corresponds to one way a multi-agent system could leak
