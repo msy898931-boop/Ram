@@ -1,4 +1,4 @@
-"""Layer 4: HTTP security headers. Layer 7: the self-verification posture check.
+"""Layer 5: HTTP security headers. The posture check lives here too.
 
 Why headers are a layer and not an afterthought: the dashboard renders
 attacker-influenced text (an agent's action, a target path, an actor name).

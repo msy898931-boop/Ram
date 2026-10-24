@@ -1,4 +1,4 @@
-"""Layer 5: detection of prompt injection and agent-goal hijacking.
+"""Layer 9: detection of prompt injection and agent-goal hijacking.
 
 Why this layer matters more than the network ones: an agent that reads a
 web page, an issue, a PDF, or a tool result is consuming *attacker-reachable

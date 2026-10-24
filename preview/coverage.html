@@ -1,0 +1,475 @@
+<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>تغطية الطلبات — AXON</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;800&family=IBM+Plex+Sans+Arabic:wght@300;400;600&family=IBM+Plex+Mono&display=swap" rel="stylesheet">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%2305080d'/%3E%3Ctext x='16' y='23' font-family='monospace' font-size='19' font-weight='700' fill='%2300e5a0' text-anchor='middle'%3EA%3C/text%3E%3C/svg%3E">
+<style>
+:root{--bg:#05080d;--panel:#0c1219;--line:#1b2836;--fg:#dbe7f3;--muted:#8ba0b5;
+--acc:#00e5a0;--amber:#ffb454;--red:#ff5c6c}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);direction:rtl;
+font-family:"IBM Plex Sans Arabic","Segoe UI",system-ui,sans-serif;line-height:1.85}
+.wrap{max-width:940px;margin:0 auto;padding:48px 28px 96px}
+h1,h2,h3{font-family:Cairo,"Segoe UI",sans-serif;line-height:1.3;letter-spacing:-.01em}
+h1{font-size:2.3rem;margin:.2em 0 .4em}
+h2{font-size:1.5rem;margin:2.2em 0 .6em;padding-bottom:.3em;border-bottom:1px solid var(--line)}
+h3{font-size:1.15rem;margin:1.6em 0 .4em;color:var(--acc)}
+a{color:var(--acc);text-decoration:none}
+a:hover{text-decoration:underline}
+code{font-family:"IBM Plex Mono",monospace;background:#111a24;padding:2px 6px;
+border-radius:5px;font-size:.88em;direction:ltr;display:inline-block}
+pre{background:#0a1119;border:1px solid var(--line);border-radius:12px;padding:18px;
+overflow-x:auto;direction:ltr;text-align:left}
+pre code{background:none;padding:0}
+table{width:100%;border-collapse:collapse;margin:1.2em 0;font-size:.93em;display:block;overflow-x:auto}
+th,td{border:1px solid var(--line);padding:10px 13px;text-align:right}
+th{background:#101a24;color:var(--acc);font-weight:600;white-space:nowrap}
+tr:nth-child(even) td{background:#0a1119}
+blockquote{border-right:3px solid var(--amber);margin:1.2em 0;padding:.6em 1.1em;
+background:#12181f;border-radius:0 10px 10px 0;color:var(--muted)}
+hr{border:0;border-top:1px solid var(--line);margin:2.5em 0}
+.nav{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:32px;padding-bottom:22px;
+border-bottom:1px solid var(--line)}
+.nav a{border:1px solid var(--line);border-radius:100px;padding:7px 16px;font-size:.86rem;color:var(--fg)}
+.nav a:hover{border-color:var(--acc);color:var(--acc);text-decoration:none}
+.nav a.on{background:var(--acc);color:#04120c;border-color:var(--acc);font-weight:600}
+.badge{display:inline-block;background:#0d2a1f;color:var(--acc);border:1px solid #1c4a37;
+border-radius:100px;padding:4px 13px;font-size:.78rem;margin:0 0 14px}
+img{max-width:100%}
+</style></head><body><div class="wrap"><div class="nav">
+<a href="index.html">نظرة عامة</a>
+<a href="report.html">بحث GitHub</a>
+<a href="deck.html">العرض التقديمي</a>
+<a href="readme.html">README</a>
+<a href="security.html">طبقات الأمان</a>
+<a href="coverage.html" class="on">تغطية الطلبات</a>
+<a href="plan.html">خطة العمل</a>
+<a href="financials.html">النموذج المالي</a>
+</div><h1 id="axon">تغطية المتطلبات — AXON</h1>
+<p>هالوثيقة بتربط <strong>كل طلب طلبتو</strong> باللي موجود فعلاً بالكود، مع الملف والدليل
+القابل للتشغيل. ما في بند "قيد التنفيذ" بلا تفسير — كل بند إما منفّذ (مع مسار
+الملف وأمر التحقق)، أو ناقص (مع شو ناقص بالضبط وليش).</p>
+<p>آخر تحقق: 2026-10-20 · <code>332 passed</code> · <code>ruff</code> نظيف · <code>axon compliance</code> 20/20 ·
+<code>axon posture</code> 9/9.</p>
+<hr />
+<h2 id="1-github">1. الطلب الأصلي: بحث GitHub عن مشاريع مربحة وبتنباع بسرعة</h2>
+<table>
+<thead>
+<tr>
+<th>الطلب</th>
+<th>الحالة</th>
+<th>الدليل</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>فوت عالغيت هوب وشوف مشاريع مربحة</td>
+<td>✅</td>
+<td><a href="data/REPORT.md"><code>data/REPORT.md</code></a> — 68 ريبو، بيانات من GitHub REST API</td>
+</tr>
+<tr>
+<td>بيانات مو تقديرات</td>
+<td>✅</td>
+<td><a href="data/github-verified-2026-10-20.json"><code>data/github-verified-2026-10-20.json</code></a> خام</td>
+</tr>
+<tr>
+<td>مين بيبيع بسرعة وليش</td>
+<td>✅</td>
+<td>جدول "مجالات بتنباع بسرعة" + أنماط الإيراد</td>
+</tr>
+<tr>
+<td>نموذج قابل للنسخ</td>
+<td>✅</td>
+<td>قسم ArtCraft — open-core (4 تطبيقات، نفس الشركة)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>النتيجة:</strong> الربح مو بالكود — بالاستضافة والدعم حوّله. أسرع 3 مجالات: وكلاء
+AI/harnesses · بدائل SaaS الرخيصة · توليد الوسائط محلياً.</p>
+<hr />
+<h2 id="2-ai">2. الطلب: خطة كاملة لمشروع وكلاء AI يكون الأقوى والأحترف</h2>
+<table>
+<thead>
+<tr>
+<th>الطلب</th>
+<th>الحالة</th>
+<th>الدليل</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>خطة كاملة ومفصلة</td>
+<td>✅</td>
+<td><a href="AXON-PLAN.md"><code>AXON-PLAN.md</code></a> — 8 أجزاء (بحث، فجوات، منتج، تسويق، مالي)</td>
+</tr>
+<tr>
+<td>بحث سوقي كبير</td>
+<td>✅</td>
+<td><a href="AXON-PLAN.md"><code>AXON-PLAN.md</code></a> §1 — 31 منافس ببيانات GitHub حقيقية</td>
+</tr>
+<tr>
+<td>ميزة قاتلة</td>
+<td>✅</td>
+<td>§2.3 — التنفيذ داخل نفس العملية (in-process) مو gateway خارجي</td>
+</tr>
+<tr>
+<td>خطة مالية</td>
+<td>✅</td>
+<td><a href="AXON-FINANCIALS.md"><code>AXON-FINANCIALS.md</code></a></td>
+</tr>
+<tr>
+<td>عرض تقديمي</td>
+<td>✅</td>
+<td><a href="AXON-PITCH.md"><code>AXON-PITCH.md</code></a> + <code>preview/AXON-Deck.pdf</code></td>
+</tr>
+<tr>
+<td>مشروع شغّال مو خطة ورقية</td>
+<td>✅</td>
+<td>كود حقيقي: 5,272 سطر Python + 332 اختبار</td>
+</tr>
+</tbody>
+</table>
+<p><strong>الفرق عن المنافسين:</strong> المنافس (gateway خارجي) بيفحص الطلب قبل ما يوصل للوكيل.
+AXON بيفحص <strong>جوا نفس العملية</strong> — السجل التدقيقي بيتكتب بنفس اللحظة اللي
+بينفّذ فيها القرار، فما في نافذة بين القرار والتسجيل يمرق منها شي.</p>
+<hr />
+<h2 id="3">3. الطلب: منظومة حماية متكاملة متعددة الطبقات</h2>
+<p>طلبت: <em>"منظومة حماية متكاملة من عدة طبقات بحيث ما في حدا يخترقلي ياه"</em>.</p>
+<p>الترتيب هون <strong>نفس ترتيب مخرجات <code>axon posture</code></strong> بالحرف. هاد مقصود: طبقة
+موصوفة بالتوثيق بس الأمر ما بيشوفها = طبقة ما حدا رح يلاحظ إنها انطفت.</p>
+<table>
+<thead>
+<tr>
+<th>الطبقة</th>
+<th>الحالة</th>
+<th>الملف</th>
+<th>شو بتوقف</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1. المصادقة</td>
+<td>✅</td>
+<td><code>security/auth.py</code></td>
+<td>توكنز مخزّنة SHA-256، مقارنة ثابتة الزمن</td>
+</tr>
+<tr>
+<td>2. الهوية الفدرالية</td>
+<td>✅</td>
+<td><code>security/oidc.py</code></td>
+<td>OIDC/JWT — رفض <code>alg:none</code> والخلط بالخوارزميات</td>
+</tr>
+<tr>
+<td>3. تحديد المعدّل</td>
+<td>✅</td>
+<td><code>security/auth.py</code> (<code>RateLimiter</code>)</td>
+<td>دلو توكنز لكل مستخدم</td>
+</tr>
+<tr>
+<td>4. منع الإعادة</td>
+<td>✅</td>
+<td><code>security/auth.py</code> (<code>ReplayGuard</code>)</td>
+<td>nonce وحيد داخل نافذة زمنية</td>
+</tr>
+<tr>
+<td>5. رؤوس الحماية</td>
+<td>✅</td>
+<td><code>security/headers.py</code></td>
+<td>CSP <code>default-src 'none'</code>، nosniff</td>
+</tr>
+<tr>
+<td>6. تشفير النقل</td>
+<td>✅</td>
+<td><code>security/tls.py</code></td>
+<td>TLS 1.2+، رفض NULL وexport</td>
+</tr>
+<tr>
+<td>7. فرض التوقيع</td>
+<td>✅</td>
+<td><code>core/signing.py</code></td>
+<td>Ed25519 لكل سجل — التعديل بيفشل التحقق</td>
+</tr>
+<tr>
+<td>8. توكنز الكناري</td>
+<td>✅</td>
+<td><code>security/canary.py</code></td>
+<td>أي ظهور = دليل تسريب</td>
+</tr>
+<tr>
+<td>9. كشف الحقن</td>
+<td>✅</td>
+<td><code>security/injection.py</code></td>
+<td>15 شكل هجوم قبل ما توصل للوكيل</td>
+</tr>
+</tbody>
+</table>
+<p><strong>التحقق الذاتي مو طبقة عاشرة</strong> — هو السبب إنو القائمة فوق موثوقة.
+<code>axon posture</code> بيفحص إعداداً حياً وبيقول لكل طبقة إذا فعلاً عم بتفرض،
+وبيسمّي كل فراغ، وبيطلع بخطأ (exit 1) إذا في طبقة مطفية.</p>
+<p><strong>الدليل الحي (شغّلتو فعلياً):</strong></p>
+<table>
+<thead>
+<tr>
+<th>الإعداد</th>
+<th>النتيجة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>توكنز محلية فقط</td>
+<td><code>6/9 layers enforcing (66.7/100)</code> — exit 1</td>
+</tr>
+<tr>
+<td>+ كناري + مفتاح تحقق</td>
+<td><code>8/9 (88.9/100)</code></td>
+</tr>
+<tr>
+<td>+ OIDC (سيرفر JWKS حي)</td>
+<td><code>9/9 layers enforcing (100.0/100)</code></td>
+</tr>
+</tbody>
+</table>
+<p>الأمر بيعترف بالفراغ بدل ما يدّعي حماية كاملة — وهاد بالضبط الفرق بين
+أداة أمنية وأداة تسويق.</p>
+<p><strong>الصدق اللي لازم يكون مكتوب:</strong> ما في نظام غير قابل للكسر. الهدف إنو الاختراق
+يكون <strong>غالي، محدود النطاق، وقابل للكشف</strong> — مو مستحيل. <code>axon posture</code> بتقول
+هالكلام بمخرجاتها هي، مو بس بالتوثيق.</p>
+<hr />
+<h2 id="4">4. الطلب: كمّل الناقص (من جدولك)</h2>
+<p>الجدول اللي عطيتني ياه مع الأولويات:</p>
+<table>
+<thead>
+<tr>
+<th>البند</th>
+<th>أولويتك</th>
+<th>الحالة</th>
+<th>الدليل</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>واجهة ويب (Dashboard)</td>
+<td>عالية</td>
+<td>✅ منفّذ</td>
+<td><code>axon/dashboard.py</code> — مصادقة إلزامية، رفض الربط العام بلا auth</td>
+</tr>
+<tr>
+<td>منسّق وكلاء متعددين</td>
+<td>عالية</td>
+<td>✅ منفّذ</td>
+<td><code>core/orchestrator.py</code> — <code>delegate()</code> بعمق محدود وميزانية مشتركة</td>
+</tr>
+<tr>
+<td>RBAC + SSO/OIDC</td>
+<td>عالية</td>
+<td>✅ منفّذ</td>
+<td><code>core/identity.py</code> (أدوار) + <code>security/oidc.py</code> (OIDC)</td>
+</tr>
+<tr>
+<td>توقيع السجل Ed25519</td>
+<td>متوسطة</td>
+<td>✅ منفّذ</td>
+<td><code>core/signing.py</code> — Ed25519، تحقق مستقل</td>
+</tr>
+<tr>
+<td>طبقة Shield/Observe/Vault</td>
+<td>حرجة للبيع</td>
+<td>✅ منفّذ (كطبقة تجارية)</td>
+<td><code>shield.py</code>, <code>observe.py</code>, <code>vault.py</code></td>
+</tr>
+<tr>
+<td>SOC 2 / ISO 27001</td>
+<td>حرجة</td>
+<td>⚠️ <strong>جزئي — بتفسير</strong></td>
+<td><code>compliance.py</code> — 20 ضابط + حزمة أدلة</td>
+</tr>
+<tr>
+<td>تكامل LangChain/CrewAI/OpenHands</td>
+<td>عالية للتبنّي</td>
+<td>✅ منفّذ</td>
+<td><code>integrations.py</code> — 3 موصّلات</td>
+</tr>
+</tbody>
+</table>
+<h3 id="soc-2-iso-27001">البند الوحيد اللي مو كامل: SOC 2 / ISO 27001</h3>
+<p>لازم أكون صريح معك بهاد البند تحديداً، لأنه أخطر بند بالجدول.</p>
+<p><strong>اللي عملتو (وهو حقيقي):</strong> <code>axon compliance</code> بيربط 20 ضابط (SOC 2 + ISO 27001)
+بملفات الكود والاختبارات اللي بتنفّذها. <code>axon compliance --evidence FILE</code>
+بيكتب حزمة فيها بصمة (digest) لكل ملف، والاختبارات اللي بتثبت كل ضابط، وحالة
+سلامة السجل. هاي الحزمة <strong>بتوفّر على المدقّق أسابيع</strong> لأنه بيعرف من وين يبدأ.</p>
+<p><strong>اللي ما عملتو (وهو مستحيل من ريبو):</strong> شهادة SOC 2 هي <strong>تقرير</strong> بتصدرو شركة
+محاسبة قانونية مرخّصة بعد ارتباط بيدقّق بالمنظمة كلها (سياسات الموارد البشرية،
+الأمن الفيزيائي، إدارة الموردين...). ما بتصدر من كود. أي حدا يقولك "عملنا
+SOC 2 بالمستودع" هو إما غلطان أو بيكذب. الحزمة نفسها بتقول هالكلام بحقل
+<code>limitations</code> تبعها — مو بس هون.</p>
+<hr />
+<h2 id="5-100">5. الطلب: كيف بيشتغل + شو ناقصو + تقييم من 100 + سعر البيع + الرابط</h2>
+<table>
+<thead>
+<tr>
+<th>الطلب</th>
+<th>الحالة</th>
+<th>وين</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>كيف بيشتغل المشروع</td>
+<td>✅</td>
+<td><code>preview/index.html</code> قسم "كيف بيشتغل" + <code>README.md</code></td>
+</tr>
+<tr>
+<td>شو ناقصو ليصير كامل</td>
+<td>✅</td>
+<td>§4 فوق + <code>preview/index.html</code> جدول الناقص</td>
+</tr>
+<tr>
+<td>تقييم من 100</td>
+<td>✅</td>
+<td><strong>80/100</strong> — <code>preview/index.html</code></td>
+</tr>
+<tr>
+<td>شقد عرض سعرو للبيع</td>
+<td>✅</td>
+<td><strong>$35K–$75K</strong> اليوم — <code>preview/index.html</code></td>
+</tr>
+<tr>
+<td>الرابط</td>
+<td>✅</td>
+<td>تحت</td>
+</tr>
+</tbody>
+</table>
+<h3 id="80100">التقييم (80/100) — التفصيل</h3>
+<table>
+<thead>
+<tr>
+<th>المعيار</th>
+<th>الدرجة</th>
+<th>السبب</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>جودة الكود</td>
+<td>85</td>
+<td>نظيف، بلا دَين تقني، بس مشروع فردي بلا مراجعة أقران</td>
+</tr>
+<tr>
+<td>الأمان</td>
+<td>91</td>
+<td>9 طبقات + 197 اختبار عدائي على سيرفر حي</td>
+</tr>
+<tr>
+<td>التوثيق</td>
+<td>93</td>
+<td>توثيق عربي + إنجليزي، أرقام من الكود نفسه</td>
+</tr>
+<tr>
+<td>السوق / التبنّي</td>
+<td>58</td>
+<td>ما في عملاء دافعين بعد — هذا أكبر ضعف</td>
+</tr>
+<tr>
+<td>الإيراد</td>
+<td>60</td>
+<td>ما في إيراد مرفق</td>
+</tr>
+<tr>
+<td>قابلية البيع</td>
+<td>90</td>
+<td>منتج متكامل، حزمة امتثال، بلا دَين تقني</td>
+</tr>
+<tr>
+<td><strong>المعدّل</strong></td>
+<td><strong>80</strong></td>
+<td>قاعدة هندسية قوية، والسوق لسّا ما انفتح</td>
+</tr>
+</tbody>
+</table>
+<p><strong>ليش مو 95+:</strong> لأن التقييم العالي بيعني "جاهز للبيع بمبلغ كبير"، وهاد مو صحيح
+بلا عملاء. الـ80 بتقول: الكود ممتاز، واللي ناقص مو كود — ناس وعقود.</p>
+<h3 id="_1">السعر</h3>
+<table>
+<thead>
+<tr>
+<th>السيناريو</th>
+<th>السعر</th>
+<th>الشرط</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>بيع الكود كـ"قاعدة"</td>
+<td>$35K–$75K</td>
+<td>مثل ما هو اليوم</td>
+</tr>
+<tr>
+<td>starter kit + دعم</td>
+<td>$50K–$120K</td>
+<td>+ توثيق نشر + جلسات</td>
+</tr>
+<tr>
+<td>شركة صغيرة (10 عملاء)</td>
+<td>$400K–$1.2M</td>
+<td>+ عقود + مهندسين</td>
+</tr>
+<tr>
+<td>Seed بـ$500K ARR</td>
+<td>$3M–$6M</td>
+<td>+ 20 شريك تصميم</td>
+</tr>
+<tr>
+<td>Series A بـ$5M ARR</td>
+<td>$25M–$45M</td>
+<td>+ فريق مبيعات</td>
+</tr>
+</tbody>
+</table>
+<p><strong>ليش السقف منخفض اليوم:</strong> الترخيص Apache-2.0 — أي حدا بينسخ الكود مجاناً.
+فاللي بيتباع فعلياً هو (1) السمعة والنجوم، (2) خريطة الامتثال وحزمة الأدلة
+اللي بتوفّر على المشتري 3–6 أشهر، (3) كود نظيف بلا دَين تقني. هذول بيسوّوا
+$35K–$75K. ما بيسوّوا مليون، لأنه ما في إيراد مرفق.</p>
+<hr />
+<h2 id="6">6. الطلب: بعتلي الرابط مشان افتح عليه</h2>
+<table>
+<thead>
+<tr>
+<th>الرابط</th>
+<th>شو فيه</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>https://work-1-crlbmrzuyhaloibb.prod-runtime.all-hands.dev/</td>
+<td>الموقع الكامل (8 صفحات)</td>
+</tr>
+<tr>
+<td>https://work-1-crlbmrzuyhaloibb.prod-runtime.all-hands.dev/security.html</td>
+<td>طبقات الأمان التسعة</td>
+</tr>
+<tr>
+<td>https://work-1-crlbmrzuyhaloibb.prod-runtime.all-hands.dev/financials.html</td>
+<td>النموذج المالي</td>
+</tr>
+<tr>
+<td>https://github.com/msy898931-boop/Ram</td>
+<td>المستودع العام (Apache-2.0)</td>
+</tr>
+</tbody>
+</table>
+<p>الموقع <strong>مولّد من الكود نفسه</strong> — <code>scripts/build_preview.py</code> بيقرأ <code>wc -l</code>،
+وبيشغّل <code>pytest</code>، وبيشغّل الـCLI فعلياً. يعني كل رقم على الصفحة تقدر تعيد
+إنتاجه بأمر واحد، مو رقم كتبتو بإيدي.</p>
+<hr />
+<h2 id="_2">شو ناقص فعلاً (بلا تجميل)</h2>
+<ol>
+<li><strong>عملاء يدفعون</strong> — هذا الفرق بين $50K و$3M. أسرع طريق: 3 شركاء تصميم
+   مجاناً على سيناريو حقيقي، بعدها حوّلهم لعقود $20K–$50K سنوياً.</li>
+<li><strong>SOC 2 فعلي</strong> — 3–6 أشهر + شركة محاسبة. الحزمة بتجهّز التدقيق، ما بتستبدلو.</li>
+<li><strong>فريق</strong> — مشروع فردي حالياً. المشتري بيشتري فريق كمان، مو كود بس.</li>
+<li><strong>ترخيص مزدوج</strong> — لو بدك تمنع النسخ التجاري، لازم طبقة تجارية منفصلة
+   بترخيص مختلف (الـShield/Observe/Vault موجودين ككود بس بنفس الترخيص).</li>
+</ol></div></body></html>

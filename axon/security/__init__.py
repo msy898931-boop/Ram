@@ -1,5 +1,5 @@
-"""Layer 1-5: authentication, federated identity, rate limiting, replay
-defence, and transport encryption.
+"""Layers 1-6: authentication, federated identity, rate limiting, replay
+defence, security headers, and transport encryption.
 
 AXON's policy engine decides what an *agent* may do. This package decides who
 may reach AXON at all, how often, and over what transport. The two are

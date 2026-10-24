@@ -44,6 +44,7 @@ img{max-width:100%}
 <a href="deck.html">العرض التقديمي</a>
 <a href="readme.html" class="on">README</a>
 <a href="security.html">طبقات الأمان</a>
+<a href="coverage.html">تغطية الطلبات</a>
 <a href="plan.html">خطة العمل</a>
 <a href="financials.html">النموذج المالي</a>
 </div><div align="center">
@@ -277,10 +278,10 @@ See <code>axon/core/audit.py</code> and <code>axon/core/signing.py</code>.</p>
 └── cli.py               # run / audit / shield / observe / compliance / dashboard
 </code></pre>
 <h2 id="security">Security</h2>
-<p>AXON defends itself in depth. Nine layers, ordered by what an attacker
-reaches first: authentication, federated identity, rate limiting, replay
-defence, transport encryption, security headers, injection detection,
-canary tokens, and self-verification.</p>
+<p>AXON defends itself in depth. Nine layers, in the order <code>axon posture</code>
+reports them: authentication, federated identity, rate limiting, replay
+defence, security headers, transport encryption, signature enforcement,
+canary tokens, and injection detection.</p>
 <pre><code class="language-bash">axon token create --name operator --role operator --out tokens.yaml
 axon canary honey-db --out canaries.txt
 axon posture --tokens tokens.yaml --canaries canaries.txt   # per-layer status

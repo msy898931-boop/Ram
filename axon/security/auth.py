@@ -1,4 +1,4 @@
-"""Layer 1: authentication. Layer 2: rate limiting. Layer 3: replay defence.
+"""Layer 1: authentication. Layer 3: rate limiting. Layer 4: replay defence.
 
 Why these live together: all three answer the question *"should this request
 be allowed to reach the router at all?"* and all three must run before any
@@ -166,7 +166,7 @@ class Authenticator:
 
 
 # --------------------------------------------------------------------------
-# Layer 2 — rate limiting
+# Layer 3 — rate limiting
 # --------------------------------------------------------------------------
 
 
@@ -228,7 +228,7 @@ class RateLimiter:
 
 
 # --------------------------------------------------------------------------
-# Layer 3 — replay defence
+# Layer 4 — replay defence
 # --------------------------------------------------------------------------
 
 

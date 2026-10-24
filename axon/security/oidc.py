@@ -1,4 +1,4 @@
-"""Layer 1b: OIDC/SSO bearer tokens — federation instead of local tokens.
+"""Layer 2: OIDC/SSO bearer tokens — federation instead of local tokens.
 
 Why this exists next to the local token store: `axon token create` is the
 right answer for one operator on one box, and the wrong answer for an

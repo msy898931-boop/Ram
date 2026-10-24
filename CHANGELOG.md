@@ -7,8 +7,9 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 ## [Unreleased]
 
 ### Added
-- **Nine-layer security stack** (`axon/security/`). Defence in depth,
-  ordered by what an attacker reaches first:
+- **Nine-layer security stack** (`axon/security/`). Defence in depth, listed
+  in the order `axon posture` reports them, because a layer the command
+  cannot see is a layer nobody notices going off:
   1. **Authentication** — bearer tokens stored as SHA-256 digests, compared in
      constant time with no early exit, so response timing does not reveal
      which token matched.
@@ -21,20 +22,25 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
      back at a window boundary.
   4. **Replay defence** — single-use nonce inside a bounded timestamp window;
      the HMAC covers method, path, timestamp, nonce, and body digest.
-  5. **Transport encryption** — in-process TLS termination, so the transport
+  5. **Security headers** — `default-src 'none'` CSP, `frame-ancestors 'none'`,
+     nosniff, no-referrer, applied to error responses as well as successes.
+  6. **Transport encryption** — in-process TLS termination, so the transport
      is a control `axon posture` can see. TLS 1.2 floor, NULL and
      export-grade ciphers refused, HSTS sent, cert/key pair checked at startup.
-  6. **Security headers** — `default-src 'none'` CSP, `frame-ancestors 'none'`,
-     nosniff, no-referrer, applied to error responses as well as successes.
-  7. **Injection detection** — 15 named attack shapes scanned against tool
-     output before it reaches the agent, with explicit negation handling so a
-     policy statement is not read as an order.
+  7. **Signature enforcement** — Ed25519 over each ledger record. Append-only
+     is a property of the writer, not the file; a rewritten entry fails
+     verification instead of being read as fact.
   8. **Canary tokens** — random tripwire values that authenticate nothing, so
      any appearance is proof of exfiltration. The ledger records a
      fingerprint and redacted context, never the value.
-  9. **Self-verification** — `axon posture` reports per layer whether it is
-     actually enforcing, names every gap, and exits non-zero when any is off.
-     An empty canary file counts as a gap, not as enforcement.
+  9. **Injection detection** — 15 named attack shapes scanned against tool
+     output before it reaches the agent, with explicit negation handling so a
+     policy statement is not read as an order.
+
+  Self-verification is not a tenth layer: it is why the list can be trusted.
+  `axon posture` reports per layer whether it is actually enforcing, names
+  every gap, and exits non-zero when any is off. An empty canary file counts
+  as a gap, not as enforcement.
 - **Fail-closed dashboard.** The dashboard refuses to bind a non-loopback
   address without an authenticator, and `/healthz` is the only unauthenticated
   route. This closes a real exposure: the ledger was previously served

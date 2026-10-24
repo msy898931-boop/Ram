@@ -49,13 +49,14 @@ NAV = """<div class="nav">
 <a href="deck.html"{d}>العرض التقديمي</a>
 <a href="readme.html"{m}>README</a>
 <a href="security.html"{s}>طبقات الأمان</a>
+<a href="coverage.html"{c}>تغطية الطلبات</a>
 <a href="plan.html"{p}>خطة العمل</a>
 <a href="financials.html"{f}>النموذج المالي</a>
 </div>"""
 
 
 def page(title, body, on=""):
-    flags = dict.fromkeys("irdmpfs", "")
+    flags = dict.fromkeys("irdmpfsc", "")
     flags[on] = ' class="on"'
     return f"""<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -143,18 +144,22 @@ verify: FAILED — tampered record 2</code></pre>
 بريئاً (الإنذارات الخاطئة مختبرة مثل الهجمات). والداشبورد الحي يرفض النشر
 العام بلا مصادقة — ثغرة حقيقية كانت موجودة وأُغلقت.</p>
 <pre><code>$ axon posture --tokens tokens.yaml --canaries canaries.txt --pubkey pub.hex \
-    --tls-cert tls.crt --tls-key tls.key --oidc-issuer https://idp.example.com
+    --tls-cert tls.crt --tls-key tls.key \
+    --oidc-issuer https://idp.example.com --oidc-audience axon-dashboard
 posture: 9/9 layers enforcing (100.0/100)
   [ON ] authentication: 1 local token(s), enabled=True
-  [ON ] federated identity: federated to https://idp.example.com (1 key(s))
+  [ON ] federated identity: federated to https://idp.example.com (remote key(s), audience=axon-dashboard)
   [ON ] rate limiting: token bucket, per principal (built in)
   [ON ] replay defence: nonce + timestamp window (built in)
   [ON ] security headers: CSP, X-Frame-Options, nosniff, no-referrer (built in)
-  [ON ] transport: TLS terminated in-process (sha256 91:F0:42:...:E3:90)
+  [ON ] transport: TLS terminated in-process (sha256 D9:16:A3:7F:...:39:19:6B)
   [ON ] signature enforcement: public key supplied
   [ON ] canaries: 1 tripwire(s) loaded
   [ON ] injection detection: prompt-injection scanner available (axon scan)
 honest reading: this is defence in depth, not immunity.</code></pre>
+<p>نفس الأمر بالتوكنز المحلية بس (بلا OIDC ولا كناري ولا TLS) بيطلع
+<b>6/9 (66.7/100)</b> وبيطلع بكود خطأ <code>1</code>، وبيسمّي الفراغات:
+هوية فدرالية، فرض توقيع، كناري. الأمر بيعترف بالناقص بدل ما يدّعي حماية كاملة.</p>
 
 <h2>شو لسّا ناقص ليصير كامل؟</h2>
 <table>
@@ -226,6 +231,9 @@ OIDC/TLS مدمجين وخريطة امتثال وحزمة أدلة جاهزة �
 (OUT / "readme.html").write_text(md("README.md", "README", "m"), encoding="utf-8")
 (OUT / "security.html").write_text(
     md("docs/SECURITY-LAYERS.md", "طبقات الأمان", "s"), encoding="utf-8"
+)
+(OUT / "coverage.html").write_text(
+    md("docs/REQUIREMENTS-COVERAGE.md", "تغطية الطلبات", "c"), encoding="utf-8"
 )
 (OUT / "plan.html").write_text(md("AXON-PLAN.md", "خطة العمل", "p"), encoding="utf-8")
 (OUT / "financials.html").write_text(md("AXON-FINANCIALS.md", "النموذج المالي", "f"), encoding="utf-8")

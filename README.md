@@ -166,10 +166,10 @@ axon/
 
 ## Security
 
-AXON defends itself in depth. Nine layers, ordered by what an attacker
-reaches first: authentication, federated identity, rate limiting, replay
-defence, transport encryption, security headers, injection detection,
-canary tokens, and self-verification.
+AXON defends itself in depth. Nine layers, in the order `axon posture`
+reports them: authentication, federated identity, rate limiting, replay
+defence, security headers, transport encryption, signature enforcement,
+canary tokens, and injection detection.
 
 ```bash
 axon token create --name operator --role operator --out tokens.yaml
@@ -233,6 +233,7 @@ See [CHANGELOG.md](CHANGELOG.md) for what shipped and what is next.
 
 - [Full business plan](AXON-PLAN.md)
 - [Security layers: what each one stops, and what it does not](docs/SECURITY-LAYERS.md)
+- [Requirements coverage: every request mapped to code, and what is still missing](docs/REQUIREMENTS-COVERAGE.md)
 - [Financial model](AXON-FINANCIALS.md)
 - [Investor pitch + speaker notes](AXON-PITCH.md)
 - [Pitch deck (interactive)](pitch/axon-deck.html)

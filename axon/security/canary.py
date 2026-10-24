@@ -1,4 +1,4 @@
-"""Layer 6: canary tokens — detection of secret exfiltration after the fact.
+"""Layer 8: canary tokens — detection of secret exfiltration after the fact.
 
 The honest premise: you cannot stop a determined attacker from eventually
 reading something they should not. What you *can* do is guarantee that you

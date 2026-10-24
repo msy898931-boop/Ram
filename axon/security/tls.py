@@ -1,4 +1,4 @@
-"""Layer 5: transport security — TLS termination inside the dashboard.
+"""Layer 6: transport security — TLS termination inside the dashboard.
 
 Why this is a layer and not a deployment note: the previous posture check
 reported transport as OFF and told the operator to "use TLS in front of
