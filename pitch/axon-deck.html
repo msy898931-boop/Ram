@@ -4,6 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>AXON — طبقة الحكم المؤسسية لوكلاء AI</title>
+<meta name="description" content="AXON — control plane for AI agents: policy enforcement, tamper-evident audit, cost caps, model-agnostic runtime.">
+<meta property="og:title" content="AXON — Enterprise control plane for AI agents">
+<meta property="og:description" content="Deny-by-default policy, tamper-evident audit ledger, hard cost caps. Seed deck, 15 slides.">
+<meta property="og:type" content="website">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%2305080d'/%3E%3Ctext x='16' y='23' font-family='monospace' font-size='19' font-weight='700' fill='%2300e5a0' text-anchor='middle'%3EA%3C/text%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;800;900&family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -306,8 +311,9 @@ tr.us td.em{color:var(--signal)}
         <div class="term">
           <div class="bar"><i></i><i></i><i></i><span>axon run --provider anthropic</span></div>
           <pre><span class="w">$ axon run "summarise the incident" \</span>
-<span class="w">      --provider anthropic --model claude-sonnet --budget 0.5</span>
-{ <span class="g">"provider"</span>: <span class="g">"anthropic"</span>, <span class="g">"model"</span>: <span class="g">"claude-sonnet"</span>,
+<span class="w">    --provider anthropic --budget 0.5</span>
+{ <span class="g">"provider"</span>: <span class="g">"anthropic"</span>,
+  <span class="g">"model"</span>: <span class="g">"claude-sonnet"</span>,
   <span class="g">"cost_usd"</span>: 0.0192, <span class="g">"denied"</span>: 0 }
 
 <span class="w">$ axon audit --ledger ./audit.jsonl</span>
