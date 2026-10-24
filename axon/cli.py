@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import sys
 from pathlib import Path
 
@@ -22,6 +23,15 @@ from .providers import ProviderError, available_providers, default_provider, get
 DEFAULT_POLICY = Path(__file__).resolve().parent / "policies" / "default.yaml"
 DEFAULT_IDENTITIES = Path(__file__).resolve().parent / "policies" / "identities.yaml"
 DEFAULT_KEY = Path("./axon-signing.key")
+# Containers mount the ledger as a volume, so the path has to be
+# configurable without editing the compose command. A hardcoded default
+# silently wrote the ledger inside the container and lost it on exit.
+# Resolved at call time so the environment is read after import.
+DEFAULT_LEDGER = "./axon-audit.jsonl"
+
+
+def _default_ledger() -> str:
+    return os.getenv("AXON_LEDGER", DEFAULT_LEDGER)
 
 # Exit codes 0-7 are already spoken for (see AGENTS.md). This one means the
 # command exists but its BUSL-1.1 module is not installed, which is a
@@ -611,7 +621,7 @@ def build_parser() -> argparse.ArgumentParser:
     r.add_argument("--provider", default=None,
                    help=f"one of: {', '.join(available_providers())} (default: auto-detect)")
     r.add_argument("--budget", type=float, default=1.0)
-    r.add_argument("--ledger", default="./axon-audit.jsonl")
+    r.add_argument("--ledger", default=_default_ledger())
     r.add_argument("--policy", default=None)
     r.add_argument("--tool", action="append", help="name=target (repeatable)")
     r.add_argument("--key", default=None,
@@ -626,7 +636,7 @@ def build_parser() -> argparse.ArgumentParser:
     m.set_defaults(func=cmd_models)
 
     a = sub.add_parser("audit", help="verify and print the audit ledger")
-    a.add_argument("--ledger", default="./axon-audit.jsonl")
+    a.add_argument("--ledger", default=_default_ledger())
     a.add_argument("--pubkey", default=None,
                    help="auditor's public key; enforces that every record is signed by it")
     a.add_argument("--key", default=None, help=argparse.SUPPRESS)
@@ -644,7 +654,7 @@ def build_parser() -> argparse.ArgumentParser:
     i.set_defaults(func=cmd_identities)
 
     d = sub.add_parser("dashboard", help="serve the governance dashboard")
-    d.add_argument("--ledger", default="./axon-audit.jsonl")
+    d.add_argument("--ledger", default=_default_ledger())
     d.add_argument("--host", default="127.0.0.1")
     d.add_argument("--port", type=int, default=8080)
     d.add_argument("--pubkey", default=None,
@@ -708,7 +718,7 @@ def build_parser() -> argparse.ArgumentParser:
     sh.set_defaults(func=cmd_shield)
 
     ob = sub.add_parser("observe", help="print cost, risk, and integrity analytics")
-    ob.add_argument("--ledger", default="./axon-audit.jsonl")
+    ob.add_argument("--ledger", default=_default_ledger())
     ob.add_argument("--pubkey", default=None)
     ob.set_defaults(func=cmd_observe)
 
@@ -717,12 +727,12 @@ def build_parser() -> argparse.ArgumentParser:
     cp.add_argument("--json", action="store_true", help="print the full mapping as JSON")
     cp.add_argument("--evidence", default=None, metavar="FILE",
                     help="write an auditor evidence pack (not a SOC 2 report)")
-    cp.add_argument("--ledger", default="./axon-audit.jsonl",
+    cp.add_argument("--ledger", default=_default_ledger(),
                     help="ledger to include integrity state for in --evidence")
     cp.set_defaults(func=cmd_compliance)
 
     o = sub.add_parser("export-otel", help="export the ledger as OpenTelemetry spans")
-    o.add_argument("--ledger", default="./axon-audit.jsonl")
+    o.add_argument("--ledger", default=_default_ledger())
     o.set_defaults(func=cmd_export_otel)
 
     c = sub.add_parser("policy-check", help="test a single policy decision")

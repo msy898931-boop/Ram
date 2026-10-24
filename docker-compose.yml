@@ -1,7 +1,7 @@
 services:
   axon:
     build: .
-    image: axon-agents:0.1.0
+    image: axon-agents:0.2.0
     volumes:
       - ./audit:/var/axon/audit
     environment:

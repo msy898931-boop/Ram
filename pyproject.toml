@@ -15,7 +15,12 @@ keywords = ["ai-agents", "governance", "audit", "llm", "security", "compliance"]
 dependencies = ["pyyaml>=6.0"]
 
 [project.optional-dependencies]
-dev = ["pytest>=7.0", "ruff>=0.6"]
+# `cryptography` is not needed to *run* AXON — the RSA verifier is
+# hand-rolled — but it is needed to test it, and a security layer whose tests
+# silently skip is a security layer nobody has verified. It is in `dev` so
+# that CI, which installs `.[dev]`, cannot go green with 39 OIDC tests
+# skipped. `scripts/check_skips.py` fails the build if any test skips.
+dev = ["pytest>=7.0", "ruff>=0.6", "cryptography>=42.0"]
 # `scripts/build_preview.py` converts the Markdown docs into the preview site
 # that the Pages workflow publishes.
 pages = ["markdown>=3.5"]

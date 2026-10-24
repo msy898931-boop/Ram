@@ -8,9 +8,9 @@
 
 ### تقنياً
 - [x] نواة شغّالة (runtime + policy + audit + budget).
-- [x] 128 اختبار ناجح (`pytest -q`).
+- [x] 360 اختبار ناجح (`pytest -q`) — صفر تخطي (`scripts/check_skips.py`).
 - [x] CLI (`axon run / audit / policy-check / export-otel`).
-- [x] عرض توضيحي (`examples/demo.py`).
+- [x] عرض توضيحي (`examples/demo.py`) — 6 مشاهد، آخرها كشف التلاعب.
 - [x] ترخيص مزدوج: Apache-2.0 للمحرك + BUSL-1.1 للطبقة التجارية (`NOTICE`).
 - [ ] صورة/شعار + GIF توضيحي للـREADME.
 - [ ] موقع بسيط (axon.dev) بصفحة هبوط + docs.

@@ -10,7 +10,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from axon.core.audit import AuditLedger
-from axon.core.budget import Budget, BudgetExceeded
+from axon.core.budget import Budget, BudgetExceeded, format_usd
 from axon.core.policy import PolicyEngine
 from axon.core.providers import MockProvider
 from axon.core.runtime import AgentRuntime
@@ -64,13 +64,20 @@ def main():
         agent_id="loop-agent",
         ledger=ledger,
         policy=PolicyEngine.from_yaml(POLICY),
-        budget=Budget(limit_usd=0.000001),
+        budget=Budget(limit_usd=0.01),
         provider=MockProvider(),
     )
+    # A real loop, not a single call: the point of a cap is what it does to an
+    # agent that keeps going, and a one-shot demo cannot show that.
+    calls = 0
     try:
-        tight.run("loop forever", model="claude-sonnet")
+        while True:
+            tight.think("keep going", model="claude-sonnet")
+            calls += 1
     except BudgetExceeded as exc:
-        print(f"  \033[1;31mSTOPPED:\033[0m {exc}")
+        print(f"  \033[1;31mSTOPPED\033[0m after {calls} model calls")
+        print(f"  {exc}")
+        print(f"  remaining budget: {format_usd(tight.budget.remaining)}")
 
     banner("5. Auditor verifies the tamper-evident ledger")
     ok, msg = ledger.verify()

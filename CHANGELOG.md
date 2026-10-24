@@ -6,6 +6,26 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [Unreleased]
 
+### Fixed
+- **The ledger is no longer lost inside a container.** `docker-compose.yml`
+  set `AXON_LEDGER` but nothing read it, so `docker compose up` wrote the
+  audit trail to the container's own filesystem and discarded it on exit —
+  a governed run whose evidence vanished contradicts the product's central
+  claim. `--ledger` now defaults to `AXON_LEDGER`, with an explicit flag
+  still winning. Covered by two CLI tests.
+- **The image no longer ships the commercial code without its license.**
+  The `Dockerfile` copied only `LICENSE`, so a pulled image contained the
+  BUSL-1.1 modules but neither `LICENSE-COMMERCIAL` nor `NOTICE`. Anyone
+  distributing that image distributed the code without its terms.
+- The demo's cost-cap scene printed `budget cap $0.0000 exceeded` because a
+  flat `:.4f` renders sub-cent amounts as zero, and it stopped after two
+  model calls rather than showing a runaway loop. It now runs a real loop
+  and reports `STOPPED after N model calls`.
+- CI could pass while skipping tests: 39 OIDC/JWT tests were silently
+  skipped when `cryptography` was absent, so the security layer was never
+  executed. `cryptography` is now a test dependency and
+  `scripts/check_skips.py` fails the build on any skip.
+
 ### Changed
 - **Dual licensing, split by file.** The core (`axon/core/`, `axon/security/`,
   `axon/providers/`, `axon/cli.py`) stays Apache-2.0. The commercial modules

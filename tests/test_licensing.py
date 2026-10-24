@@ -30,6 +30,40 @@ def _source_files():
         yield from ROOT.glob(pattern)
 
 
+# The commercial modules, as import names. Deleting the files is not enough:
+# `pip install -e .` leaves a finder on `sys.meta_path` that resolves `axon`
+# from the source tree regardless of `PYTHONPATH`, so a copied-and-pruned
+# sandbox still imports the real commercial code and the test passes when it
+# should fail. Blocking the names directly is both simpler and honest — it
+# reproduces "this module is not installed" for any install method.
+_BLOCKER = (
+    "import sys\n"
+    "BLOCKED = {blocked!r}\n"
+    "class _Block:\n"
+    "    def find_module(self, name, path=None):\n"
+    "        return self if name in BLOCKED else None\n"
+    "    def find_spec(self, name, path=None, target=None):\n"
+    "        if name in BLOCKED:\n"
+    "            raise ModuleNotFoundError(\n"
+    "                f'No module named {{name!r}}', name=name)\n"
+    "        return None\n"
+    "sys.meta_path.insert(0, _Block())\n"
+    "from axon.cli import main\n"
+    "sys.exit(main())\n"
+)
+
+
+def _run_cli(*args, block=()):
+    """Run the CLI with the given commercial modules made unimportable."""
+    import subprocess
+    import sys
+
+    return subprocess.run(
+        [sys.executable, "-c", _BLOCKER.format(blocked=list(block)), *args],
+        cwd=ROOT, capture_output=True, text=True, timeout=120,
+    )
+
+
 def _header(path, lines=8):
     """Only the top of the file. An identifier quoted inside an assertion is
     prose, not a declaration, and must not be read as one."""
@@ -123,31 +157,18 @@ def test_the_core_imports_do_not_require_a_commercial_module():
     )
 
 
-def test_paid_commands_degrade_cleanly_when_not_installed(tmp_path):
-    """Deleting the commercial modules must not produce a traceback.
+
+
+def test_paid_commands_degrade_cleanly_when_not_installed():
+    """An absent commercial module must not produce a traceback.
 
     This is the state an open-core-only user is in by definition, so it is the
     one state that has to look intentional. A bare ModuleNotFoundError naming
     an internal path reads like a broken install, not like a paid tier.
     """
-    import shutil
-    import subprocess
-    import sys
-
-    sandbox = tmp_path / "opencore"
-    shutil.copytree(
-        ROOT, sandbox,
-        ignore=shutil.ignore_patterns(".git", "__pycache__", "*.egg-info", ".venv"),
-    )
-    for rel in COMMERCIAL:
-        (sandbox / rel).unlink()
-
-    env = {"PYTHONPATH": str(sandbox), "PATH": "/usr/bin:/bin"}
+    blocked = [f"axon.{name}" for name in ("compliance", "shield", "observe")]
     for command in ("compliance", "shield", "observe"):
-        proc = subprocess.run(
-            [sys.executable, "-m", "axon.cli", command],
-            cwd=sandbox, capture_output=True, text=True, env=env, timeout=120,
-        )
+        proc = _run_cli(command, block=blocked)
         combined = proc.stdout + proc.stderr
         assert "Traceback" not in combined, (
             f"`axon {command}` crashed without its commercial module:\n{combined}"
@@ -159,42 +180,40 @@ def test_paid_commands_degrade_cleanly_when_not_installed(tmp_path):
         assert "commercial module" in combined
 
 
-def test_the_open_core_still_governs_without_the_paid_half(tmp_path):
-    """The core promise must survive deleting the commercial files.
+def test_the_open_core_still_governs_without_the_paid_half():
+    """The core promise must survive the commercial modules being absent.
 
     If policy enforcement or the audit ledger only worked with the paid half
     present, the license split would be marketing rather than architecture.
     """
-    import shutil
-    import subprocess
-    import sys
+    blocked = [f"axon.{name}" for name in
+               ("compliance", "shield", "observe", "vault", "dashboard", "integrations")]
 
-    sandbox = tmp_path / "opencore"
-    shutil.copytree(
-        ROOT, sandbox,
-        ignore=shutil.ignore_patterns(".git", "__pycache__", "*.egg-info", ".venv"),
-    )
-    for rel in COMMERCIAL:
-        (sandbox / rel).unlink()
-
-    env = {"PYTHONPATH": str(sandbox), "PATH": "/usr/bin:/bin"}
-
-    denied = subprocess.run(
-        [sys.executable, "-m", "axon.cli", "policy-check",
-         "tool.read_file", "--target", "/home/x/secrets/k"],
-        cwd=sandbox, capture_output=True, text=True, env=env, timeout=120,
-    )
+    denied = _run_cli("policy-check", "tool.read_file",
+                      "--target", "/home/x/secrets/k", block=blocked)
     assert denied.returncode == 3, "deny-by-default stopped working without the paid half"
 
-    ran = subprocess.run(
-        [sys.executable, "-m", "axon.cli", "run", "task",
-         "--provider", "mock", "--budget", "0.5"],
-        cwd=sandbox, capture_output=True, text=True, env=env, timeout=120,
-    )
+    ran = _run_cli("run", "task", "--provider", "mock", "--budget", "0.5", block=blocked)
     assert ran.returncode == 0, f"a governed run failed:\n{ran.stdout}{ran.stderr}"
 
-    verified = subprocess.run(
-        [sys.executable, "-m", "axon.cli", "audit", "--ledger", "axon-audit.jsonl"],
-        cwd=sandbox, capture_output=True, text=True, env=env, timeout=120,
-    )
+    verified = _run_cli("audit", "--ledger", "axon-audit.jsonl", block=blocked)
     assert "chain intact" in verified.stdout
+
+
+def test_the_docker_image_copies_every_license_file():
+    """The image ships the BUSL-1.1 modules, so it must ship their terms.
+
+    A COPY line that lists only `LICENSE` distributes commercial code without
+    `LICENSE-COMMERCIAL` or `NOTICE`, which is the one packaging mistake a
+    license split cannot survive. Checked on the Dockerfile text because
+    building an image is too slow and too environment-dependent for a unit
+    test, and the omission is a one-line fact.
+    """
+    dockerfile = (ROOT / "Dockerfile").read_text(encoding="utf-8")
+    copy_lines = [ln for ln in dockerfile.splitlines() if ln.strip().startswith("COPY")]
+    copied = " ".join(copy_lines)
+    for needed in ("LICENSE", "LICENSE-COMMERCIAL", "NOTICE"):
+        assert needed in copied, (
+            f"Dockerfile never copies {needed}; the image would ship the "
+            f"commercial modules without their license terms. COPY lines: {copy_lines}"
+        )

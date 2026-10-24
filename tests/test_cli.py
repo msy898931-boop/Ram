@@ -110,3 +110,20 @@ def test_compliance_command_maps_every_control(workspace, capsys):
     total = len(CONTROLS)
     assert f"{total}/{total} controls" in out
     assert "FAIL" not in out
+
+
+def test_ledger_path_follows_the_environment(workspace, monkeypatch, capsys):
+    """A container sets AXON_LEDGER; ignoring it wrote the ledger into the
+    container filesystem and lost the audit trail on exit."""
+    monkeypatch.setenv("AXON_LEDGER", "./from-env.jsonl")
+    code, _ = _run(["run", "task"], capsys)
+    assert code == 0
+    assert (workspace / "from-env.jsonl").exists()
+
+
+def test_explicit_ledger_flag_beats_the_environment(workspace, monkeypatch, capsys):
+    monkeypatch.setenv("AXON_LEDGER", "./from-env.jsonl")
+    code, _ = _run(["run", "task", "--ledger", "./explicit.jsonl"], capsys)
+    assert code == 0
+    assert (workspace / "explicit.jsonl").exists()
+    assert not (workspace / "from-env.jsonl").exists()

@@ -17,6 +17,21 @@ class BudgetExceeded(Exception):
     pass
 
 
+def format_usd(amount: float) -> str:
+    """Money with enough precision to be honest about small amounts.
+
+    A flat `:.4f` renders a $0.000001 cap as `$0.0000`, so the message reads
+    "budget cap $0.0000 exceeded" — which looks like a broken cap rather than
+    a tight one, and is the first thing a visitor to the demo sees. Four
+    decimals where that suffices, six where it does not.
+    """
+    if amount == 0:
+        return "$0.00"
+    if abs(amount) < 0.01:
+        return f"${amount:.6f}"
+    return f"${amount:.4f}"
+
+
 @dataclass
 class Budget:
     limit_usd: float
@@ -32,6 +47,7 @@ class Budget:
     def check(self, next_estimate: float = 0.0) -> None:
         if self.spent_usd + next_estimate > self.limit_usd:
             raise BudgetExceeded(
-                f"budget cap ${self.limit_usd:.4f} exceeded "
-                f"(spent ${self.spent_usd:.4f}, next ${next_estimate:.4f})"
+                f"budget cap {format_usd(self.limit_usd)} exceeded "
+                f"(spent {format_usd(self.spent_usd)}, "
+                f"next {format_usd(next_estimate)})"
             )
